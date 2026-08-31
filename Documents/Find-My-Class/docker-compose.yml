@@ -1,0 +1,34 @@
+services:
+  backend:
+    build: ./backend
+    container_name: naviu_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres_db
+      - DB_USER=uag_admin
+      - DB_PASSWORD=secret_password
+      - DB_NAME=findmyclass_db
+      - DB_PORT=5432
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: naviu_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: uag_admin
+      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: findmyclass_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
