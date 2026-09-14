@@ -3,6 +3,11 @@ const cors = require('cors');
 const pool = require('./config/db');
 require('dotenv').config();
 
+// Importar rutas
+const edificioRoutes = require('./routes/edificioRoutes');
+const categoriaRoutes = require('./routes/categoriaRoutes');
+const servicioRoutes = require('./routes/servicioRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -10,7 +15,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Ruta Health Check
+// Montar rutas de la API
+app.use('/api/edificios', edificioRoutes);
+app.use('/api/categorias', categoriaRoutes);
+app.use('/api/servicios', servicioRoutes);
+
+// Health Check
 app.get('/api/health', async (req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
@@ -26,5 +36,5 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(` Servidor corriendo en puerto ${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
