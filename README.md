@@ -66,7 +66,7 @@ Abre tu navegador o Postman en: http://localhost:3000/api/health
 🗺️ Roadmap de Desarrollo
 [x] Semana 3: Configuración del entorno base con Docker, Express y PostgreSQL.
 
-[ ] Semana 4-5: Diseños de base de datos (Entidad-Relación) y migración de tablas.
+[x] Semana 4-5: Diseños de base de datos (Entidad-Relación) y migración de tablas.
 
 [ ] Semana 6-8: Desarrollo de endpoints REST para aulas, rutas y categorías.
 
