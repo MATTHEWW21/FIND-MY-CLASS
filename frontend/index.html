@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Mapa Interactivo UAG</title>
+    <!-- CSS de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="top-bar">
+    <h1>FIND MY CLASS</h1>
+</header>
+
+<!-- Buscador flotante -->
+<div class="search-container">
+    <input type="text" id="searchInput" placeholder="Buscar edificio o aula..." />
+</div>
+
+<!-- Contenedor del Mapa -->
+<div id="map"></div>
+
+<!-- Tarjeta del Edificio (Bottom Sheet) -->
+<div id="buildingCard" class="building-card hidden">
+    <div class="card-header">
+        <h2 id="cardTitle">Nombre del Edificio</h2>
+        <button id="closeCardBtn">&times;</button>
+    </div>
+    <div class="card-body">
+        <p id="cardDescription">Descripción del lugar.</p>
+        <div class="card-info">
+            <span>⏱️ <strong id="cardTime">5 min</strong></span>
+            <span>🚶 <strong id="cardDistance">350 m</strong></span>
+        </div>
+        <button id="startRouteBtn" class="btn-primary">IR / EMPEZAR RUTA</button>
+    </div>
+</div>
+
+<!-- Leaflet JS y Scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script src="js/search.js"></script>
+</body>
+</html>
