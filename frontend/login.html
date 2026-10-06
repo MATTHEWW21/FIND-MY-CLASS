@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Iniciar Sesión</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons para los íconos de sobre y candado -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<main class="welcome-container">
+    <!-- Logo en la parte superior -->
+    <div class="logo-container margin-top-10">
+        <img src="assets/logo-naviU.png" alt="NaviU Logo" class="login-logo-img">
+    </div>
+
+    <!-- Título principal -->
+    <header class="header-text center-align">
+        <h1 class="login-title">Inicia sesión con tu<br>correo Institucional</h1>
+    </header>
+
+    <!-- Formulario de Inicio de Sesión -->
+    <form id="form-login" class="login-form-container">
+        <!-- Input Correo con Ícono -->
+        <div class="input-icon-wrapper">
+            <i data-lucide="mail" class="input-icon"></i>
+            <input type="email" id="login-email" placeholder="Ingresa correo institucional" required class="pill-input-icon">
+        </div>
+
+        <!-- Input Contraseña con Ícono -->
+        <div class="input-icon-wrapper">
+            <i data-lucide="lock" class="input-icon"></i>
+            <input type="password" id="login-password" placeholder="Ingresa contraseña" required class="pill-input-icon">
+        </div>
+
+        <!-- Botón de Recuperación / "¿Olvidaste tu contraseña?" -->
+        <div class="forgot-password-box">
+            <a href="forgot-password.html" class="forgot-password-btn">
+                <span>¿Olvidaste tu contraseña?</span><br>
+                <strong>Recupérala aquí</strong>
+            </a>
+        </div>
+
+        <!-- Botón Continuar -->
+        <div class="footer-action margin-top-auto">
+            <button type="submit" class="btn-primary">Continuar</button>
+        </div>
+    </form>
+</main>
+
+<script src="js/login.js"></script>
+<script>
+    // Inicializar íconos de Lucide
+    lucide.createIcons();
+</script>
+</body>
+</html>

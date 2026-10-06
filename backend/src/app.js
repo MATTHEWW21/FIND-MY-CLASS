@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const pool = require('./config/db');
 require('dotenv').config();
 
@@ -14,6 +15,9 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Servir los archivos estáticos del frontend para abrirlos desde el cel o navegador
+app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Montar rutas de la API
 app.use('/api/edificios', edificioRoutes);
@@ -35,6 +39,7 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+// IMPORTANTE: Agregamos '0.0.0.0' para escuchar en toda la red local
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
 });

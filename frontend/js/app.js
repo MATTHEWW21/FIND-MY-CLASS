@@ -1,17 +1,29 @@
-// Referencias UI a la Tarjeta de Edificio
-const buildingCard = document.getElementById('buildingCard');
-const cardTitle = document.getElementById('cardTitle');
-const cardDescription = document.getElementById('cardDescription');
-const closeCardBtn = document.getElementById('closeCardBtn');
+document.addEventListener('DOMContentLoaded', () => {
+    const roleButtons = document.querySelectorAll('.role-btn');
+    const btnContinuar = document.getElementById('btn-continuar');
+    let selectedRole = null; // Inicia sin ninguna selección
 
-// Función global para mostrar la tarjeta con los datos del edificio
-function showBuildingCard(data) {
-    cardTitle.textContent = data.nombre;
-    cardDescription.textContent = data.descripcion || 'Edificio/Aula del campus';
-    buildingCard.classList.remove('hidden');
-}
+    roleButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remueve el estilo activo de todos los botones
+            roleButtons.forEach(btn => btn.classList.remove('active'));
 
-// Evento para cerrar la tarjeta
-closeCardBtn.addEventListener('click', () => {
-    buildingCard.classList.add('hidden');
+            // Le agrega el estilo activo únicamente al botón presionado
+            button.classList.add('active');
+            selectedRole = button.dataset.role;
+        });
+    });
+
+    if (btnContinuar) {
+        btnContinuar.addEventListener('click', () => {
+            // Validación opcional: verificar que haya seleccionado un rol antes de avanzar
+            if (!selectedRole) {
+                alert('Por favor selecciona una opción antes de continuar.');
+                return;
+            }
+
+            localStorage.setItem('selectedRole', selectedRole);
+            window.location.href = 'register.html';
+        });
+    }
 });
