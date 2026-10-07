@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Propósitos</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<main class="welcome-container onboarding-layout">
+    <!-- Título Superior -->
+    <header class="header-text center-align margin-top-10">
+        <h1 class="onboarding-title">¿Qué busca<br>FIND MY CLASS?</h1>
+    </header>
+
+    <!-- Carrusel Deslizable -->
+    <div class="carousel-wrapper">
+        <div class="carousel-track" id="carousel-track">
+
+            <!-- Tarjeta 1: ACCESIBILIDAD -->
+            <div class="carousel-slide">
+                <div class="onboarding-card">
+                    <h2 class="card-title">ACCESIBILIDAD</h2>
+                    <div class="card-image-box">
+                        <img src="assets/onboarding-accessibility.png" alt="Accesibilidad" class="card-img">
+                    </div>
+                    <p class="card-description">
+                        Rutas accesibles para todos los estudiantes sin excepciones
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: ORIENTACIÓN -->
+            <div class="carousel-slide">
+                <div class="onboarding-card">
+                    <h2 class="card-title">Orientación</h2>
+                    <div class="card-image-box">
+                        <img src="assets/onboarding-orientation.png" alt="Orientación" class="card-img">
+                    </div>
+                    <p class="card-description">
+                        Ubicación exacta de aulas y servicios
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: SUSTENTABILIDAD -->
+            <div class="carousel-slide">
+                <div class="onboarding-card">
+                    <h2 class="card-title">Sustentabilidad</h2>
+                    <div class="card-image-box">
+                        <img src="assets/onboarding-sustainability.png" alt="Sustentabilidad" class="card-img">
+                    </div>
+                    <p class="card-description">
+                        Movilidad sustentable y beneficios de caminar
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Indicador de Páginas / Barra de Progreso -->
+    <div class="indicator-bar">
+        <span class="indicator-pill active" data-index="0"></span>
+        <span class="indicator-pill" data-index="1"></span>
+        <span class="indicator-pill" data-index="2"></span>
+    </div>
+
+    <!-- Botón de Acción -->
+    <footer class="footer-action">
+        <button type="button" id="btn-next" class="btn-primary">Continuar</button>
+    </footer>
+</main>
+
+<script src="js/onboarding.js"></script>
+</body>
+</html>

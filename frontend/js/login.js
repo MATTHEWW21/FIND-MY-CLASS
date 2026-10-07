@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('userLoggedIn', 'true');
                 localStorage.setItem('userEmail', email);
 
-                // Redirigir a la vista principal / mapa
-                window.location.href = 'index.html'; // O la pantalla principal de la app
+                // Redirigir al onboarding de propósitos antes del mapa
+                window.location.href = 'onboarding.html';
             } else {
                 alert('Por favor, ingresa tu correo y contraseña.');
             }

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Preferencias</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<main class="welcome-container scrollable">
+    <!-- Título Principal -->
+    <header class="header-text center-align margin-top-10">
+        <h1 class="preferences-title">Preferencias</h1>
+    </header>
+
+    <section class="preferences-form">
+        <!-- Sección Rutas Accesibles -->
+        <div class="accessibility-section">
+            <span class="section-title-pill">¿Necesitas rutas accesibles?</span>
+
+            <!-- Tarjeta Naranja Informativa -->
+            <div class="info-card">
+                Evita escaleras y rutas adaptadas para silla de ruedas
+            </div>
+
+            <!-- Botones Sí / No (Sin selección por defecto) -->
+            <div class="toggle-buttons">
+                <button type="button" class="btn-option" id="btn-accessible-yes">Si, la necesito</button>
+                <button type="button" class="btn-option" id="btn-accessible-no">No, gracias</button>
+            </div>
+        </div>
+
+        <!-- Desplegable: Edificio Habitual -->
+        <div class="dropdown-group">
+            <div class="custom-select-container">
+                <div class="select-field" id="select-building-trigger">
+                    <span class="select-label">• Edificio Habitual</span>
+                    <span class="select-arrow">▼</span>
+                </div>
+                <select id="select-building" class="hidden-select">
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="Edificio A">Edificio A</option>
+                    <option value="Edificio B">Edificio B</option>
+                    <option value="Edificio C">Edificio C</option>
+                    <option value="Edificio D">Edificio D</option>
+                    <option value="Edificio E">Edificio E</option>
+                </select>
+            </div>
+
+            <!-- Desplegable: ¿Qué estudias? -->
+            <div class="custom-select-container">
+                <div class="select-field" id="select-career-trigger">
+                    <span class="select-label">• ¿Que estudias?</span>
+                    <span class="select-arrow">▼</span>
+                </div>
+                <select id="select-career" class="hidden-select">
+                    <option value="" disabled selected>Selecciona tu carrera</option>
+                    <option value="Ingeniería en Software">Ingeniería en Software</option>
+                    <option value="Ingeniería Civil">Ingeniería Civil</option>
+                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
+                    <option value="Medicina">Medicina</option>
+                    <option value="Arquitectura">Arquitectura</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Botón de Continuar -->
+    <footer class="footer-action margin-top-auto">
+        <button type="button" id="btn-save" class="btn-primary-submit">Guardar y Continuar</button>
+    </footer>
+</main>
+
+<script src="js/preferences.js"></script>
+<script>
+    lucide.createIcons();
+</script>
+</body>
+</html>
