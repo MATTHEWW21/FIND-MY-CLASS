@@ -1,0 +1,164 @@
+/* Reset básico para evitar desbordamientos */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #e8e8e8; /* Fondo detrás del marco móvil si se ve en PC */
+}
+
+/* Contenedor principal estilo pantalla móvil */
+.map-screen-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    background-color: #f7f4ed;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Encabezado */
+.map-header {
+    padding: 12px 16px;
+    background: #ffffff;
+    text-align: center;
+    border-bottom: 1px solid #e0d8c8;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.map-header h1 {
+    font-size: 1.3rem;
+    color: #2b2b2b;
+    margin: 0;
+    font-family: serif;
+    letter-spacing: 1px;
+}
+
+/* Buscador Flotante */
+.map-search-bar {
+    position: absolute;
+    top: 60px;
+    left: 5%;
+    width: 90%;
+    z-index: 1000;
+    background: #fdfaf3;
+    border: 2px solid #a87948;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.map-search-bar input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    margin: 0 8px;
+    font-weight: 600;
+    color: #5c3d1e;
+    font-size: 0.85rem;
+}
+
+/* Chips de Filtros */
+.filter-chips {
+    position: absolute;
+    top: 110px;
+    left: 5%;
+    width: 90%;
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.filter-chips::-webkit-scrollbar {
+    display: none;
+}
+
+.chip {
+    background: #ffffff;
+    border: 1.5px solid #cca374;
+    border-radius: 14px;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #5c3d1e;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+/* Mapa Leaflet adaptativo */
+#map {
+    flex: 1;
+    width: 100%;
+    min-height: 250px;
+    z-index: 1;
+}
+
+/* Tarjeta Inferior de Esquema General */
+.static-map-card {
+    background: #ffffff;
+    padding: 10px 16px;
+    border-top: 1px solid #e0d8c8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.static-map-card h3 {
+    font-size: 0.8rem;
+    color: #4a3b2c;
+    margin: 0;
+    font-weight: bold;
+    max-width: 55%;
+}
+
+.static-map-card img {
+    width: 90px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #d4c4b0;
+}
+
+/* Barra de Navegación Inferior (Ajustada al marco) */
+.map-screen-container .bottom-nav {
+    position: relative; /* Evita que use position fixed global */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #fdf8f2;
+    border-top: 1px solid #e0d8c8;
+    padding: 8px 0;
+    z-index: 10;
+    flex-shrink: 0;
+}
+
+.map-screen-container .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #a87948;
+    font-size: 0.65rem;
+    font-weight: bold;
+}
+
+.map-screen-container .nav-item svg {
+    margin-bottom: 2px;
+}

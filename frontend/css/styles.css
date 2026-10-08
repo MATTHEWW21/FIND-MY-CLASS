@@ -1019,3 +1019,158 @@ body.feed-body {
 .nav-item.active {
     color: #c8632d;
 }
+/* ==========================================
+   TUTORIAL GUIADO / OVERLAY (tutorial.js)
+   ========================================== */
+
+/* Contenedor principal del overlay */
+.tutorial-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+    padding: 20px;
+    transition: opacity 0.3s ease;
+    /* IMPORTANTE: Permite hacer clic en los elementos resaltados por debajo */
+    pointer-events: none;
+}
+
+/* Botón Omitir arriba a la derecha */
+.tutorial-skip-btn {
+    position: absolute;
+    top: 60px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    z-index: 1015;
+    pointer-events: auto; /* Reactiva interacción */
+}
+
+/* Tarjeta central del tutorial */
+.tutorial-card {
+    position: relative;
+    z-index: 1010 !important;
+    background-color: rgba(18, 18, 18, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 16px 18px;
+    border-radius: 14px;
+    max-width: 310px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    transition: margin 0.3s ease, align-self 0.3s ease;
+    pointer-events: auto; /* Reactiva interacción */
+}
+
+.tutorial-text {
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.35;
+    margin: 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    white-space: pre-line;
+}
+
+/* POSICIONAMIENTO DINÁMICO DE LA TARJETA */
+.tutorial-card.pos-top {
+    margin-top: 100px;
+    align-self: flex-start;
+}
+
+.tutorial-card.pos-center {
+    align-self: center;
+}
+
+.tutorial-card.pos-bottom {
+    margin-bottom: 58px;
+    align-self: flex-end;
+}
+
+/* RESALTADO DINÁMICO (MARCO ROJO) */
+.step-highlight {
+    position: relative !important;
+    z-index: 1005 !important;
+    outline: 3px solid #ff3b30 !important;
+    outline-offset: 4px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(255, 59, 48, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    pointer-events: auto !important; /* Permite interacción con el elemento destacado */
+}
+
+/* Ocultar tutorial al finalizar */
+.tutorial-overlay.hidden {
+    display: none !important;
+}
+
+/* Permite que los íconos de la barra inferior no se corten */
+.bottom-nav {
+    overflow: visible !important;
+    z-index: 999;
+}
+
+/* Regla especial para los items de la barra de navegación resaltados */
+.bottom-nav .step-highlight {
+    position: relative !important;
+    z-index: 1005 !important;
+    outline: 3px solid #ff3b30 !important;
+    outline-offset: 3px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 0 16px rgba(255, 59, 48, 0.9) !important;
+    background-color: rgba(255, 59, 48, 0.15) !important;
+}
+
+/* ==========================================
+   BARRA ACCIONES SUPERIORES (FEED)
+   ========================================== */
+
+.top-actions {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* Botón base / Inactivo (Gris) */
+.action-btn,
+a.action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #e07a41; /* En estado normal o inactivo se ve gris */
+    font-size: 0.75rem;
+    font-weight: bold;
+    transition: color 0.2s ease;
+}
+
+.action-btn svg,
+a.action-btn svg {
+    margin-bottom: 4px;
+}
+
+/* Botón Activo (Color Naranja / Terracota) */
+.action-btn.active,
+a.action-btn.active {
+    color: #e07a41;
+}

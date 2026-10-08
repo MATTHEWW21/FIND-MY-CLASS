@@ -51,7 +51,7 @@ Find-My-Class/
 ├── frontend/           # Interfaz de usuario Mobile-First (v1.0 MVP)
 │   ├── assets/         # Logotipos y recursos gráficos
 │   ├── css/            # Hoja de estilos unificada (styles.css)
-│   ├── js/             # Scripts de validación y navegación (app.js, register.js, etc.)
+│   ├── js/             # Scripts de validación y navegación (app.js, registro.js, etc.)
 │   ├── index.html      # Selección de Rol
 │   ├── register.html   # Registro de usuario (Flujo unificado + validación en vivo)
 │   ├── verify.html     # Verificación por código institucional

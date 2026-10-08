@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Registro de Actividad</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/registro.css">
+</head>
+<body>
+
+<main class="registro-container">
+
+    <!-- Encabezado -->
+    <header class="registro-header">
+        <h1>FIND MY CLASS</h1>
+    </header>
+
+    <!-- Ícono Superior de Actividad Dinámico -->
+    <div class="activity-icon-main" id="activity-main-icon">
+        <!-- Ícono por defecto: Caminata -->
+        <svg id="main-svg" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="2.5"/>
+            <path d="m9 20 3-6 3 6"/>
+            <path d="m6 9 6 1 6-1"/>
+            <path d="M12 10v4"/>
+        </svg>
+    </div>
+
+    <!-- Contador Principal -->
+    <div class="timer-section">
+        <div class="timer-display" id="timer">00:00:00</div>
+        <span class="timer-label">DURACIÓN</span>
+    </div>
+
+    <!-- Métricas -->
+    <div class="metrics-grid">
+        <div class="metric-item">
+            <span class="metric-value" id="distancia">00.00</span>
+            <span class="metric-label">DISTANCIA (KM)</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-value" id="calorias">0</span>
+            <span class="metric-label">CALORÍAS</span>
+        </div>
+        <div class="metric-item">
+            <span class="metric-value" id="velocidad">00:00</span>
+            <span class="metric-label">VELOCIDAD PROMEDIO</span>
+        </div>
+    </div>
+
+    <!-- Botón SOS -->
+    <div class="sos-wrapper">
+        <button class="sos-btn" id="btn-sos">
+            <span>SOS</span>
+        </button>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Selector de Modos (Ícono de correr actualizado) -->
+    <div class="activity-selector">
+        <button class="selector-btn active" data-mode="caminata" title="Caminata">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/>
+            </svg>
+        </button>
+        <button class="selector-btn" data-mode="carrera" title="Carrera">
+            <!-- Nuevo ícono estilizado de runner -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="15" cy="4" r="2"/><path d="M7 21l3-4 2 1 3 4"/><path d="M11 13l-2-2 3-3 4 2 3-2"/><path d="M14 8l-2 5"/>
+            </svg>
+        </button>
+        <button class="selector-btn" data-mode="bicicleta" title="Bicicleta">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2l1.5 4.5"/><path d="M12 17.5V14l-3-4 4-3.5 3 3"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Botón Comenzar -->
+    <div class="start-action-wrapper">
+        <button class="start-btn" id="btn-comenzar">
+            <div class="start-btn-content">
+                <span class="start-title">COMENZAR</span>
+                <span class="start-subtitle" id="selected-activity-text">CAMINATA</span>
+            </div>
+            <svg class="start-arrow" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navegación Inferior (Color ajustado) -->
+    <nav class="bottom-nav">
+        <a href="feed.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>INICIO</span>
+        </a>
+        <a href="registro.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
+            <span>REGISTRO</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <span>MENSAJES</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>PERFIL</span>
+        </a>
+    </nav>
+
+</main>
+
+<script src="js/registro.js"></script>
+</body>
+</html>
