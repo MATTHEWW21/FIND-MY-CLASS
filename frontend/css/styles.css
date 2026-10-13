@@ -1023,7 +1023,7 @@ body.feed-body {
    TUTORIAL GUIADO / OVERLAY (tutorial.js)
    ========================================== */
 
-/* Contenedor principal del overlay */
+/* Overlay oscuro */
 .tutorial-overlay {
     position: absolute;
     top: 0;
@@ -1039,31 +1039,32 @@ body.feed-body {
     user-select: none;
     padding: 20px;
     transition: opacity 0.3s ease;
-    pointer-events: auto !important;
 }
 
-/* Botón Omitir dentro del contenedor móvil */
-.tutorial-skip-btn,
-#skip-tutorial-btn {
-    position: absolute !important;
-    top: 14px !important;
-    right: 18px !important;
-    z-index: 10010 !important;
-    background: rgba(0, 0, 0, 0.55) !important;
-    color: #ffffff !important;
-    padding: 5px 12px !important;
-    border-radius: 16px !important;
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    cursor: pointer !important;
-    border: none !important;
-    pointer-events: auto !important;
+.tutorial-overlay.hidden {
+    display: none !important;
 }
 
-/* Tarjeta central del tutorial */
+/* Botón Omitir */
+.tutorial-skip-btn {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    z-index: 10010;
+    background: rgba(0, 0, 0, 0.55);
+    color: #ffffff;
+    padding: 5px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+}
+
+/* Tarjeta del tutorial */
 .tutorial-card {
     position: relative;
-    z-index: 1010 !important;
+    z-index: 1010;
     background-color: rgba(18, 18, 18, 0.92);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -1071,10 +1072,9 @@ body.feed-body {
     border-radius: 14px;
     max-width: 310px;
     text-align: center;
-    border: 1px solid rgb(255, 255, 255);
+    border: 1px solid #ffffff;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    transition: margin 0.3s ease, align-self 0.3s ease;
-    pointer-events: auto;
+    transition: margin 0.3s ease;
 }
 
 .tutorial-text {
@@ -1087,7 +1087,7 @@ body.feed-body {
     white-space: pre-line;
 }
 
-/* POSICIONAMIENTO DINÁMICO DE LA TARJETA */
+/* Posición de la tarjeta */
 .tutorial-card.pos-top {
     margin-top: 100px;
     align-self: flex-start;
@@ -1102,11 +1102,8 @@ body.feed-body {
     align-self: flex-end;
 }
 
-/* RESALTADO DINÁMICO (MARCO ROJO Y FONDO BLANCO SÓLIDO) */
-.step-highlight,
-.action-btn.step-highlight,
-.nav-item.step-highlight,
-a.step-highlight {
+/* Elemento resaltado: blanco con marco rojo */
+.step-highlight {
     position: relative !important;
     z-index: 10005 !important;
     outline: 3px solid #ff3b30 !important;
@@ -1115,38 +1112,40 @@ a.step-highlight {
     box-shadow: 0 0 16px rgba(255, 59, 48, 0.85) !important;
     background: #ffffff !important;
     padding: 6px 10px !important;
-    pointer-events: auto !important;
+    pointer-events: none !important; /* el click pasa al overlay y avanza el paso */
     transition: all 0.2s ease;
 }
 
-/* Forzar fondo blanco en botones de la barra superior al resaltar */
-.top-actions .action-btn.step-highlight,
-a.action-btn.step-highlight {
-    background-color: #ffffff !important;
-    background: #ffffff !important;
-    border-radius: 10px !important;
-}
-
-/* Ocultar tutorial al finalizar */
-.tutorial-overlay.hidden {
-    display: none !important;
-}
-
-/* Permite que la barra inferior contenga los destacados sin cortarlos */
+/* ---- Barra inferior ---- */
 .bottom-nav {
-    overflow: visible !important;
-    z-index: 999;
+    overflow: visible;
 }
 
-/* Regla especial para los ítems de la barra inferior */
-.bottom-nav .step-highlight,
-.bottom-nav .nav-item.step-highlight {
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 12px !important;
-    background: #ffffff !important;
-    box-shadow: 0 0 16px rgb(255, 59, 48) !important;
+/* Cuando el paso resalta un botón de la barra inferior,
+   la barra sube por encima del overlay */
+.bottom-nav.nav-above {
+    z-index: 1000 !important;
+    pointer-events: none;
 }
+
+/* Capa oscura propia para que el resto de la barra se vea apagado */
+.bottom-nav.nav-above::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* El botón resaltado queda sobre esa capa oscura */
+.bottom-nav.nav-above .step-highlight {
+    z-index: 10005 !important;
+    background: #ffffff !important;
+    padding: 4px 8px !important;
+    outline-offset: 2px !important;
+}
+
 /* ==========================================
    BARRA ACCIONES SUPERIORES (FEED)
    ========================================== */
@@ -1159,7 +1158,6 @@ a.action-btn.step-highlight {
     padding: 10px 0;
 }
 
-/* Botón base / Inactivo (Gris) */
 .action-btn,
 a.action-btn {
     display: flex;
@@ -1170,7 +1168,7 @@ a.action-btn {
     background: transparent;
     border: none;
     cursor: pointer;
-    color: #e07a41; /* En estado normal o inactivo se ve gris */
+    color: #e07a41;
     font-size: 0.75rem;
     font-weight: bold;
     transition: color 0.2s ease;
@@ -1181,7 +1179,6 @@ a.action-btn svg {
     margin-bottom: 4px;
 }
 
-/* Botón Activo (Color Naranja / Terracota) */
 .action-btn.active,
 a.action-btn.active {
     color: #e07a41;

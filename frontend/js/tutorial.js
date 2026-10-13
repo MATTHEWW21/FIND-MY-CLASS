@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tutorialCard = document.getElementById('tutorial-card');
     const tutorialText = document.getElementById('tutorial-text');
     const skipBtn = document.getElementById('btn-skip-tutorial');
+    const bottomNav = document.querySelector('.bottom-nav');
 
     // Pasos del tutorial con posición dinámica de la tarjeta
     const tutorialSteps = [
@@ -23,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             text: "Muestra el perfil del usuario, la fecha y el deporte junto a sus métricas clave (distancia, calorías, tiempo) y su mapa o fotos.\n\nEn la parte inferior incluye botones para reaccionar ('me gusta'), comentar y desplegar opciones (compartir, reportar o guardar).",
-            target: ".post-card:first-child",
+            target: ".feed-container .post-card",
             position: "bottom"
         },
         {
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.step-highlight').forEach(el => {
             el.classList.remove('step-highlight');
         });
+        if (bottomNav) bottomNav.classList.remove('nav-above');
         tutorialCard.classList.remove('pos-top', 'pos-bottom', 'pos-center');
     }
 
@@ -76,6 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const targetElement = document.querySelector(stepData.target);
                 if (targetElement) {
                     targetElement.classList.add('step-highlight');
+
+                    // Si el target vive en la barra inferior, súbela sobre el overlay
+                    if (bottomNav && bottomNav.contains(targetElement)) {
+                        bottomNav.classList.add('nav-above');
+                    }
                 }
             }
         } else {
@@ -83,24 +90,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // EVENTO DE PANTALLA COMPLETA
+    // Clic en cualquier parte avanza de paso
     if (overlay) {
         overlay.addEventListener('click', (e) => {
-            // Verificar si el clic fue en el botón de Omitir (o dentro de él)
             if (skipBtn && (e.target === skipBtn || skipBtn.contains(e.target))) {
-                return; // No avanzar, el evento propio de skipBtn se encargará
+                return;
             }
-
-            // Clic en cualquier otra parte de la pantalla avanza de paso
             currentStep++;
             updateStep();
         });
     }
 
-    // EVENTO EXCLUSIVO BOTÓN OMITIR
+    // Botón Omitir
     if (skipBtn) {
         skipBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Detener propagación para no avanzar paso al cerrar
+            e.stopPropagation();
             closeTutorial();
         });
     }
