@@ -16,64 +16,145 @@
         <h1>FIND MY CLASS</h1>
     </header>
 
-    <!-- Sub-header de Publicación -->
-    <div class="sub-header">
-        <button class="btn-icon close-btn" id="btn-close" aria-label="Cerrar">✕</button>
-        <span class="sub-header-title">NUEVA PUBLICACIÓN</span>
-        <button class="btn-text next-btn" id="btn-next">NEXT</button>
+    <!-- ================= PASO 1: SELECCIÓN DE FOTO ================= -->
+    <div id="step-photo-select">
+        <!-- Sub-header de Publicación -->
+        <div class="sub-header">
+            <button class="btn-icon close-btn" id="btn-close" aria-label="Cerrar">✕</button>
+            <span class="sub-header-title">NUEVA PUBLICACIÓN</span>
+            <button class="btn-text next-btn" id="btn-next">NEXT</button>
+        </div>
+
+        <!-- Preview Principal -->
+        <section class="media-preview-container">
+            <img src="assets/uag-campus.jpg" alt="Recorrido Campus UAG" class="main-preview-img">
+
+            <svg class="route-overlay-svg" viewBox="0 0 200 120" preserveAspectRatio="none">
+                <path d="M 30,90 Q 70,30 110,65 T 180,20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+
+            <button class="activity-badge-btn" id="open-activity-modal" title="Cambiar Actividad">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/></svg>
+            </button>
+
+            <div class="preview-metrics-banner">
+                <div class="activity-name-tag" id="display-activity-name">CAMINATA</div>
+                <div class="metrics-row">
+                    <div class="m-col">
+                        <span class="m-val" id="display-dist">2.00 KM</span>
+                        <span class="m-lbl">DISTANCIA</span>
+                    </div>
+                    <div class="m-col">
+                        <span class="m-val" id="display-dur">00:22:35</span>
+                        <span class="m-lbl">DURACIÓN</span>
+                    </div>
+                    <div class="m-col">
+                        <span class="m-val" id="display-cal">125</span>
+                        <span class="m-lbl">CALORÍAS</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galería (2x4) -->
+        <section class="gallery-grid">
+            <div class="gallery-item active"><img src="assets/uag-campus.jpg" alt="Foto 1"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 2"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 3"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 4"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 5"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 6"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 7"></div>
+            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 8"></div>
+        </section>
     </div>
 
-    <!-- Preview Principal de la Foto con Overlay -->
-    <section class="media-preview-container">
-        <!-- Imagen principal del campus/recorrido -->
-        <img src="assets/uag-campus.jpg" alt="Recorrido Campus UAG" class="main-preview-img">
+    <!-- ================= PASO 2: FINALIZAR PUBLICACIÓN ================= -->
+    <div id="step-publish-details" class="hidden">
+        <!-- Sub-header de Finalizar -->
+        <div class="sub-header">
+            <button class="btn-icon back-btn" id="btn-back-step">←</button>
+            <span class="sub-header-title">FINALIZAR PUBLICACIÓN</span>
+            <button class="btn-publish" id="btn-publish">PUBLICAR</button>
+        </div>
 
-        <!-- Trazo Blanco de la Ruta Superpuesto -->
-        <svg class="route-overlay-svg" viewBox="0 0 200 120" preserveAspectRatio="none">
-            <path d="M 30,90 Q 70,30 110,65 T 180,20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+        <div class="publish-details-container">
+            <!-- Preview Cuadrado de la Foto Elegida -->
+            <div class="publish-card-preview">
+                <img src="assets/uag-campus.jpg" alt="Foto a publicar" class="selected-publish-img" id="selected-publish-img">
 
-        <!-- Badge Flotante de Actividad (Tap para abrir selector) -->
-        <button class="activity-badge-btn" id="open-activity-modal" title="Cambiar Actividad">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="5" r="2.5"/>
-                <path d="m9 20 3-6 3 6"/>
-                <path d="m6 9 6 1 6-1"/>
-                <path d="M12 10v4"/>
-            </svg>
-        </button>
+                <!-- Badge Circular de Actividad -->
+                <div class="publish-badge-icon">🚶</div>
 
-        <!-- Banner Inferior de Métricas de la Foto -->
-        <div class="preview-metrics-banner">
-            <div class="activity-name-tag" id="display-activity-name">CAMINATA</div>
-            <div class="metrics-row">
-                <div class="m-col">
-                    <span class="m-val" id="display-dist">2.00 KM</span>
-                    <span class="m-lbl">DISTANCIA</span>
+                <!-- Overlay de Métricas -->
+                <div class="publish-overlay-stats">
+                    <div class="stat-item">
+                        <strong>2.80 KM</strong>
+                        <span>DISTANCIA</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>00:32:25</strong>
+                        <span>DURACIÓN</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>125</strong>
+                        <span>CALORÍAS</span>
+                    </div>
                 </div>
-                <div class="m-col">
-                    <span class="m-val" id="display-dur">00:22:35</span>
-                    <span class="m-lbl">DURACIÓN</span>
+            </div>
+
+            <!-- Campo de Texto / Pie de foto -->
+            <div class="caption-input-box">
+                <textarea placeholder="Escribe un comentario o pie de foto..." maxlength="250"></textarea>
+            </div>
+
+            <!-- Sección Añadir Detalles -->
+            <div class="details-list-section">
+                <h4 class="details-section-title">AÑADIR DETALLES</h4>
+
+                <div class="details-item">
+                    <div class="details-left">
+                        <span class="detail-icon">👥</span>
+                        <span>Etiquetar Personas</span>
+                    </div>
+                    <span class="arrow">›</span>
                 </div>
-                <div class="m-col">
-                    <span class="m-val" id="display-cal">125</span>
-                    <span class="m-lbl">CALORÍAS</span>
+
+                <div class="details-item">
+                    <div class="details-left">
+                        <span class="detail-icon">📍</span>
+                        <div class="detail-text-col">
+                            <span>Añadir Ubicación</span>
+                            <small>UAG State University</small>
+                        </div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+
+                <div class="details-item">
+                    <div class="details-left">
+                        <span class="detail-icon">🔒</span>
+                        <div class="detail-text-col">
+                            <span>Privacidad de la Publicación</span>
+                            <small>Todos</small>
+                        </div>
+                    </div>
+                    <span class="arrow">›</span>
+                </div>
+
+                <div class="details-item switch-item">
+                    <div class="details-left">
+                        <span class="detail-icon">📈</span>
+                        <span>Mostrar Estadística</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider round"></span>
+                    </label>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Galería de Selección de Fotos (2x4) -->
-    <section class="gallery-grid">
-        <div class="gallery-item active"><img src="assets/uag-campus.jpg" alt="Foto 1"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 2"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 3"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 4"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 5"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 6"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 7"></div>
-        <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 8"></div>
-    </section>
+    </div>
 
     <!-- Navegación Inferior -->
     <nav class="bottom-nav">
@@ -95,7 +176,7 @@
         </a>
     </nav>
 
-    <!-- Modal Desplegable: Seleccionar Actividad (Pantalla 2) -->
+    <!-- Modal Desplegable (Pop-over) -->
     <div class="modal-overlay hidden" id="activity-modal">
         <div class="activity-popover">
             <div class="popover-arrow"></div>

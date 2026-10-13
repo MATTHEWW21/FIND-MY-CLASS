@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find My Class - Feed</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/feed.css">
 </head>
 <body class="feed-body">
 
@@ -17,7 +18,7 @@
 
     <!-- Sub-header de Navegación Rápida -->
     <div class="top-actions">
-        <!-- Botón MAPAS (Con enlace directo a mapa.html) -->
+        <!-- Botón MAPAS -->
         <a href="mapa.html" class="action-btn active" id="btn-mapas" style="text-decoration: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon">
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/>
@@ -40,16 +41,21 @@
     <!-- Contenido Principal: Feed de Publicaciones -->
     <main class="feed-container">
 
-        <!-- Publicación 1 -->
+        <!-- CONTENEDOR DINÁMICO PARA PUBLICACIÓN NUEVA -->
+        <div id="new-post-container"></div>
+
+        <h3 class="feed-section-title" style="margin: 12px 14px 6px 14px; font-size: 0.9rem; font-weight: 800; color: #333;">Feed de la Comunidad</h3>
+
+        <!-- Publicación Existente 1 -->
         <article class="post-card">
             <div class="post-header">
                 <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120" alt="Matias Fernández" class="user-avatar">
                 <div class="user-info">
                     <h3 class="user-name">Matias Fernández</h3>
                     <span class="post-time">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
-                            Hoy, 3:45 PM
-                        </span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
+                        Hoy, 3:45 PM
+                    </span>
                 </div>
             </div>
 
@@ -100,48 +106,19 @@
             </div>
         </article>
 
-        <!-- Publicación 2 -->
-        <article class="post-card">
-            <div class="post-header">
-                <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120" alt="Ángel Orozco" class="user-avatar">
-                <div class="user-info">
-                    <h3 class="user-name">Ángel Orozco</h3>
-                    <span class="post-time">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="inline-icon"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.5v2"/></svg>
-                            Hoy, 8:22 AM
-                        </span>
-                </div>
-            </div>
-
-            <h2 class="activity-title">Caminata en la mañana</h2>
-
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <span class="metric-label">Distancia</span>
-                    <span class="metric-value">1.2 km</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Calorías</span>
-                    <span class="metric-value">85</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Tiempo</span>
-                    <span class="metric-value">15 min</span>
-                </div>
-            </div>
-        </article>
-
     </main>
 
     <!-- Barra de Navegación Inferior (Bottom Nav) -->
     <nav class="bottom-nav">
-        <a href="#" id="nav-inicio" class="nav-item active">
+        <a href="feed.html" id="nav-inicio" class="nav-item active">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>INICIO</span>
         </a>
-        <a href="registro.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
-            <span>REGISTRO</span>
+        <a href="registro.html" class="nav-item" id="nav-iniciar-ruta">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+                <path d="M5 3l14 9-14 9V3z"/>
+            </svg>
+            <span>INICIAR RUTA</span>
         </a>
         <a href="#" id="nav-mensajes" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
@@ -153,9 +130,7 @@
         </a>
     </nav>
 
-    <!-- ===================================================================
-         OVERLAY DEL TUTORIAL GUIADO
-         =================================================================== -->
+    <!-- Overlay del Tutorial -->
     <div id="tutorial-overlay" class="tutorial-overlay">
         <button type="button" id="btn-skip-tutorial" class="tutorial-skip-btn">Omitir</button>
         <div id="tutorial-card" class="tutorial-card">
@@ -165,6 +140,8 @@
 
 </div>
 
+<!-- Carga de Scripts -->
+<script src="js/feed.js"></script>
 <script src="js/tutorial.js"></script>
 </body>
 </html>

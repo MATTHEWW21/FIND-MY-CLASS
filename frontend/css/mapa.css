@@ -1,20 +1,29 @@
-/* Reset básico para evitar desbordamientos */
+/* ==========================================
+   RESET Y ESTRUCTURA GENERAL
+   ========================================== */
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #e8e8e8; /* Fondo detrás del marco móvil si se ve en PC */
+    background-color: #e8e8e8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-/* Contenedor principal estilo pantalla móvil */
+/* Contenedor Marco Móvil */
 .map-screen-container {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    max-width: 480px;
+    width: 100%;
+    max-width: 430px;
     margin: 0 auto;
     position: relative;
     background-color: #f7f4ed;
@@ -22,38 +31,52 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Encabezado */
+/* Header Fijo */
 .map-header {
-    padding: 12px 16px;
+    padding: 14px 16px;
     background: #ffffff;
     text-align: center;
     border-bottom: 1px solid #e0d8c8;
-    z-index: 10;
-    flex-shrink: 0;
+    z-index: 100;
 }
 
 .map-header h1 {
-    font-size: 1.3rem;
-    color: #2b2b2b;
-    margin: 0;
-    font-family: serif;
+    font-size: 1.4rem;
+    color: #1a1a1a;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 700;
     letter-spacing: 1px;
+}
+
+/* ==========================================
+   MAPA LEAFLET Y ELEMENTOS FLOTANTES
+   ========================================== */
+#map {
+    position: absolute;
+    top: 52px;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(100% - 112px);
+    z-index: 1;
 }
 
 /* Buscador Flotante */
 .map-search-bar {
     position: absolute;
-    top: 60px;
-    left: 5%;
-    width: 90%;
-    z-index: 1000;
+    top: 66px;
+    left: 4%;
+    width: 92%;
+    z-index: 500;
     background: #fdfaf3;
     border: 2px solid #a87948;
     border-radius: 25px;
     display: flex;
     align-items: center;
-    padding: 6px 14px;
+    padding: 8px 14px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
 }
 
 .map-search-bar input {
@@ -62,22 +85,23 @@ body {
     outline: none;
     width: 100%;
     margin: 0 8px;
-    font-weight: 600;
-    color: #5c3d1e;
-    font-size: 0.85rem;
+    font-weight: 800;
+    color: #4a3e31;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+    pointer-events: none;
 }
 
-/* Chips de Filtros */
+/* Chips Filtros Rápido */
 .filter-chips {
     position: absolute;
-    top: 110px;
-    left: 5%;
-    width: 90%;
-    z-index: 1000;
+    top: 118px;
+    left: 4%;
+    width: 92%;
+    z-index: 500;
     display: flex;
     gap: 8px;
     overflow-x: auto;
-    padding-bottom: 4px;
 }
 
 .filter-chips::-webkit-scrollbar {
@@ -85,68 +109,617 @@ body {
 }
 
 .chip {
-    background: #ffffff;
-    border: 1.5px solid #cca374;
-    border-radius: 14px;
-    padding: 6px 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: #5c3d1e;
+    background: #fdfaf3;
+    border: 1.5px solid #a87948;
+    border-radius: 18px;
+    padding: 6px 14px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #4a3e31;
     white-space: nowrap;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
 }
 
-/* Mapa Leaflet adaptativo */
-#map {
-    flex: 1;
+/* ==========================================
+   ESTRUCTURA BASE DE PANELES DESPLEGABLES
+   ========================================== */
+.route-panel-overlay {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
     width: 100%;
-    min-height: 250px;
-    z-index: 1;
+    max-height: 65vh;
+    background-color: #fdf8f2;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+    padding: 12px 18px 18px 18px;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 600;
+    overflow-y: auto;
+    transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+    box-sizing: border-box;
 }
 
-/* Tarjeta Inferior de Esquema General */
-.static-map-card {
+.route-panel-overlay.hidden {
+    transform: translateY(120%);
+}
+
+.panel-handle {
+    width: 36px;
+    height: 4px;
+    background-color: #d8c2aa;
+    border-radius: 2px;
+    margin: 0 auto 10px auto;
+}
+
+/* ==========================================
+   PANEL 1: RUTA DETALLADA Y PASO A PASO
+   ========================================== */
+.route-loc-box {
     background: #ffffff;
-    padding: 10px 16px;
-    border-top: 1px solid #e0d8c8;
+    border: 1px solid #e0d8c8;
+    border-radius: 12px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.loc-row {
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+.dot.orange {
+    width: 8px;
+    height: 8px;
+    background: #d97736;
+    border-radius: 50%;
+}
+
+.lbl-ubi {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #8c7865;
+}
+
+.val-dest {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #222222;
+}
+
+.loc-divider {
+    height: 10px;
+    border-left: 2px dashed #d97736;
+    margin-left: 3px;
+    margin-y: 2px;
+}
+
+.btn-change {
+    background-color: #e09260;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 12px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.metrics-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.metric-box {
+    flex: 1;
+    background: #eee3d3;
+    padding: 6px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #55483a;
+}
+
+.actions-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.btn-start {
+    flex: 1;
+    background: #f28d52;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.btn-finish {
+    flex: 1;
+    background: #d8d8d8;
+    color: #777;
+    border: none;
+    padding: 10px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 0.82rem;
+}
+
+.instructions-text {
+    font-size: 0.68rem;
+    color: #4a4238;
+    line-height: 1.35;
+}
+
+/* ==========================================
+   PANEL 2: LLEGADA AL DESTINO
+   ========================================== */
+.arrival-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding: 6px 4px;
+}
+
+.check-circle-icon {
+    width: 48px;
+    height: 48px;
+    background-color: #5b8e5a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(91, 142, 90, 0.3);
+}
+
+.arrival-text-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.arrival-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #2b3a2a;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.arrival-subtitle {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #556654;
+    margin-top: 4px;
+}
+
+.btn-continue-route {
+    width: 100%;
+    background-color: #f28d52;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(242, 141, 82, 0.3);
+    transition: transform 0.1s ease, background-color 0.2s ease;
+}
+
+.btn-continue-route:active {
+    transform: scale(0.98);
+    background-color: #e07a41;
+}
+
+/* ==========================================
+   PANEL 3: VALORACIÓN Y EXPERIENCIA
+   ========================================== */
+.feedback-header-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #e0d8c8;
+    border-radius: 25px;
+    padding: 8px 16px;
+    margin-bottom: 14px;
+}
+
+.star-badge-icon {
+    width: 32px;
+    height: 32px;
+    background-color: #d97736;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.badge-text-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.badge-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #3b2c1e;
+    letter-spacing: 0.5px;
+}
+
+.badge-subtitle {
+    font-size: 0.7rem;
+    color: #776a5c;
+    font-weight: 600;
+}
+
+.feedback-card-body {
+    background: #ffffff;
+    border: 1px solid #e0d8c8;
+    border-radius: 18px;
+    padding: 16px;
+    text-align: center;
+}
+
+.feedback-question {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: #1a2b4c;
+    line-height: 1.35;
+    margin-bottom: 14px;
+}
+
+.star-rating-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.star-btn {
+    font-size: 2rem;
+    color: #d97736;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.star-btn.selected {
+    color: #d97736;
+}
+
+.star-labels {
+    display: flex;
     justify-content: space-between;
-    z-index: 10;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #666666;
+    padding: 0 8px;
+    margin-bottom: 14px;
+}
+
+.feedback-divider {
+    border: none;
+    border-top: 1px solid #ededed;
+    margin: 12px 0;
+}
+
+.comment-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #1a2b4c;
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.comment-textarea {
+    width: 100%;
+    height: 65px;
+    background: #fcfcfc;
+    border: 1px solid #dcdcdc;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.78rem;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    margin-bottom: 14px;
+    box-sizing: border-box;
+}
+
+.comment-textarea:focus {
+    border-color: #d97736;
+    background: #ffffff;
+}
+
+.btn-send-feedback {
+    width: 80%;
+    background-color: #d97736;
+    color: #ffffff;
+    border: none;
+    border-radius: 20px;
+    padding: 10px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto 12px auto;
+    box-shadow: 0 3px 8px rgba(217, 119, 54, 0.3);
+}
+
+.btn-send-feedback:active {
+    transform: scale(0.98);
+}
+
+.feedback-footer-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.btn-skip-feedback {
+    background: none;
+    border: none;
+    color: #776a5c;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Botón Reportar Estilizado Pro */
+.btn-report-issue {
+    background: #fff5f0;
+    border: 1px solid #f28d52;
+    color: #d97736;
+    padding: 6px 14px;
+    border-radius: 16px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(224, 122, 65, 0.15);
+    transition: all 0.2s ease;
+}
+
+.btn-report-issue:active {
+    transform: scale(0.95);
+    background: #f28d52;
+    color: #ffffff;
+}
+
+/* ==========================================
+   PANEL 4: REPORTAR INCIDENCIA
+   ========================================== */
+#report-panel {
+    max-height: 82vh;
+    background-color: #f7ebe1;
+    padding: 10px 14px 16px 14px;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #d97736;
+    color: #ffffff;
+    padding: 10px 14px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+}
+
+.btn-back-report {
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.report-header-text h2 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.report-header-text p {
+    font-size: 0.68rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.report-scroll-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.report-card-section {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid #e2d2c3;
+}
+
+.section-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #fdf5ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
     flex-shrink: 0;
 }
 
-.static-map-card h3 {
+.section-title-row h3 {
     font-size: 0.8rem;
-    color: #4a3b2c;
+    font-weight: 800;
+    color: #222222;
     margin: 0;
-    font-weight: bold;
-    max-width: 55%;
 }
 
-.static-map-card img {
-    width: 90px;
-    height: 50px;
-    object-fit: cover;
+.section-title-row p {
+    font-size: 0.68rem;
+    color: #777777;
+    margin: 0;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.category-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f6f6f6;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 8px 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    color: #444444;
+    cursor: pointer;
+    gap: 4px;
+}
+
+.category-chip.active {
+    background: #d97736;
+    border-color: #d97736;
+    color: #ffffff;
+}
+
+.cat-icon {
+    font-size: 1.1rem;
+}
+
+.textarea-wrapper {
+    position: relative;
+}
+
+.report-textarea {
+    width: 100%;
+    height: 60px;
+    border: 1px solid #dddddd;
+    border-radius: 10px;
+    padding: 8px;
+    font-size: 0.72rem;
+    resize: none;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.char-count {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 0.6rem;
+    color: #888888;
+}
+
+.mini-map-preview {
+    width: 100%;
+    height: 90px;
+    background: #e8ddcc;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pin-marker-map {
+    background: #d97736;
+    color: #ffffff;
+    padding: 4px 8px;
     border-radius: 8px;
-    border: 1px solid #d4c4b0;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* Barra de Navegación Inferior (Ajustada al marco) */
+.report-actions-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.btn-cancel-report {
+    flex: 1;
+    background: #eae2d8;
+    color: #776a5c;
+    border: none;
+    border-radius: 14px;
+    padding: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-submit-report {
+    flex: 1.5;
+    background: #d97736;
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* ==========================================
+   BARRA DE NAVEGACIÓN INFERIOR
+   ========================================== */
 .map-screen-container .bottom-nav {
-    position: relative; /* Evita que use position fixed global */
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
+    height: 60px;
+    background: #fdf8f2;
+    border-top: 1px solid #e0d8c8;
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background: #fdf8f2;
-    border-top: 1px solid #e0d8c8;
-    padding: 8px 0;
-    z-index: 10;
-    flex-shrink: 0;
+    z-index: 700;
 }
 
 .map-screen-container .nav-item {
@@ -157,8 +730,4 @@ body {
     color: #a87948;
     font-size: 0.65rem;
     font-weight: bold;
-}
-
-.map-screen-container .nav-item svg {
-    margin-bottom: 2px;
 }

@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectorBtns = document.querySelectorAll(".selector-btn");
     const mainIconContainer = document.getElementById("activity-main-icon");
 
-    // Mapeo de SVG para el ícono principal superior
+    // SVGs Vectoriales Mejorados
     const iconsSVG = {
         caminata: `
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -33,47 +33,53 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${hrs}:${mins}:${secs}`;
     }
 
-    // Cronómetro
-    btnComenzar.addEventListener("click", () => {
-        if (!isRunning) {
-            isRunning = true;
-            btnComenzar.querySelector(".start-title").textContent = "PAUSAR";
-            btnComenzar.style.backgroundColor = "#cc6324";
+    if (btnComenzar) {
+        btnComenzar.addEventListener("click", () => {
+            if (!isRunning) {
+                isRunning = true;
+                const startTitle = btnComenzar.querySelector(".start-title");
+                if (startTitle) startTitle.textContent = "PAUSAR";
+                btnComenzar.style.backgroundColor = "#cc6324";
 
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                timerDisplay.textContent = formatTime(secondsElapsed);
-                document.getElementById("distancia").textContent = (secondsElapsed * 0.0014).toFixed(2);
-                document.getElementById("calorias").textContent = Math.floor(secondsElapsed * 0.08);
-            }, 1000);
-        } else {
-            isRunning = false;
-            clearInterval(timerInterval);
-            btnComenzar.querySelector(".start-title").textContent = "REANUDAR";
-            btnComenzar.style.backgroundColor = "#121212";
-        }
-    });
+                timerInterval = setInterval(() => {
+                    secondsElapsed++;
+                    if (timerDisplay) timerDisplay.textContent = formatTime(secondsElapsed);
 
-    // Cambiar modo e ícono superior dinámicamente
+                    const distElem = document.getElementById("distancia");
+                    const calElem = document.getElementById("calorias");
+
+                    if (distElem) distElem.textContent = (secondsElapsed * 0.0014).toFixed(2);
+                    if (calElem) calElem.textContent = Math.floor(secondsElapsed * 0.08);
+                }, 1000);
+            } else {
+                isRunning = false;
+                clearInterval(timerInterval);
+                const startTitle = btnComenzar.querySelector(".start-title");
+                if (startTitle) startTitle.textContent = "REANUDAR";
+                btnComenzar.style.backgroundColor = "#1a1a1a";
+            }
+        });
+    }
+
     selectorBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             selectorBtns.forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
             const mode = btn.getAttribute("data-mode");
-            selectedText.textContent = mode.toUpperCase();
+            if (selectedText) selectedText.textContent = mode.toUpperCase();
 
-            // Reemplazar el ícono principal arriba
-            if (iconsSVG[mode]) {
+            if (iconsSVG[mode] && mainIconContainer) {
                 mainIconContainer.innerHTML = iconsSVG[mode];
             }
         });
     });
 
-    // Botón SOS
-    btnSos.addEventListener("click", () => {
-        if (confirm("🚨 ¿Deseas enviar una alerta de emergencia SOS a seguridad del campus?")) {
-            alert("✅ Alerta SOS enviada con éxito.");
-        }
-    });
+    if (btnSos) {
+        btnSos.addEventListener("click", () => {
+            if (confirm("🚨 ¿Deseas enviar una alerta de emergencia SOS a seguridad del campus?")) {
+                alert("✅ Alerta SOS enviada con éxito.");
+            }
+        });
+    }
 });

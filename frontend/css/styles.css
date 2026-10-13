@@ -1039,24 +1039,25 @@ body.feed-body {
     user-select: none;
     padding: 20px;
     transition: opacity 0.3s ease;
-    /* IMPORTANTE: Permite hacer clic en los elementos resaltados por debajo */
-    pointer-events: none;
+    pointer-events: auto !important;
 }
 
-/* Botón Omitir arriba a la derecha */
-.tutorial-skip-btn {
-    position: absolute;
-    top: 60px;
-    right: 24px;
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-size: 1.15rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
-    z-index: 1015;
-    pointer-events: auto; /* Reactiva interacción */
+/* Botón Omitir dentro del contenedor móvil */
+.tutorial-skip-btn,
+#skip-tutorial-btn {
+    position: absolute !important;
+    top: 14px !important;
+    right: 18px !important;
+    z-index: 10010 !important;
+    background: rgba(0, 0, 0, 0.55) !important;
+    color: #ffffff !important;
+    padding: 5px 12px !important;
+    border-radius: 16px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    border: none !important;
+    pointer-events: auto !important;
 }
 
 /* Tarjeta central del tutorial */
@@ -1070,10 +1071,10 @@ body.feed-body {
     border-radius: 14px;
     max-width: 310px;
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgb(255, 255, 255);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     transition: margin 0.3s ease, align-self 0.3s ease;
-    pointer-events: auto; /* Reactiva interacción */
+    pointer-events: auto;
 }
 
 .tutorial-text {
@@ -1101,16 +1102,29 @@ body.feed-body {
     align-self: flex-end;
 }
 
-/* RESALTADO DINÁMICO (MARCO ROJO) */
-.step-highlight {
+/* RESALTADO DINÁMICO (MARCO ROJO Y FONDO BLANCO SÓLIDO) */
+.step-highlight,
+.action-btn.step-highlight,
+.nav-item.step-highlight,
+a.step-highlight {
     position: relative !important;
-    z-index: 1005 !important;
+    z-index: 10005 !important;
     outline: 3px solid #ff3b30 !important;
-    outline-offset: 4px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(255, 59, 48, 0.8) !important;
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    pointer-events: auto !important; /* Permite interacción con el elemento destacado */
+    outline-offset: 3px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 0 16px rgba(255, 59, 48, 0.85) !important;
+    background: #ffffff !important;
+    padding: 6px 10px !important;
+    pointer-events: auto !important;
+    transition: all 0.2s ease;
+}
+
+/* Forzar fondo blanco en botones de la barra superior al resaltar */
+.top-actions .action-btn.step-highlight,
+a.action-btn.step-highlight {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-radius: 10px !important;
 }
 
 /* Ocultar tutorial al finalizar */
@@ -1118,23 +1132,21 @@ body.feed-body {
     display: none !important;
 }
 
-/* Permite que los íconos de la barra inferior no se corten */
+/* Permite que la barra inferior contenga los destacados sin cortarlos */
 .bottom-nav {
     overflow: visible !important;
     z-index: 999;
 }
 
-/* Regla especial para los items de la barra de navegación resaltados */
-.bottom-nav .step-highlight {
-    position: relative !important;
-    z-index: 1005 !important;
-    outline: 3px solid #ff3b30 !important;
-    outline-offset: 3px !important;
-    border-radius: 10px !important;
-    box-shadow: 0 0 16px rgba(255, 59, 48, 0.9) !important;
-    background-color: rgba(255, 59, 48, 0.15) !important;
+/* Regla especial para los ítems de la barra inferior */
+.bottom-nav .step-highlight,
+.bottom-nav .nav-item.step-highlight {
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 16px rgb(255, 59, 48) !important;
 }
-
 /* ==========================================
    BARRA ACCIONES SUPERIORES (FEED)
    ========================================== */
