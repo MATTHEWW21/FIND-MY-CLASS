@@ -1,0 +1,297 @@
+/* ==========================================
+   ESTILOS DE LA VISTA DE PERFIL DE USUARIO
+   ========================================== */
+
+.registro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    margin: 0 auto;
+    position: relative;
+    background-color: #faf7f2;
+    overflow-y: auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    padding-bottom: 75px;
+    box-sizing: border-box;
+}
+
+.registro-header {
+    width: 100%;
+    padding: 12px 16px;
+    background: #ffffff;
+    text-align: center;
+    border-bottom: 1px solid #e0d8c8;
+    position: relative;
+    z-index: 100;
+}
+
+.registro-header h1 {
+    font-size: 1.35rem;
+    color: #2b2b2b;
+    margin: 0;
+    font-family: Georgia, serif;
+    letter-spacing: 1.5px;
+}
+
+.header-subrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-top: 2px;
+}
+
+.profile-handle {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #555555;
+    letter-spacing: 1px;
+}
+
+/* Botón Menú Hamburguesa (3 Líneas Naranja) */
+.profile-menu-btn {
+    position: absolute;
+    right: 0;
+    top: -12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px;
+}
+
+.profile-menu-btn span {
+    display: block;
+    width: 22px;
+    height: 3px;
+    background-color: #d97736;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.profile-menu-btn:active span {
+    background-color: #b85e23;
+}
+
+/* Menú Desplegable Flotante */
+.profile-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 16px;
+    background: #ffffff;
+    border: 1px solid #1a1a1a;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    width: 130px;
+    z-index: 200;
+}
+
+.profile-dropdown-menu.hidden {
+    display: none;
+}
+
+.dropdown-item {
+    background: #ffffff;
+    border: none;
+    border-bottom: 1px solid #1a1a1a;
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.dropdown-item:hover, .dropdown-item:active {
+    background-color: #f0e6d8;
+}
+
+/* Banner Verde Borde a Borde */
+.profile-banner {
+    width: 100%;
+    height: 120px;
+    background-color: #c0cbb2;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+}
+
+.profile-avatar-large {
+    width: 95px;
+    height: 95px;
+    background-color: #f7f2eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(45px);
+    border: 4px solid #faf7f2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+/* Banner Informativo de Bloqueo */
+.blocked-banner {
+    width: 90%;
+    background-color: #e57373;
+    color: #ffffff;
+    text-align: center;
+    padding: 8px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    border-radius: 8px;
+    margin-top: 50px;
+    margin-bottom: -40px;
+}
+
+.blocked-banner.hidden {
+    display: none;
+}
+
+.profile-info-section {
+    margin-top: 52px;
+    padding: 0 24px;
+    text-align: center;
+    width: 100%;
+    transition: opacity 0.3s ease;
+}
+
+.profile-real-name {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+}
+
+.profile-stats-grid {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    margin: 12px 0 16px 0;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-number {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #1a1a1a;
+}
+
+.stat-label {
+    font-size: 0.68rem;
+    color: #777777;
+    font-weight: 700;
+}
+
+.btn-add-friend {
+    width: 100%;
+    background-color: #8c7355;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+    transition: all 0.2s ease;
+}
+
+.btn-add-friend.blocked-btn {
+    background-color: #888888;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Sección Rachas */
+.streaks-section {
+    margin-top: 24px;
+    padding: 0 24px;
+    width: 100%;
+}
+
+.streaks-title {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: #8c8275;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+    text-align: left;
+}
+
+.streaks-list {
+    display: flex;
+    gap: 14px;
+    justify-content: flex-start;
+}
+
+.streak-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.streak-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.bg-pink { background-color: #d96584; }
+.bg-orange { background-color: #d97736; }
+.bg-red { background-color: #cc3b3b; }
+.bg-dashed {
+    background-color: transparent;
+    border: 2px dashed #b5a48f;
+    color: #b5a48f;
+    font-size: 1.1rem;
+}
+
+.streak-score {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #555555;
+}
+
+/* Barra de Navegación Pegada al Fondo */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #f4eee2;
+    border-top: 1px solid #e2d7c5;
+    padding: 8px 0;
+    z-index: 10;
+}

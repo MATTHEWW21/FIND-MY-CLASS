@@ -242,3 +242,410 @@ body {
 .nav-item.active {
     color: #cc6324;
 }
+
+/* ==========================================
+   ESTILOS PANEL SOS ACTIVADO
+   ========================================== */
+.sos-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.sos-overlay.hidden {
+    display: none;
+}
+
+.sos-modal {
+    width: 100%;
+    max-width: 380px;
+    background: #f7f2eb;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid #e0d0bc;
+    animation: scaleUp 0.25s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.90); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.sos-header {
+    background: #d97736;
+    color: #ffffff;
+    text-align: center;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.sos-body {
+    padding: 16px;
+}
+
+.sos-question {
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #2b2b2b;
+    margin-bottom: 12px;
+}
+
+/* Grid de 7 opciones */
+.sos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.sos-chip {
+    background: #ffffff;
+    border: 1.5px solid #e2d2c3;
+    border-radius: 12px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #4a3e31;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    gap: 4px;
+}
+
+.sos-chip .sos-icon {
+    font-size: 1.2rem;
+}
+
+.sos-svg-icon {
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b85e23;
+}
+
+.sos-chip.active {
+    background: #d97736;
+    border-color: #b85e23;
+    color: #ffffff;
+}
+
+.sos-chip.active .sos-svg-icon {
+    color: #ffffff;
+}
+
+.sos-action-section {
+    background: #ffffff;
+    border: 1px solid #e2d2c3;
+    border-radius: 14px;
+    padding: 12px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.sos-section-title {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #8c7865;
+    margin-bottom: 10px;
+}
+
+.btn-sos-call {
+    width: 100%;
+    background: #b85e23;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(184, 94, 35, 0.3);
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.btn-sos-call small {
+    font-size: 0.58rem;
+    font-weight: 600;
+    opacity: 0.9;
+}
+
+.sos-timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.sos-timer-num {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #d97736;
+}
+
+.sos-timer-label {
+    font-size: 0.6rem;
+    color: #666666;
+    font-weight: 600;
+}
+
+.btn-sos-contact {
+    width: 100%;
+    background: #f2ebe1;
+    color: #4a3e31;
+    border: 1px solid #d8c2aa;
+    border-radius: 12px;
+    padding: 8px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-sos-cancel {
+    width: 100%;
+    background: #ffffff;
+    color: #d97736;
+    border: 2px solid #d97736;
+    border-radius: 14px;
+    padding: 10px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-sos-cancel:active {
+    background: #d97736;
+    color: #ffffff;
+}
+
+/* ==========================================
+   VISTA DE ASISTENCIA MÉDICA Y MAPA UAG EXACTO
+   ========================================== */
+.medical-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.medical-overlay.hidden {
+    display: none;
+}
+
+.medical-screen-container {
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    background-color: #ede3d3;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+.medical-header {
+    width: 100%;
+    padding: 14px 16px;
+    background: #ffffff;
+    text-align: center;
+    border-bottom: 1px solid #e0d8c8;
+    z-index: 10;
+}
+
+.medical-header h1 {
+    font-size: 1.4rem;
+    color: #2b2b2b;
+    margin: 0;
+    font-family: Georgia, serif;
+    letter-spacing: 1.5px;
+}
+
+.medical-map-view {
+    flex: 1;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #ede3d3;
+}
+
+/* Fondo simulado con dibujo vectorial de bloques del Campus UAG */
+.map-bg-campus {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background:
+        /* Av. Universidad (Avenida inferior) */
+            linear-gradient(to right, transparent 0%, rgba(220,205,185,0.8) 100%),
+                /* Edificios del campus simulados */
+            radial-gradient(square at 30% 30%, #dfd1bd 0%, #dfd1bd 100%),
+            #ede3d3;
+}
+
+/* Renderizado SVG de los Edificios UAG de fondo */
+.map-bg-campus::before {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 200px;
+    height: 250px;
+    border: 3px solid #d4c3ac;
+    background-color: #e5d8c5;
+    box-shadow: 60px 40px 0 #e5d8c5, 60px 40px 0 3px #d4c3ac, -20px 100px 0 #e5d8c5, -20px 100px 0 3px #d4c3ac;
+    opacity: 0.6;
+}
+
+/* Nombres del Campus y Avenida */
+.map-label-campus {
+    position: absolute;
+    top: 32%;
+    right: 8%;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #6e5944;
+    font-family: Georgia, serif;
+    text-align: right;
+    line-height: 1.25;
+    width: 160px;
+    z-index: 2;
+}
+
+.map-label-av {
+    position: absolute;
+    bottom: 25%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #5c4733;
+    font-family: Georgia, serif;
+    background: #f4eee2;
+    padding: 3px 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    white-space: nowrap;
+    z-index: 2;
+}
+
+/* Ubicación de los Pines Médicos (Cruces Rojas) */
+.med-pin {
+    position: absolute;
+    font-size: 1.5rem;
+    z-index: 3;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.pin-1 { top: 12%; left: 24%; }
+.pin-2 { top: 22%; right: 18%; }
+.pin-3 { top: 48%; left: 52%; }
+.pin-4 { bottom: 28%; left: 12%; }
+
+/* Ruta curva de Puntos Azules acercándose */
+.route-dots-path {
+    position: absolute;
+    bottom: 30%;
+    left: 32%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transform: rotate(-25deg);
+    z-index: 3;
+}
+
+.dot-path {
+    width: 12px;
+    height: 12px;
+    background-color: #2b95bc;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(43, 149, 188, 0.5);
+    animation: pulseDot 1.2s infinite alternate;
+}
+
+.dot-path:nth-child(1) { transform: translateX(0px); }
+.dot-path:nth-child(2) { transform: translateX(6px); animation-delay: 0.2s; }
+.dot-path:nth-child(3) { transform: translateX(14px); animation-delay: 0.4s; }
+.dot-path:nth-child(4) { transform: translateX(24px); animation-delay: 0.6s; }
+.dot-path:nth-child(5) { transform: translateX(36px); animation-delay: 0.8s; }
+
+@keyframes pulseDot {
+    0% { transform: scale(0.85); opacity: 0.7; }
+    100% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Tarjeta Flotante Inferior */
+.arrival-time-card {
+    position: absolute;
+    bottom: 75px;
+    left: 5%;
+    width: 90%;
+    background: #ffffff;
+    border: 1px solid #dcd1c0;
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    z-index: 20;
+    box-sizing: border-box;
+}
+
+.arrival-card-title {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: #2b2b2b;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.arrival-card-time {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.btn-close-medical {
+    background: #d97736;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(217, 119, 54, 0.3);
+    width: 100%;
+}

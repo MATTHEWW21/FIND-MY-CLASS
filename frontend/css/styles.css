@@ -1025,19 +1025,23 @@ body.feed-body {
 
 /* Overlay oscuro */
 .tutorial-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
+    right: 0;
+    margin: 0 auto;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.45);
+    max-width: 430px;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 999;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     box-sizing: border-box;
     cursor: pointer;
     user-select: none;
-    padding: 20px;
+    padding: 30px 20px;
     transition: opacity 0.3s ease;
 }
 
@@ -1048,38 +1052,39 @@ body.feed-body {
 /* Botón Omitir */
 .tutorial-skip-btn {
     position: absolute;
-    top: 14px;
-    right: 18px;
+    top: 20px;
+    right: 20px;
     z-index: 10010;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.7);
     color: #ffffff;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 16px;
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Tarjeta del tutorial */
 .tutorial-card {
     position: relative;
     z-index: 1010;
-    background-color: rgba(18, 18, 18, 0.92);
+    background-color: rgba(24, 24, 24, 0.95);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    padding: 16px 18px;
+    padding: 12px 16px;
     border-radius: 14px;
-    max-width: 310px;
+    width: 90%;
+    max-width: 320px;
     text-align: center;
-    border: 1px solid #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-    transition: margin 0.3s ease;
+    margin: 0 auto;
 }
 
 .tutorial-text {
     color: #ffffff;
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 600;
     line-height: 1.35;
     margin: 0;
@@ -1087,19 +1092,18 @@ body.feed-body {
     white-space: pre-line;
 }
 
-/* Posición de la tarjeta */
 .tutorial-card.pos-top {
-    margin-top: 100px;
-    align-self: flex-start;
+    margin-top: 40px;
+    margin-bottom: auto;
 }
 
 .tutorial-card.pos-center {
-    align-self: center;
+    margin: auto 0;
 }
 
 .tutorial-card.pos-bottom {
-    margin-bottom: 58px;
-    align-self: flex-end;
+    margin-top: auto;
+    margin-bottom: 80px; /* arriba de la barra inferior */
 }
 
 /* Elemento resaltado: blanco con marco rojo */
@@ -1182,4 +1186,9 @@ a.action-btn svg {
 .action-btn.active,
 a.action-btn.active {
     color: #e07a41;
+}
+
+/* Evita que el post quede detrás de la barra inferior al hacer scroll */
+.post-card {
+    scroll-margin-bottom: 70px;
 }

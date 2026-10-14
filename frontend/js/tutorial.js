@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const overlay = document.getElementById('tutorial-overlay');
-    const tutorialCard = document.getElementById('tutorial-card');
-    const tutorialText = document.getElementById('tutorial-text');
-    const skipBtn = document.getElementById('btn-skip-tutorial');
-    const bottomNav = document.querySelector('.bottom-nav');
+document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("tutorial-overlay");
+    const tutorialCard = document.getElementById("tutorial-card");
+    const tutorialText = document.getElementById("tutorial-text");
+    const skipBtn = document.getElementById("btn-skip-tutorial");
+    const bottomNav = document.querySelector(".bottom-nav");
 
-    // Pasos del tutorial con posición dinámica de la tarjeta
+    if (!overlay || !tutorialCard || !tutorialText) return;
+
     const tutorialSteps = [
         {
             text: "Toca la pantalla para iniciar el tutorial",
@@ -20,17 +21,23 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             text: "Permite cambiar de vista al mapa interactivo del campus para buscar rutas y edificios.",
             target: "#btn-mapas",
-            position: "center"
+            position: "bottom"
         },
         {
-            text: "Muestra el perfil del usuario, la fecha y el deporte junto a sus métricas clave (distancia, calorías, tiempo) y su mapa o fotos.\n\nEn la parte inferior incluye botones para reaccionar ('me gusta'), comentar y desplegar opciones (compartir, reportar o guardar).",
-            target: ".feed-container .post-card",
+            text: "Explora los eventos y actividades destacadas de la UAG deslizando horizontalmente en este carrusel.",
+            target: ".uag-events-section",
             position: "bottom"
+        },
+        {
+            text: "Muestra el perfil del usuario, la fecha, el deporte y sus métricas (distancia, calorías, tiempo).\n\nAbajo puedes reaccionar, comentar y ver más opciones.",
+            target: ".feed-container .post-card",
+            position: "top",
+            scroll: "end"
         },
         {
             text: "Permite crear una nueva publicación para compartir tu actividad o recorrido dentro del campus.",
             target: "#btn-publicacion",
-            position: "center"
+            position: "bottom"
         },
         {
             text: "Te lleva al feed principal de novedades, publicaciones y comunidad de la app.",
@@ -57,53 +64,51 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentStep = 0;
 
     function clearHighlights() {
-        document.querySelectorAll('.step-highlight').forEach(el => {
-            el.classList.remove('step-highlight');
+        document.querySelectorAll(".step-highlight").forEach(el => {
+            el.classList.remove("step-highlight");
         });
-        if (bottomNav) bottomNav.classList.remove('nav-above');
-        tutorialCard.classList.remove('pos-top', 'pos-bottom', 'pos-center');
+        if (bottomNav) bottomNav.classList.remove("nav-above");
+        tutorialCard.classList.remove("pos-top", "pos-bottom", "pos-center");
     }
 
     function updateStep() {
         clearHighlights();
 
-        if (currentStep < tutorialSteps.length) {
-            const stepData = tutorialSteps[currentStep];
-            tutorialText.innerText = stepData.text;
+        if (currentStep >= tutorialSteps.length) {
+            closeTutorial();
+            return;
+        }
 
-            const posClass = stepData.position ? `pos-${stepData.position}` : 'pos-center';
-            tutorialCard.classList.add(posClass);
+        const stepData = tutorialSteps[currentStep];
+        tutorialText.innerText = stepData.text;
+        tutorialCard.classList.add(`pos-${stepData.position || "center"}`);
 
-            if (stepData.target) {
-                const targetElement = document.querySelector(stepData.target);
-                if (targetElement) {
-                    targetElement.classList.add('step-highlight');
+        if (stepData.target) {
+            const targetElement = document.querySelector(stepData.target);
+            if (targetElement) {
+                targetElement.classList.add("step-highlight");
 
-                    // Si el target vive en la barra inferior, súbela sobre el overlay
-                    if (bottomNav && bottomNav.contains(targetElement)) {
-                        bottomNav.classList.add('nav-above');
-                    }
+                const inBottomNav = bottomNav && bottomNav.contains(targetElement);
+                if (inBottomNav) {
+                    bottomNav.classList.add("nav-above");
+                } else {
+                    targetElement.scrollIntoView({
+                        behavior: "smooth",
+                        block: stepData.scroll || "center"
+                    });
                 }
             }
-        } else {
-            closeTutorial();
         }
     }
 
-    // Clic en cualquier parte avanza de paso
-    if (overlay) {
-        overlay.addEventListener('click', (e) => {
-            if (skipBtn && (e.target === skipBtn || skipBtn.contains(e.target))) {
-                return;
-            }
-            currentStep++;
-            updateStep();
-        });
-    }
+    overlay.addEventListener("click", (e) => {
+        if (skipBtn && (e.target === skipBtn || skipBtn.contains(e.target))) return;
+        currentStep++;
+        updateStep();
+    });
 
-    // Botón Omitir
     if (skipBtn) {
-        skipBtn.addEventListener('click', (e) => {
+        skipBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             closeTutorial();
         });
@@ -111,10 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function closeTutorial() {
         clearHighlights();
-        if (overlay) {
-            overlay.classList.add('hidden');
-        }
-        localStorage.setItem('hasSeenTutorial', 'true');
+        overlay.classList.add("hidden");
+        localStorage.setItem("hasSeenTutorial", "true");
     }
 
     updateStep();

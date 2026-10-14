@@ -1,0 +1,338 @@
+/* ==========================================
+   ESTILOS DE LA PANTALLA DE MENSAJES
+   ========================================== */
+
+.registro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 414px;
+    height: 100vh;
+    margin: 0 auto;
+    position: relative;
+    background-color: #f7f2eb;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+}
+
+.registro-header {
+    width: 100%;
+    padding: 10px 16px;
+    background: #ffffff;
+    text-align: center;
+    border-bottom: 1px solid #e0d8c8;
+}
+
+.registro-header h1 {
+    font-size: 1.3rem;
+    color: #2b2b2b;
+    margin: 0;
+    font-family: Georgia, serif;
+    letter-spacing: 1.5px;
+}
+
+/* Sub-header de Mensajes */
+.chat-subheader {
+    width: 100%;
+    background: #ffffff;
+    padding: 8px 14px 10px 14px;
+    border-bottom: 1px solid #e2d8c8;
+    box-sizing: border-box;
+}
+
+.chat-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.chat-back-arrow {
+    font-size: 1.2rem;
+    color: #d97736;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.chat-title-row h2 {
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: #2b2b2b;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+.add-contact-btn {
+    background: none;
+    border: none;
+    color: #d97736;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Buscador */
+.search-bar-wrapper {
+    display: flex;
+    align-items: center;
+    background-color: #f4eee2;
+    border-radius: 12px;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e2d7c5;
+}
+
+.search-icon {
+    color: #8c8275;
+    margin-right: 8px;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    font-size: 0.75rem;
+    color: #333333;
+    outline: none;
+}
+
+/* Carrusel de Contactos (Historias) */
+.stories-carousel {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.stories-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.story-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    min-width: 55px;
+}
+
+.story-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.story-circle.new-chat {
+    background-color: #f2ebe1;
+    border: 1px dashed #d97736;
+    color: #d97736;
+}
+
+.story-circle-img {
+    position: relative;
+    width: 44px;
+    height: 44px;
+}
+
+.story-circle-img img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #d97736;
+}
+
+.online-status {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 9px;
+    height: 9px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+}
+
+.story-name {
+    font-size: 0.58rem;
+    color: #555555;
+    font-weight: 700;
+    margin-top: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 55px;
+}
+
+/* Header de Chat Activo */
+.active-chat-header {
+    width: 100%;
+    background: #f0e7d8;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0d5c3;
+    box-sizing: border-box;
+}
+
+.chat-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.active-chat-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.active-chat-name {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #2b2b2b;
+    margin: 0;
+}
+
+.active-chat-status {
+    font-size: 0.6rem;
+    color: #4CAF50;
+    font-weight: 700;
+}
+
+.active-chat-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-action-btn {
+    background: none;
+    border: none;
+    color: #d97736;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+/* Área de Mensajes */
+.chat-messages-area {
+    flex: 1;
+    width: 100%;
+    padding: 12px 14px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+    margin-bottom: 120px; /* Espacio para barra de entrada y bottom nav */
+}
+
+.message-bubble {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    position: relative;
+    word-break: break-word;
+}
+
+.message-bubble p {
+    margin: 0;
+    font-weight: 600;
+}
+
+.msg-time {
+    display: block;
+    font-size: 0.55rem;
+    text-align: right;
+    margin-top: 4px;
+    opacity: 0.75;
+}
+
+.message-bubble.received {
+    align-self: flex-start;
+    background-color: #ffffff;
+    color: #2b2b2b;
+    border: 1px solid #e2d8c8;
+    border-bottom-left-radius: 2px;
+}
+
+.message-bubble.sent {
+    align-self: flex-end;
+    background-color: #d97736; /* Terracota UAG */
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+}
+
+/* Caja de Texto Inferior */
+.chat-input-bar {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid #e0d5c3;
+    box-sizing: border-box;
+    z-index: 20;
+}
+
+.attach-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #d97736;
+    cursor: pointer;
+}
+
+.chat-input {
+    flex: 1;
+    background-color: #f4eee2;
+    border: 1px solid #e0d5c3;
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    outline: none;
+    color: #2b2b2b;
+}
+
+.send-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background-color: #d97736;
+    color: #ffffff;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(217, 119, 54, 0.3);
+}
+
+/* Bottom Nav Fijo */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #f4eee2;
+    border-top: 1px solid #e2d7c5;
+    padding: 8px 0;
+    z-index: 10;
+}

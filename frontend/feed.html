@@ -6,6 +6,22 @@
     <title>Find My Class - Feed</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/feed.css">
+    <style>
+        /* Estilos sutiles para que el link del perfil no tenga subrayado feo */
+        .user-profile-link {
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+        }
+        .user-name-link {
+            color: #1a1a1a;
+            font-weight: 800;
+        }
+        .user-name-link:hover {
+            color: #d97736;
+        }
+    </style>
 </head>
 <body class="feed-body">
 
@@ -38,6 +54,60 @@
         </a>
     </div>
 
+    <!-- ==========================================
+             SECCIÓN: CARRUSEL DE EVENTOS UAG
+             ========================================== -->
+    <section class="uag-events-section">
+        <div class="events-header">
+            <h3 class="events-title">⚡ EVENTOS UAG</h3>
+            <span class="events-subtitle">Desliza para ver más ›</span>
+        </div>
+
+        <!-- Carrusel Horizontal de Eventos -->
+        <div class="events-carousel">
+
+            <!-- Evento 1 -->
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=400" alt="Conferencia Tech" class="event-bg">
+                <div class="event-overlay">
+                    <span class="event-tag">CONFERENCIA</span>
+                    <h4 class="event-name">UAG Tech Summit 2026</h4>
+                    <div class="event-details">
+                        <span>📅 22 de Octubre</span>
+                        <span>📍 Auditorio Rectoría</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evento 2 -->
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1517649763962-0c623266010b?auto=format&fit=crop&q=80&w=400" alt="Torneo Deportivo" class="event-bg">
+                <div class="event-overlay">
+                    <span class="event-tag sports">DEPORTES</span>
+                    <h4 class="event-name">Torneo Interuniversitario ⚽</h4>
+                    <div class="event-details">
+                        <span>📅 28 de Octubre</span>
+                        <span>📍 Canchas Principales</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evento 3 -->
+            <div class="event-card">
+                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400" alt="Festival Cultural" class="event-bg">
+                <div class="event-overlay">
+                    <span class="event-tag culture">CULTURA</span>
+                    <h4 class="event-name">Festival Cultural & Música 🎶</h4>
+                    <div class="event-details">
+                        <span>📅 05 de Noviembre</span>
+                        <span>📍 Plaza Central Campus</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
     <!-- Contenido Principal: Feed de Publicaciones -->
     <main class="feed-container">
 
@@ -46,7 +116,7 @@
 
         <h3 class="feed-section-title" style="margin: 12px 14px 6px 14px; font-size: 0.9rem; font-weight: 800; color: #333;">Feed de la Comunidad</h3>
 
-        <!-- Publicación Existente 1 -->
+        <!-- Publicación Existente 1: Matías Fernández -->
         <article class="post-card">
             <div class="post-header">
                 <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120" alt="Matias Fernández" class="user-avatar">
@@ -106,6 +176,55 @@
             </div>
         </article>
 
+        <!-- Publicación Existente 2: Ángel Orozco (Con enlace interactivo al Perfil) -->
+        <article class="post-card">
+            <div class="post-header">
+                <a href="perfil_usuario.html?user=angel" class="user-profile-link">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="Ángel Orozco" class="user-avatar">
+                </a>
+                <div class="user-info">
+                    <a href="perfil_usuario.html?user=angel" class="user-profile-link user-name-link">
+                        <h3 class="user-name">Ángel Orozco</h3>
+                    </a>
+                    <span class="post-time">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Hoy, 8:22 AM
+                    </span>
+                </div>
+            </div>
+
+            <h2 class="activity-title">Caminata en la mañana</h2>
+
+            <div class="metrics-grid">
+                <div class="metric-item">
+                    <span class="metric-label">Distancia</span>
+                    <span class="metric-value">1.2 km</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Calorías</span>
+                    <span class="metric-value">85</span>
+                </div>
+                <div class="metric-item">
+                    <span class="metric-label">Tiempo</span>
+                    <span class="metric-value">18 min</span>
+                </div>
+            </div>
+
+            <div class="post-actions">
+                <div class="action-buttons-left">
+                    <button type="button" class="icon-btn heart-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </button>
+                    <button type="button" class="icon-btn comment-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </button>
+                </div>
+                <button type="button" class="icon-btn more-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+            </div>
+        </article>
+
     </main>
 
     <!-- Barra de Navegación Inferior (Bottom Nav) -->
@@ -120,11 +239,12 @@
             </svg>
             <span>INICIAR RUTA</span>
         </a>
-        <a href="#" id="nav-mensajes" class="nav-item">
+        <a href="mensajes.html" id="nav-mensajes" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <a href="#" id="nav-perfil" class="nav-item">
+        <!-- En la barra inferior (bottom-nav) -->
+        <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
         </a>

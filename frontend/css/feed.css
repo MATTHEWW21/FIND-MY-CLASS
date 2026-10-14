@@ -1,0 +1,122 @@
+/* ==========================================
+   CARRUSEL DE EVENTOS UAG
+   ========================================== */
+.uag-events-section {
+    margin: 10px 0 16px 0;
+    width: 100%;
+}
+
+.events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px;
+    margin-bottom: 8px;
+}
+
+.events-title {
+    font-size: 0.88rem;
+    font-weight: 900;
+    color: #2b2b2b;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.events-subtitle {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #d97736;
+}
+
+/* Contenedor Carrusel Horizontal con Scroll Snap */
+.events-carousel {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 4px 16px 10px 16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Ocultar barra de scroll para acabado limpio */
+.events-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Tarjeta individual de evento */
+.event-card {
+    flex: 0 0 240px; /* Ancho fijo para cada tarjeta */
+    height: 130px;
+    border-radius: 16px;
+    position: relative;
+    overflow: hidden;
+    scroll-snap-align: start;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.event-card:active {
+    transform: scale(0.97);
+}
+
+.event-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Degradado oscuro para legibilidad del texto */
+.event-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    box-sizing: border-box;
+}
+
+.event-tag {
+    align-self: flex-start;
+    background-color: #d97736;
+    color: #ffffff;
+    font-size: 0.52rem;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.event-tag.sports {
+    background-color: #2b95bc;
+}
+
+.event-tag.culture {
+    background-color: #8da971;
+}
+
+.event-name {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+    line-height: 1.15;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.event-details {
+    display: flex;
+    gap: 8px;
+    font-size: 0.6rem;
+    color: #e0e0e0;
+    font-weight: 600;
+}

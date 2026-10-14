@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Find My Class - Mapa</title>
     <!-- CSS Leaflet Mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -32,41 +32,6 @@
     <div class="filter-chips">
         <button class="chip">🍿 MÁQUIS DE SNACKS</button>
         <button class="chip">🏪 TIENDAS DE ABARROTES</button>
-    </div>
-
-    <!-- Panel de Ruta Detallada (Subpanel) -->
-    <div class="route-panel-overlay hidden" id="route-panel">
-        <div class="panel-handle"></div>
-
-        <div class="route-loc-box">
-            <div class="loc-row">
-                <span class="dot orange"></span>
-                <span class="lbl-ubi">TU UBICACIÓN</span>
-            </div>
-            <div class="loc-divider"></div>
-            <div class="loc-row">
-                <span class="dot pin">📍</span>
-                <span class="val-dest">Cafetería - planta baja</span>
-            </div>
-        </div>
-
-        <button class="btn-change">📍 VER OTRA RUTA</button>
-
-        <div class="metrics-row">
-            <div class="metric-box">🚶 7 MIN - 600 M</div>
-            <div class="metric-box">🚴 4 MIN - 600 M</div>
-        </div>
-
-        <div class="actions-row">
-            <button class="btn-start" id="btn-start">EMPEZAR</button>
-            <button class="btn-finish" id="btn-finish" disabled>FINALIZAR</button>
-        </div>
-
-        <div class="instructions-text">
-            <p>Comienza caminando hasta pasar por todos los puntos azules.</p>
-            <p>Al llegar al edificio y continúa derecho hasta subir las escaleras para llegar al final del patio de cristal.</p>
-            <p>Gira a la derecha y al fondo del tercer pasillo <strong>TU SALÓN ES EL TERCERO QUE SE ENCONTRARÁ A TU IZQUIERDA.</strong></p>
-        </div>
     </div>
 
     <!-- Panel 1: Ruta Detallada (Guía paso a paso) -->
@@ -281,12 +246,13 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
             <span>INICIAR RUTA</span>
         </a>
-        <a href="#" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        <a href="mensajes.html" id="nav-mensajes" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <a href="#" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <!-- En la barra inferior (bottom-nav) -->
+        <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
         </a>
     </nav>

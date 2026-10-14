@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Variables Cronómetro Principal
     let timerInterval = null;
     let secondsElapsed = 0;
     let isRunning = false;
@@ -10,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectorBtns = document.querySelectorAll(".selector-btn");
     const mainIconContainer = document.getElementById("activity-main-icon");
 
-    // SVGs Vectoriales Mejorados
+    // SVGs Actividad
     const iconsSVG = {
         caminata: `
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -33,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${hrs}:${mins}:${secs}`;
     }
 
+    // Botón Comenzar / Pausar
     if (btnComenzar) {
         btnComenzar.addEventListener("click", () => {
             if (!isRunning) {
@@ -61,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Selector de Modo
     selectorBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             selectorBtns.forEach(b => b.classList.remove("active"));
@@ -75,11 +78,116 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // ==========================================
+    // LÓGICA DEL PANEL SOS Y ASISTENCIA MÉDICA
+    // ==========================================
+    const sosOverlay = document.getElementById("sos-overlay");
+    const btnSosCancel = document.getElementById("btn-sos-cancel");
+    const sosChips = document.querySelectorAll(".sos-chip");
+    const sosTimerNum = document.getElementById("sos-timer");
+    const btnSosCall = document.getElementById("btn-sos-call");
+    const btnSosContact = document.getElementById("btn-sos-contact");
+
+    const medicalOverlay = document.getElementById("medical-overlay");
+    const btnCloseMedical = document.getElementById("btn-close-medical");
+    const medicalCountdown = document.getElementById("medical-countdown");
+
+    let sosTimerInterval = null;
+    let sosTimeLeft = 25;
+
+    let medicalInterval = null;
+    let medicalSeconds = 120; // 2:00 minutos
+
+    // Iniciar Cuenta Regresiva SOS
+    const startSosCountdown = () => {
+        clearInterval(sosTimerInterval);
+        sosTimeLeft = 25;
+        if (sosTimerNum) sosTimerNum.textContent = "0:25";
+
+        sosTimerInterval = setInterval(() => {
+            sosTimeLeft--;
+            let secondsStr = sosTimeLeft < 10 ? `0:0${sosTimeLeft}` : `0:${sosTimeLeft}`;
+            if (sosTimerNum) sosTimerNum.textContent = secondsStr;
+
+            if (sosTimeLeft <= 0) {
+                clearInterval(sosTimerInterval);
+                alert("🚨 Llamada automática de emergencia disparada a Seguridad UAG.");
+                closeSosPanel();
+            }
+        }, 1000);
+    };
+
+    const closeSosPanel = () => {
+        if (sosOverlay) sosOverlay.classList.add("hidden");
+        clearInterval(sosTimerInterval);
+    };
+
+    // Abrir Modal SOS
     if (btnSos) {
         btnSos.addEventListener("click", () => {
-            if (confirm("🚨 ¿Deseas enviar una alerta de emergencia SOS a seguridad del campus?")) {
-                alert("✅ Alerta SOS enviada con éxito.");
+            if (sosOverlay) {
+                sosOverlay.classList.remove("hidden");
+                startSosCountdown();
             }
+        });
+    }
+
+    // Chips de opciones SOS
+    sosChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+            sosChips.forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+        });
+    });
+
+    if (btnSosCancel) {
+        btnSosCancel.addEventListener("click", closeSosPanel);
+    }
+
+    if (btnSosCall) {
+        btnSosCall.addEventListener("click", () => {
+            clearInterval(sosTimerInterval);
+            alert("📞 Conectando con Autoridades de Seguridad UAG...");
+            closeSosPanel();
+        });
+    }
+
+    // Iniciar Mapa Médico
+    const startMedicalTimer = () => {
+        clearInterval(medicalInterval);
+        medicalSeconds = 120;
+        if (medicalCountdown) medicalCountdown.textContent = "2:00 min";
+
+        medicalInterval = setInterval(() => {
+            medicalSeconds--;
+            let mins = Math.floor(medicalSeconds / 60);
+            let secs = medicalSeconds % 60;
+            let secsStr = secs < 10 ? `0${secs}` : secs;
+
+            if (medicalCountdown) {
+                medicalCountdown.textContent = `${mins}:${secsStr} min`;
+            }
+
+            if (medicalSeconds <= 0) {
+                clearInterval(medicalInterval);
+                if (medicalCountdown) medicalCountdown.textContent = "¡Personal médico arribó!";
+            }
+        }, 1000);
+    };
+
+    // Al presionar Avisar a Contacto Emergencia -> Abrir Mapa de Asistencia
+    if (btnSosContact) {
+        btnSosContact.addEventListener("click", () => {
+            closeSosPanel();
+            if (medicalOverlay) medicalOverlay.classList.remove("hidden");
+            startMedicalTimer();
+        });
+    }
+
+    if (btnCloseMedical) {
+        btnCloseMedical.addEventListener("click", () => {
+            if (medicalOverlay) medicalOverlay.classList.add("hidden");
+            clearInterval(medicalInterval);
         });
     }
 });

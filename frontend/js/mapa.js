@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }).addTo(map);
 
     // Refresco de lienzo para asegurar renderizado correcto en móviles
-    setTimeout(() => { map.invalidateSize(); }, 200);
+    setTimeout(() => { map.invalidateSize(); }, 300);
 
     // 2. Referencias a Elementos del DOM
     const searchTrigger = document.getElementById("search-trigger");
