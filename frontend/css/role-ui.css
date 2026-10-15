@@ -1,0 +1,27 @@
+/* role-ui.css - qué se ve según el perfil. Se activa con js/role-ui.js (atributos en <html>).
+   Cárgalo DESPUÉS de styles.css:  <link rel="stylesheet" href="css/role-ui.css"> */
+
+/* Vista simplificada (colaborador) y visitante: sin PUBLICACIÓN ni MENSAJES */
+html[data-vista="simplificada"] #btn-publicacion,
+html[data-vista="simplificada"] #nav-mensajes,
+html[data-role="visitante"] #btn-publicacion,
+html[data-role="visitante"] #nav-mensajes {
+    display: none !important;
+}
+
+/* El visitante además no tiene perfil ni registro de rutas guardado */
+html[data-role="visitante"] #nav-perfil {
+    display: none !important;
+}
+
+/* Icono de docente (birrete) sobre la foto de perfil del colaborador */
+.avatar-docente { position: relative; display: inline-block; }
+html:not([data-role="colaborador"]) .avatar-docente::after { content: none; }
+html[data-role="colaborador"] .avatar-docente::after {
+    content: "🎓";
+    position: absolute;
+    top: -10px;
+    right: -6px;
+    font-size: 22px;
+    line-height: 1;
+}

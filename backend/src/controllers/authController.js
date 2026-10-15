@@ -31,6 +31,11 @@ const usuarioPublico = (u) => ({
   rol: u.rol,
   vista_preferida: u.vista_preferida,
   onboarding_completado: u.onboarding_completado,
+  necesita_rutas_accesibles: u.necesita_rutas_accesibles,
+  edificio_habitual_id: u.edificio_habitual_id,
+  carrera_id: u.carrera_id,
+  espacio_trabajo: u.espacio_trabajo,
+  estancia_id: u.estancia_id,
 });
 
 // SOLO para desarrollo: con DEV_MOSTRAR_CODIGO=true la API devuelve el código en la
@@ -309,7 +314,107 @@ async function actualizarPerfil(req, res) {
   }
 }
 
+// Convierte a entero o devuelve null si no es un entero válido
+const aEntero = (v) => (v !== null && v !== '' && v !== undefined && Number.isInteger(Number(v)) ? Number(v) : null);
+
+const TIPOS_ESPACIO = ['sala_maestro', 'cubiculo_oficina'];
+
+// Pantalla "Preferencias". Cada rol guarda cosas distintas:
+//  - estudiante: rutas accesibles, edificio habitual y carrera
+//  - colaborador: rutas accesibles, espacio de trabajo, estancia y vista (completa/simplificada)
+// Al guardarlas se marca el onboarding como completado.
+async function actualizarPreferencias(req, res) {
+  try {
+    if (req.usuario.invitado) {
+      return res.status(403).json({ error: 'Los invitados no tienen preferencias guardadas' });
+    }
+    const body = req.body || {};
+
+    if (typeof body.necesita_rutas_accesibles !== 'boolean') {
+      return res.status(400).json({ error: 'Indica si necesitas rutas accesibles' });
+    }
+
+    const datos = {
+      edificio_habitual_id: null,
+      carrera_id: null,
+      espacio_trabajo: null,
+      estancia_id: null,
+      vista_preferida: 'completa',
+    };
+
+    if (req.usuario.rol === 'estudiante') {
+      const edificioId = aEntero(body.edificio_habitual_id);
+      const edificio = edificioId === null
+        ? { rowCount: 0 }
+        : await pool.query('SELECT 1 FROM edificios WHERE id = $1', [edificioId]);
+      if (edificio.rowCount === 0) {
+        return res.status(400).json({ error: 'Selecciona un edificio habitual válido' });
+      }
+
+      const carreraId = aEntero(body.carrera_id);
+      const carrera = carreraId === null
+        ? { rowCount: 0 }
+        : await pool.query('SELECT 1 FROM carreras WHERE id = $1', [carreraId]);
+      if (carrera.rowCount === 0) {
+        return res.status(400).json({ error: 'Selecciona tu carrera' });
+      }
+
+      datos.edificio_habitual_id = edificioId;
+      datos.carrera_id = carreraId;
+    } else if (req.usuario.rol === 'colaborador') {
+      const espacio = body.espacio_trabajo;
+      if (![...TIPOS_ESPACIO, 'no_aplica'].includes(espacio)) {
+        return res.status(400).json({ error: 'Selecciona tu espacio principal de trabajo' });
+      }
+      datos.espacio_trabajo = espacio;
+
+      if (espacio !== 'no_aplica') {
+        const estanciaId = aEntero(body.estancia_id);
+        // La estancia debe existir y ser del mismo tipo que el espacio elegido
+        const estancia = estanciaId === null
+          ? { rowCount: 0 }
+          : await pool.query('SELECT 1 FROM aulas WHERE id = $1 AND tipo = $2', [estanciaId, espacio]);
+        if (estancia.rowCount === 0) {
+          return res.status(400).json({ error: 'Selecciona tu estancia' });
+        }
+        datos.estancia_id = estanciaId;
+      }
+
+      if (!['completa', 'simplificada'].includes(body.vista_preferida)) {
+        return res.status(400).json({ error: 'Selecciona el detalle de la interfaz de usuario' });
+      }
+      datos.vista_preferida = body.vista_preferida;
+    } else {
+      return res.status(403).json({ error: 'Tu perfil no tiene preferencias que guardar' });
+    }
+
+    const { rows } = await pool.query(
+      `UPDATE usuarios
+          SET necesita_rutas_accesibles = $1,
+              edificio_habitual_id = $2,
+              carrera_id = $3,
+              espacio_trabajo = $4,
+              estancia_id = $5,
+              vista_preferida = $6,
+              onboarding_completado = TRUE
+        WHERE id = $7 RETURNING *`,
+      [
+        body.necesita_rutas_accesibles,
+        datos.edificio_habitual_id,
+        datos.carrera_id,
+        datos.espacio_trabajo,
+        datos.estancia_id,
+        datos.vista_preferida,
+        req.usuario.id,
+      ]
+    );
+    return res.json({ usuario: usuarioPublico(rows[0]) });
+  } catch (err) {
+    return errorServidor(res, err);
+  }
+}
+
 module.exports = {
   registro, verificarCuenta, reenviarCodigo, login, invitado,
-  olvidePassword, restablecerPassword, me, actualizarPerfil,
+  olvidePassword, restablecerPassword, me, actualizarPerfil, actualizarPreferencias,
 };

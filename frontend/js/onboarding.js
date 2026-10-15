@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Estas pantallas solo se ven con sesión iniciada
+    if (!requerirSesion()) return;
+
     const track = document.getElementById('carousel-track');
     const pills = document.querySelectorAll('.indicator-pill');
     const btnNext = document.getElementById('btn-next');
@@ -33,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentIndex < totalSlides - 1) {
             updateCarousel(currentIndex + 1);
         } else {
-            // Fin del onboarding -> ir al mapa/home
+            // Fin del onboarding -> preferencias
             window.location.href = 'preferences.html';
         }
     });

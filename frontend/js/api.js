@@ -3,6 +3,15 @@
 
 const API_BASE = '/api';
 
+const CLAVES_SESION = [
+    'token', 'userLoggedIn', 'userRole', 'userEmail', 'userName', 'userVista',
+    'accessibleRoutes', 'pendingEmail',
+];
+
+function limpiarSesion() {
+    CLAVES_SESION.forEach((k) => localStorage.removeItem(k));
+}
+
 // Llama a la API. Lanza un Error con .message legible si algo sale mal.
 async function apiFetch(path, { method = 'GET', body } = {}) {
     const headers = { 'Content-Type': 'application/json' };
@@ -22,6 +31,13 @@ async function apiFetch(path, { method = 'GET', body } = {}) {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
+        // Sesión vencida o inválida: se limpia y se manda a iniciar sesión
+        // (el login fallido también responde 401, por eso se excluye).
+        if (res.status === 401 && token && !path.startsWith('/auth/login')) {
+            limpiarSesion();
+            alert('Tu sesión expiró. Inicia sesión de nuevo.');
+            window.location.href = 'login.html';
+        }
         const err = new Error(data.error || 'Ocurrió un error inesperado');
         err.status = res.status;
         err.data = data;
@@ -31,7 +47,7 @@ async function apiFetch(path, { method = 'GET', body } = {}) {
 }
 
 // Guarda la sesión. Conserva las claves que ya usaban otras pantallas
-// (userLoggedIn, userEmail) para no romper feed, perfil, etc.
+// (userLoggedIn, userEmail, accessibleRoutes) para no romper feed, mapa, perfil, etc.
 function guardarSesion(token, usuario) {
     localStorage.setItem('token', token);
     localStorage.setItem('userLoggedIn', 'true');
@@ -41,18 +57,41 @@ function guardarSesion(token, usuario) {
     if (usuario.nombre) localStorage.setItem('userName', usuario.nombre);
     else localStorage.removeItem('userName');
     localStorage.setItem('userVista', usuario.vista_preferida || 'completa');
+    // En un dispositivo nuevo el valor viene de la cuenta, no del teléfono
+    if (typeof usuario.necesita_rutas_accesibles === 'boolean') {
+        localStorage.setItem('accessibleRoutes', String(usuario.necesita_rutas_accesibles));
+    }
 }
 
 function cerrarSesion() {
-    ['token', 'userLoggedIn', 'userRole', 'userEmail', 'userName', 'userVista', 'pendingEmail']
-        .forEach((k) => localStorage.removeItem(k));
+    limpiarSesion();
     window.location.href = 'index.html';
+}
+
+// Para pantallas que exigen haber iniciado sesión. Úsalo al inicio del script:
+//   if (!requerirSesion()) return;
+function requerirSesion() {
+    if (!localStorage.getItem('token')) {
+        window.location.href = 'index.html';
+        return false;
+    }
+    return true;
 }
 
 // A dónde manda el login según el usuario. Ajusta aquí cuando cambie el flujo.
 function rutaInicio(usuario) {
-    if (usuario.rol === 'visitante') return 'mapa.html';
-    if (!usuario.onboarding_completado) return 'onboarding.html';
-    if (usuario.rol === 'colaborador' && usuario.vista_preferida === 'simplificada') return 'mapa.html';
+    if (usuario.rol !== 'visitante' && !usuario.onboarding_completado) return 'onboarding.html';
+    return homePara(usuario.rol, usuario.vista_preferida);
+}
+
+// Pantalla principal según rol y vista: el visitante y el colaborador con vista
+// simplificada entran directo al mapa; los demás, al feed.
+function homePara(rol, vista) {
+    if (rol === 'visitante' || (rol === 'colaborador' && vista === 'simplificada')) return 'mapa.html';
     return 'feed.html';
+}
+
+// Lo mismo, leyendo la sesión guardada en el teléfono (para la pantalla de carga)
+function rutaHome() {
+    return homePara(localStorage.getItem('userRole'), localStorage.getItem('userVista'));
 }

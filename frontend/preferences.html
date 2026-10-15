@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find My Class - Preferencias</title>
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
@@ -17,7 +15,7 @@
     </header>
 
     <section class="preferences-form">
-        <!-- Sección Rutas Accesibles -->
+        <!-- Sección Rutas Accesibles (todos los perfiles) -->
         <div class="accessibility-section">
             <span class="section-title-pill">¿Necesitas rutas accesibles?</span>
 
@@ -33,8 +31,8 @@
             </div>
         </div>
 
-        <!-- Desplegable: Edificio Habitual -->
-        <div class="dropdown-group">
+        <!-- ESTUDIANTE: las opciones las carga preferences.js desde la base de datos -->
+        <div class="dropdown-group" id="student-fields">
             <div class="custom-select-container">
                 <div class="select-field" id="select-building-trigger">
                     <span class="select-label">• Edificio Habitual</span>
@@ -42,15 +40,9 @@
                 </div>
                 <select id="select-building" class="hidden-select">
                     <option value="" disabled selected>Selecciona una opción</option>
-                    <option value="Edificio A">Edificio A</option>
-                    <option value="Edificio B">Edificio B</option>
-                    <option value="Edificio C">Edificio C</option>
-                    <option value="Edificio D">Edificio D</option>
-                    <option value="Edificio E">Edificio E</option>
                 </select>
             </div>
 
-            <!-- Desplegable: ¿Qué estudias? -->
             <div class="custom-select-container">
                 <div class="select-field" id="select-career-trigger">
                     <span class="select-label">• ¿Que estudias?</span>
@@ -58,11 +50,45 @@
                 </div>
                 <select id="select-career" class="hidden-select">
                     <option value="" disabled selected>Selecciona tu carrera</option>
-                    <option value="Ingeniería en Software">Ingeniería en Software</option>
-                    <option value="Ingeniería Civil">Ingeniería Civil</option>
-                    <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                    <option value="Medicina">Medicina</option>
-                    <option value="Arquitectura">Arquitectura</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- COLABORADOR UAG (oculto para estudiantes) -->
+        <div class="dropdown-group" id="worker-fields" style="display: none;">
+            <div class="custom-select-container">
+                <div class="select-field" id="select-space-trigger">
+                    <span class="select-label">• Selecciona tu espacio principal de trabajo</span>
+                    <span class="select-arrow">▼</span>
+                </div>
+                <select id="select-space" class="hidden-select">
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="sala_maestro">Sala de maestro</option>
+                    <option value="cubiculo_oficina">Cubículo/Oficina</option>
+                    <option value="no_aplica">No aplica</option>
+                </select>
+            </div>
+
+            <!-- Solo aparece si el espacio no es "No aplica"; sus opciones dependen del espacio elegido -->
+            <div class="custom-select-container" id="stay-group" style="display: none;">
+                <div class="select-field" id="select-stay-trigger">
+                    <span class="select-label">• Seleccione su estancia</span>
+                    <span class="select-arrow">▼</span>
+                </div>
+                <select id="select-stay" class="hidden-select">
+                    <option value="" disabled selected>Selecciona una opción</option>
+                </select>
+            </div>
+
+            <div class="custom-select-container">
+                <div class="select-field" id="select-view-trigger">
+                    <span class="select-label">• Detalle de la interfaz de usuario</span>
+                    <span class="select-arrow">▼</span>
+                </div>
+                <select id="select-view" class="hidden-select">
+                    <option value="" disabled selected>Selecciona una opción</option>
+                    <option value="simplificada">Vista Simplificada (Sin feed, sin publicaciones)</option>
+                    <option value="completa">Vista Completa (Incluye todo)</option>
                 </select>
             </div>
         </div>
@@ -74,9 +100,7 @@
     </footer>
 </main>
 
+<script src="js/api.js"></script>
 <script src="js/preferences.js"></script>
-<script>
-    lucide.createIcons();
-</script>
 </body>
 </html>
