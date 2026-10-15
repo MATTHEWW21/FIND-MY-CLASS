@@ -1,23 +1,39 @@
 document.addEventListener('DOMContentLoaded', () => {
     const formLogin = document.getElementById('form-login');
 
-    if (formLogin) {
-        formLogin.addEventListener('submit', (e) => {
-            e.preventDefault();
+    if (!formLogin) return;
 
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
+    formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            if (email && password) {
-                // Guardar estado de sesión (simulado)
-                localStorage.setItem('userLoggedIn', 'true');
-                localStorage.setItem('userEmail', email);
+        const correo = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
 
-                // Redirigir al onboarding de propósitos antes del mapa
-                window.location.href = 'onboarding.html';
-            } else {
-                alert('Por favor, ingresa tu correo y contraseña.');
+        if (!correo || !password) {
+            alert('Por favor, ingresa tu correo y contraseña.');
+            return;
+        }
+
+        const submitBtn = formLogin.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        try {
+            const data = await apiFetch('/auth/login', {
+                method: 'POST',
+                body: { correo, password },
+            });
+            guardarSesion(data.token, data.usuario);
+            window.location.href = rutaInicio(data.usuario);
+        } catch (err) {
+            // Cuenta creada pero sin verificar: mandarlo a verificar
+            if (err.data && err.data.requiereVerificacion) {
+                localStorage.setItem('pendingEmail', correo);
+                alert('Tu cuenta aún no está verificada. Ingresa el código que te enviamos.');
+                window.location.href = 'verify.html';
+                return;
             }
-        });
-    }
+            alert(err.message);
+            submitBtn.disabled = false;
+        }
+    });
 });

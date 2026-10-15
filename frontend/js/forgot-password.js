@@ -1,67 +1,113 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const formForgot = document.getElementById('form-forgot');
+    const stepEmail = document.getElementById('step-email');
+    const stepReset = document.getElementById('step-reset');
+    const subtitle = document.getElementById('form-subtitle');
+
+    const formEmail = document.getElementById('form-forgot-email');
+    const formReset = document.getElementById('form-forgot-reset');
+
+    const inputEmail = document.getElementById('forgot-email');
+    const inputCode = document.getElementById('forgot-code');
     const passMain = document.getElementById('pass-main');
     const passConfirm = document.getElementById('pass-confirm');
 
-    // Elementos DOM para reglas
-    const ruleMin = document.getElementById('rule-min');
-    const ruleUpper = document.getElementById('rule-upper');
-    const ruleNum = document.getElementById('rule-num');
-    const ruleSpec = document.getElementById('rule-spec');
+    const btnResend = document.getElementById('btn-resend');
+    const btnChangeEmail = document.getElementById('btn-change-email');
 
-    const validationState = {
-        min: false,
-        upper: false,
-        num: false,
-        spec: false
+    let correo = '';
+
+    const rules = {
+        min:   { el: document.getElementById('rule-min'),   test: (v) => v.length >= 8 },
+        upper: { el: document.getElementById('rule-upper'), test: (v) => /[A-Z]/.test(v) },
+        num:   { el: document.getElementById('rule-num'),   test: (v) => /[0-9]/.test(v) },
+        spec:  { el: document.getElementById('rule-spec'),  test: (v) => /[^A-Za-z0-9]/.test(v) },
     };
 
-    // Validar contraseña en tiempo real mientras escribe
     passMain.addEventListener('input', () => {
-        const val = passMain.value;
-
-        validationState.min = val.length >= 8;
-        updateRuleUI(ruleMin, validationState.min);
-
-        validationState.upper = /[A-Z]/.test(val);
-        updateRuleUI(ruleUpper, validationState.upper);
-
-        validationState.num = /[0-9]/.test(val);
-        updateRuleUI(ruleNum, validationState.num);
-
-        validationState.spec = /[!@#$%^&*(),.?":{}|<>]/.test(val);
-        updateRuleUI(ruleSpec, validationState.spec);
+        Object.values(rules).forEach(({ el, test }) => {
+            const ok = test(passMain.value);
+            el.classList.toggle('rule-valid', ok);
+            el.classList.toggle('rule-invalid', !ok);
+        });
     });
 
-    function updateRuleUI(element, isValid) {
-        if (isValid) {
-            element.classList.remove('rule-invalid');
-            element.classList.add('rule-valid');
+    function mostrarPaso(paso) {
+        const enReset = paso === 'reset';
+        stepEmail.style.display = enReset ? 'none' : '';
+        stepReset.style.display = enReset ? '' : 'none';
+        subtitle.textContent = enReset
+            ? 'Ingresa el código que enviamos a tu correo y elige tu nueva contraseña.'
+            : 'Ingresa tu correo institucional y te enviaremos un código para redefinir tu clave de acceso.';
+    }
+
+    // Pide el código al backend. Devuelve true si la petición se hizo.
+    async function pedirCodigo() {
+        const data = await apiFetch('/auth/olvide-password', {
+            method: 'POST',
+            body: { correo },
+        });
+        if (data.codigo_dev) {
+            alert(`[Modo desarrollo]\nTu código de recuperación es: ${data.codigo_dev}`);
         } else {
-            element.classList.remove('rule-valid');
-            element.classList.add('rule-invalid');
+            alert('Si el correo está registrado, te enviamos un código.');
         }
     }
 
-    // Manejar submit del formulario
-    if (formForgot) {
-        formForgot.addEventListener('submit', (e) => {
-            e.preventDefault();
+    // Paso 1: correo -> se envía el código
+    formEmail.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        correo = inputEmail.value.trim();
+        const btn = formEmail.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        try {
+            await pedirCodigo();
+            mostrarPaso('reset');
+        } catch (err) {
+            alert(err.message);
+        } finally {
+            btn.disabled = false;
+        }
+    });
 
-            const allRulesPassed = Object.values(validationState).every(isTrue => isTrue);
+    // Paso 2: código + nueva contraseña
+    formReset.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            if (!allRulesPassed) {
-                alert('La nueva contraseña debe cumplir con todas las reglas de seguridad.');
-                return;
-            }
+        if (!Object.values(rules).every(({ test }) => test(passMain.value))) {
+            alert('La nueva contraseña debe cumplir con todas las reglas de seguridad.');
+            return;
+        }
+        if (passMain.value !== passConfirm.value) {
+            alert('Las contraseñas no coinciden. Por favor verifica.');
+            return;
+        }
 
-            if (passMain.value !== passConfirm.value) {
-                alert('Las contraseñas no coinciden. Por favor verifica.');
-                return;
-            }
-
+        const btn = formReset.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        try {
+            await apiFetch('/auth/restablecer-password', {
+                method: 'POST',
+                body: { correo, codigo: inputCode.value.trim(), password: passMain.value },
+            });
             alert('¡Tu contraseña ha sido actualizada con éxito!');
             window.location.href = 'login.html';
-        });
-    }
+        } catch (err) {
+            alert(err.message);
+            btn.disabled = false;
+        }
+    });
+
+    btnResend.addEventListener('click', async (e) => {
+        e.preventDefault();
+        try {
+            await pedirCodigo();
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    btnChangeEmail.addEventListener('click', (e) => {
+        e.preventDefault();
+        mostrarPaso('email');
+    });
 });

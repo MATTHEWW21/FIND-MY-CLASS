@@ -8,6 +8,7 @@ require('dotenv').config();
 const edificioRoutes = require('./routes/edificioRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const servicioRoutes = require('./routes/servicioRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Montar rutas de la API
+app.use('/api/auth', authRoutes);
 app.use('/api/edificios', edificioRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/servicios', servicioRoutes);

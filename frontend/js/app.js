@@ -15,14 +15,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (btnContinuar) {
-        btnContinuar.addEventListener('click', () => {
-            // Validación opcional: verificar que haya seleccionado un rol antes de avanzar
+        btnContinuar.addEventListener('click', async () => {
             if (!selectedRole) {
                 alert('Por favor selecciona una opción antes de continuar.');
                 return;
             }
 
             localStorage.setItem('selectedRole', selectedRole);
+
+            // El visitante no se registra: entra como invitado directo al mapa
+            if (selectedRole === 'visitante') {
+                btnContinuar.disabled = true;
+                try {
+                    const data = await apiFetch('/auth/invitado', { method: 'POST' });
+                    guardarSesion(data.token, data.usuario);
+                    window.location.href = rutaInicio(data.usuario);
+                } catch (err) {
+                    alert(err.message);
+                    btnContinuar.disabled = false;
+                }
+                return;
+            }
+
             window.location.href = 'register.html';
         });
     }

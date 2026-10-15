@@ -1,30 +1,51 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Generar un código simulado de 6 dígitos
-    let generatedCode = localStorage.getItem('simulatedCode');
+    const correo = localStorage.getItem('pendingEmail');
 
-    if (!generatedCode) {
-        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-        localStorage.setItem('simulatedCode', generatedCode);
+    // Sin correo pendiente no hay nada que verificar
+    if (!correo) {
+        alert('No hay un registro pendiente de verificar. Inicia sesión o regístrate.');
+        window.location.href = 'index.html';
+        return;
     }
-
-    // Mostrar el código en una alerta simulando la llegada del correo
-    setTimeout(() => {
-        alert(`[Simulación Correo UAG]\nTu código de verificación es: ${generatedCode}`);
-    }, 500);
 
     const formVerify = document.getElementById('form-verify');
     const inputCode = document.getElementById('verify-code');
+    const btnResend = document.getElementById('btn-resend');
 
-    if (formVerify) {
-        formVerify.addEventListener('submit', (e) => {
+    formVerify.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = formVerify.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        try {
+            await apiFetch('/auth/verificar', {
+                method: 'POST',
+                body: { correo, codigo: inputCode.value.trim() },
+            });
+            localStorage.removeItem('pendingEmail');
+            alert('¡Verificación exitosa! Ahora inicia sesión.');
+            window.location.href = 'login.html';
+        } catch (err) {
+            alert(err.message);
+            submitBtn.disabled = false;
+        }
+    });
+
+    if (btnResend) {
+        btnResend.addEventListener('click', async (e) => {
             e.preventDefault();
-
-            if (inputCode.value.trim() === generatedCode) {
-                alert('¡Verificación exitosa!');
-                localStorage.removeItem('simulatedCode');
-                window.location.href = 'login.html';
-            } else {
-                alert('El código ingresado es incorrecto. Por favor intenta de nuevo.');
+            try {
+                const data = await apiFetch('/auth/reenviar-codigo', {
+                    method: 'POST',
+                    body: { correo },
+                });
+                if (data.codigo_dev) {
+                    alert(`[Modo desarrollo]\nTu nuevo código es: ${data.codigo_dev}`);
+                } else {
+                    alert('Te enviamos un nuevo código a tu correo institucional.');
+                }
+            } catch (err) {
+                alert(err.message);
             }
         });
     }
