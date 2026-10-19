@@ -6,6 +6,7 @@
     <title>Find My Class - Feed</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/feed.css">
+    <link rel="stylesheet" href="css/publicaciones.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/role-ui.js"></script>   <!-- antes de los demás scripts de la página -->
 
@@ -114,119 +115,10 @@
     <!-- Contenido Principal: Feed de Publicaciones -->
     <main class="feed-container">
 
-        <!-- CONTENEDOR DINÁMICO PARA PUBLICACIÓN NUEVA -->
-        <div id="new-post-container"></div>
-
         <h3 class="feed-section-title" style="margin: 12px 14px 6px 14px; font-size: 0.9rem; font-weight: 800; color: #333;">Feed de la Comunidad</h3>
 
-        <!-- Publicación Existente 1: Matías Fernández -->
-        <article class="post-card">
-            <div class="post-header">
-                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120" alt="Matias Fernández" class="user-avatar">
-                <div class="user-info">
-                    <h3 class="user-name">Matias Fernández</h3>
-                    <span class="post-time">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>
-                        Hoy, 3:45 PM
-                    </span>
-                </div>
-            </div>
-
-            <h2 class="activity-title">Bicicleta en la tarde</h2>
-
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <span class="metric-label">Distancia</span>
-                    <span class="metric-value">400 m</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Calorías</span>
-                    <span class="metric-value">30</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Tiempo</span>
-                    <span class="metric-value">7 min</span>
-                </div>
-            </div>
-
-            <div class="post-gallery">
-                <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=300" alt="Mapa" class="gallery-img">
-                <img src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&q=80&w=300" alt="Campus UAG" class="gallery-img">
-                <img src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&q=80&w=300" alt="Entrada" class="gallery-img">
-            </div>
-
-            <div class="post-social">
-                <div class="likes-avatars">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=60" alt="User" class="mini-avatar">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=60" alt="User" class="mini-avatar">
-                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=60" alt="User" class="mini-avatar">
-                </div>
-                <span class="likes-text">Le gusta a ti y a 5 otros</span>
-            </div>
-
-            <div class="post-actions">
-                <div class="action-buttons-left">
-                    <button type="button" class="icon-btn heart-btn active">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                    </button>
-                    <button type="button" class="icon-btn comment-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </button>
-                </div>
-                <button type="button" class="icon-btn more-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                </button>
-            </div>
-        </article>
-
-        <!-- Publicación Existente 2: Ángel Orozco (Con enlace interactivo al Perfil) -->
-        <article class="post-card">
-            <div class="post-header">
-                <a href="perfil_usuario.html?user=angel" class="user-profile-link">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="Ángel Orozco" class="user-avatar">
-                </a>
-                <div class="user-info">
-                    <a href="perfil_usuario.html?user=angel" class="user-profile-link user-name-link">
-                        <h3 class="user-name">Ángel Orozco</h3>
-                    </a>
-                    <span class="post-time">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-icon"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        Hoy, 8:22 AM
-                    </span>
-                </div>
-            </div>
-
-            <h2 class="activity-title">Caminata en la mañana</h2>
-
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <span class="metric-label">Distancia</span>
-                    <span class="metric-value">1.2 km</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Calorías</span>
-                    <span class="metric-value">85</span>
-                </div>
-                <div class="metric-item">
-                    <span class="metric-label">Tiempo</span>
-                    <span class="metric-value">18 min</span>
-                </div>
-            </div>
-
-            <div class="post-actions">
-                <div class="action-buttons-left">
-                    <button type="button" class="icon-btn heart-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                    </button>
-                    <button type="button" class="icon-btn comment-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </button>
-                </div>
-                <button type="button" class="icon-btn more-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-                </button>
-            </div>
-        </article>
+        <!-- Aquí js/feed.js dibuja las publicaciones reales -->
+        <div id="feed-posts"></div>
 
     </main>
 
@@ -263,9 +155,10 @@
 
 </div>
 
-<!-- Carga de Scripts -->
+<!-- Carga de Scripts (api.js primero: feed.js lo usa) -->
+<script src="js/api.js"></script>
+<script src="js/actividades.js"></script>
 <script src="js/feed.js"></script>
 <script src="js/tutorial.js"></script>
-<script src="js/api.js"></script>       <!-- solo si esa página aún no lo carga -->
 </body>
 </html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Herramienta de rutas</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    #barra { padding: 8px 12px; background: #fff; border-bottom: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; }
+    #barra label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+    button { padding: 6px 12px; border: 0; border-radius: 6px; background: #d07f4c; color: #fff; font-size: 14px; cursor: pointer; }
+    button.sec { background: #888; }
+    #estado { padding: 6px 12px; font-size: 13px; background: #fafafa; border-bottom: 1px solid #ddd; color: #333; }
+    #estado b.mal { color: #c0392b; }
+    #estado b.bien { color: #2e8b57; }
+    #map { flex: 1; min-height: 300px; }
+    textarea { height: 150px; font-family: monospace; font-size: 12px; border: 0; border-top: 1px solid #ccc; padding: 8px; resize: vertical; }
+</style>
+</head>
+<body>
+
+<div id="barra">
+    <strong>Modo:</strong>
+    <label title="Toca el mapa para poner un punto suelto"><input type="radio" name="modo" value="punto" checked> Punto</label>
+    <label title="Toca un punto para elegirlo y luego otro para unirlos. Tocar un lugar vacio del mapa crea un punto nuevo unido al elegido"><input type="radio" name="modo" value="conectar"> Conectar</label>
+    <label title="Toca un tramo para cambiarlo entre accesible y con escaleras"><input type="radio" name="modo" value="alternar"> Accesible / escaleras</label>
+    <label title="Toca un punto o un tramo para borrarlo"><input type="radio" name="modo" value="borrar"> Borrar</label>
+    <label title="Lo que crees nuevo sera accesible (sin escaleras)"><input type="checkbox" id="chk-acc" checked> Lo nuevo es accesible</label>
+    <label><input type="checkbox" id="chk-lugares" checked> Mostrar lugares</label>
+    <button id="btn-soltar" class="sec">Soltar selección</button>
+    <button id="btn-deshacer" class="sec">Deshacer</button>
+    <button id="btn-copiar">Copiar SQL</button>
+    <button id="btn-recargar" class="sec" title="Descarta tu borrador y vuelve a cargar los puntos y tramos que hay en la base">Recargar desde la base</button>
+</div>
+<div id="estado">Cargando…</div>
+<div id="map"></div>
+<textarea id="salida" readonly placeholder="Aquí aparece el SQL..."></textarea>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Herramienta TEMPORAL para dibujar la red de caminos del campus (puntos y tramos entre ellos).
+// Abrela con el backend corriendo:  http://localhost:3000/herramienta_rutas.html
+// El SQL que genera REEMPLAZA toda la red (borra y vuelve a insertar), asi que se puede correr las veces que haga falta.
+
+const CLAVE = 'grafoBorrador';
+const map = L.map('map', { minZoom: 15, maxZoom: 20 }).setView([20.6938, -103.4178], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, maxNativeZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+
+let pts = [];      // { uid, nombre, lat, lng, acc }
+let tramos = [];   // { a, b, acc }  (a y b son uid de puntos)
+let siguiente = 1; // siguiente uid
+let sel = null;    // uid del punto elegido en modo Conectar
+let lugares = [];  // referencia: edificios y lugares del mapa
+let historial = [];
+
+const capaLugares = L.layerGroup().addTo(map);
+const capaRed = L.layerGroup().addTo(map);
+const salida = document.getElementById('salida');
+const estado = document.getElementById('estado');
+const modo = () => document.querySelector('input[name=modo]:checked').value;
+const accNuevo = () => document.getElementById('chk-acc').checked;
+
+// ---------- utilidades ----------
+function distancia(a, b) {
+    const R = 6371000, rad = Math.PI / 180;
+    const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
+    const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+}
+const porUid = (u) => pts.find((p) => p.uid === u);
+const existeTramo = (a, b) => tramos.some((t) => (t.a === a && t.b === b) || (t.a === b && t.b === a));
+const esc = (s) => String(s).replace(/'/g, "''");
+
+function nombreNuevo() {
+    let max = 0;
+    pts.forEach((p) => { const m = /^Punto (\d+)$/.exec(p.nombre); if (m) max = Math.max(max, Number(m[1])); });
+    return 'Punto ' + (max + 1);
+}
+
+// Nombres unicos (el SQL une los tramos con los puntos por nombre)
+function nombresUnicos() {
+    const vistos = new Set();
+    pts.forEach((p) => {
+        let n = (p.nombre || '').trim() || nombreNuevo();
+        while (vistos.has(n)) n = nombreNuevo();
+        p.nombre = n; vistos.add(n);
+    });
+}
+
+function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify({ pts, tramos, siguiente })); } catch (e) {} }
+function foto() { historial.push(JSON.stringify({ pts, tramos, siguiente })); if (historial.length > 80) historial.shift(); }
+
+// ---------- dibujo ----------
+function componentes() {
+    const padre = new Map(pts.map((p) => [p.uid, p.uid]));
+    const raiz = (x) => { while (padre.get(x) !== x) x = padre.get(x); return x; };
+    tramos.forEach((t) => { if (padre.has(t.a) && padre.has(t.b)) padre.set(raiz(t.a), raiz(t.b)); });
+    return new Set(pts.map((p) => raiz(p.uid))).size;
+}
+
+function dibujar() {
+    capaRed.clearLayers();
+    tramos.forEach((t, i) => {
+        const a = porUid(t.a), b = porUid(t.b);
+        if (!a || !b) return;
+        const l = L.polyline([[a.lat, a.lng], [b.lat, b.lng]], {
+            color: t.acc ? '#2b7bd6' : '#d9534f', weight: 5, opacity: .85, dashArray: t.acc ? null : '8 6', bubblingMouseEvents: false,
+        }).addTo(capaRed);
+        l.bindTooltip(Math.round(distancia(a, b)) + ' m' + (t.acc ? '' : ' · escaleras'));
+        l.on('click', () => clickTramo(i));
+    });
+    pts.forEach((p) => {
+        const elegido = p.uid === sel;
+        const m = L.circleMarker([p.lat, p.lng], {
+            radius: elegido ? 10 : 7, color: elegido ? '#000' : '#fff', weight: 2,
+            fillColor: p.acc ? '#2b7bd6' : '#d9534f', fillOpacity: 1, bubblingMouseEvents: false,
+        }).addTo(capaRed);
+        m.bindTooltip(p.nombre);
+        m.on('click', () => clickPunto(p.uid));
+    });
+    pintarLugares();
+    actualizar();
+}
+
+function pintarLugares() {
+    capaLugares.clearLayers();
+    if (!document.getElementById('chk-lugares').checked) return;
+    lugares.forEach((l) => {
+        const lejos = pts.length && Math.min(...pts.map((p) => distancia(l, p))) > 80;
+        L.circleMarker([l.lat, l.lng], {
+            radius: 4, color: lejos ? '#d9534f' : '#888', fillColor: lejos ? '#d9534f' : '#bbb', fillOpacity: .9, weight: 1, interactive: false,
+        }).addTo(capaLugares).bindTooltip(l.nombre);
+    });
+}
+
+function actualizar() {
+    nombresUnicos();
+    const comp = componentes();
+    const lejos = pts.length ? lugares.filter((l) => Math.min(...pts.map((p) => distancia(l, p))) > 80).length : lugares.length;
+    estado.innerHTML = `${pts.length} puntos · ${tramos.length} tramos · ` +
+        (pts.length ? (comp === 1 ? '<b class="bien">red conectada ✔</b>' : `<b class="mal">${comp} grupos sin conexión entre sí</b>`) : 'sin puntos') +
+        ` · lugares a más de 80 m de la red: <b class="${lejos ? 'mal' : 'bien'}">${lejos}</b>` +
+        (sel ? ` · elegido: <b>${porUid(sel).nombre}</b>` : '');
+    salida.value = sql();
+}
+
+// ---------- acciones ----------
+function clickPunto(uid) {
+    const m = modo();
+    if (m === 'conectar') {
+        if (sel === null) sel = uid;
+        else if (sel === uid) sel = null;
+        else {
+            if (!existeTramo(sel, uid)) { foto(); tramos.push({ a: sel, b: uid, acc: accNuevo() }); }
+            sel = uid; // se sigue en cadena desde el punto al que llegaste
+        }
+    } else if (m === 'borrar') {
+        foto();
+        pts = pts.filter((p) => p.uid !== uid);
+        tramos = tramos.filter((t) => t.a !== uid && t.b !== uid);
+        if (sel === uid) sel = null;
+    } else if (m === 'alternar') {
+        foto();
+        const p = porUid(uid); p.acc = !p.acc;
+    }
+    guardar(); dibujar();
+}
+
+function clickTramo(i) {
+    const m = modo();
+    if (m === 'borrar') { foto(); tramos.splice(i, 1); }
+    else if (m === 'alternar') { foto(); tramos[i].acc = !tramos[i].acc; }
+    else return;
+    guardar(); dibujar();
+}
+
+map.on('click', (e) => {
+    const m = modo();
+    if (m !== 'punto' && m !== 'conectar') return;
+    foto();
+    const p = { uid: siguiente++, nombre: nombreNuevo(), lat: e.latlng.lat, lng: e.latlng.lng, acc: accNuevo() };
+    pts.push(p);
+    if (m === 'conectar') {
+        if (sel !== null) tramos.push({ a: sel, b: p.uid, acc: accNuevo() }); // une con el punto elegido
+        sel = p.uid;
+    }
+    guardar(); dibujar();
+});
+
+document.getElementById('btn-soltar').addEventListener('click', () => { sel = null; dibujar(); });
+document.getElementById('btn-deshacer').addEventListener('click', () => {
+    const f = historial.pop();
+    if (!f) return;
+    const d = JSON.parse(f); pts = d.pts; tramos = d.tramos; siguiente = d.siguiente; sel = null;
+    guardar(); dibujar();
+});
+document.getElementById('chk-lugares').addEventListener('change', pintarLugares);
+document.querySelectorAll('input[name=modo]').forEach((r) => r.addEventListener('change', () => { sel = null; dibujar(); }));
+document.getElementById('btn-copiar').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(salida.value); estado.textContent = 'SQL copiado ✔'; }
+    catch (e) { salida.select(); estado.textContent = 'Selecciona y copia (Ctrl+C).'; }
+});
+document.getElementById('btn-recargar').addEventListener('click', async () => {
+    if (!confirm('Esto descarta lo que has dibujado en esta pantalla y carga lo que hay en la base. ¿Continuar?')) return;
+    historial = []; sel = null;
+    await cargarDeBase();
+});
+
+// ---------- SQL (reemplaza toda la red) ----------
+function sql() {
+    if (!pts.length) return '-- Todavia no hay puntos.';
+    const f = (n) => Number(n).toFixed(7);
+    let t = '-- Guarda esto como el siguiente numero de migracion (ej. 013_grafo.sql) y córrelo con docker cp + -f\n';
+    t += '-- REEMPLAZA toda la red de caminos (puntos y rutas). Se puede correr de nuevo sin duplicar nada.\n\n';
+    t += 'BEGIN;\nDELETE FROM rutas;\nDELETE FROM puntos;\n\n';
+    t += 'INSERT INTO puntos (nombre, latitud, longitud, es_accesible) VALUES\n';
+    t += pts.map((p) => `  ('${esc(p.nombre)}', ${f(p.lat)}, ${f(p.lng)}, ${p.acc})`).join(',\n') + ';\n';
+    if (tramos.length) {
+        t += '\n-- Tramos (se unen con los puntos por nombre)\n';
+        tramos.forEach((r) => {
+            const a = porUid(r.a), b = porUid(r.b);
+            if (!a || !b) return;
+            t += `INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible)\n` +
+                 `  SELECT '${esc(a.nombre + ' - ' + b.nombre)}', o.id, d.id, ${distancia(a, b).toFixed(2)}, ${r.acc}\n` +
+                 `    FROM puntos o, puntos d WHERE o.nombre = '${esc(a.nombre)}' AND d.nombre = '${esc(b.nombre)}';\n`;
+        });
+    }
+    t += '\nCOMMIT;\n\nSELECT (SELECT count(*) FROM puntos) AS puntos, (SELECT count(*) FROM rutas) AS tramos;\n';
+    return t;
+}
+
+// ---------- carga inicial ----------
+async function cargarDeBase() {
+    try {
+        const g = await (await fetch('/api/mapa/grafo')).json();
+        pts = []; tramos = []; siguiente = 1;
+        const mapa = new Map();
+        (g.puntos || []).forEach((p) => {
+            const uid = siguiente++;
+            mapa.set(p.id, uid);
+            pts.push({ uid, nombre: p.nombre || '', lat: p.lat, lng: p.lng, acc: p.es_accesible !== false });
+        });
+        (g.rutas || []).forEach((r) => {
+            const a = mapa.get(r.origen), b = mapa.get(r.destino);
+            if (a && b && !existeTramo(a, b)) tramos.push({ a, b, acc: r.es_accesible !== false });
+        });
+    } catch (e) {
+        estado.textContent = 'No se pudo leer la base (¿abriste la herramienta desde http://localhost:3000?). Empiezas en blanco.';
+    }
+    guardar(); dibujar();
+}
+
+(async function inicio() {
+    try {
+        lugares = await (await fetch('/api/mapa/lugares')).json();
+    } catch (e) { lugares = []; }
+    let borrador = null;
+    try { borrador = JSON.parse(localStorage.getItem(CLAVE) || 'null'); } catch (e) {}
+    if (borrador && Array.isArray(borrador.pts)) {
+        pts = borrador.pts; tramos = borrador.tramos || []; siguiente = borrador.siguiente || (pts.length + 1);
+        dibujar();
+    } else {
+        await cargarDeBase();
+    }
+})();
+</script>
+</body>
+</html>

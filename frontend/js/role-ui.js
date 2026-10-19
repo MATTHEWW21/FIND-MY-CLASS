@@ -11,7 +11,7 @@
 
     // Páginas que la vista simplificada y el visitante NO tienen: se redirige al mapa
     const pagina = location.pathname.split('/').pop();
-    const sinFeed = ['feed.html', 'publicacion.html', 'mensajes.html'];
+    const sinFeed = ['feed.html', 'publicacion.html', 'nueva-publicacion.html', 'mensajes.html'];
     if ((simplificada || rol === 'visitante') && sinFeed.includes(pagina)) {
         location.replace('mapa.html');
     }

@@ -6,6 +6,7 @@
     <title>Find My Class - Nueva Publicación</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/publicacion.css">
+    <link rel="stylesheet" href="css/publicaciones.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/role-ui.js"></script>
 </head>
@@ -29,11 +30,13 @@
 
         <!-- Preview Principal -->
         <section class="media-preview-container">
-            <img src="assets/uag-campus.jpg" alt="Recorrido Campus UAG" class="main-preview-img">
+            <img src="" alt="Foto principal" class="main-preview-img hidden" id="main-preview-img">
 
-            <svg class="route-overlay-svg" viewBox="0 0 200 120" preserveAspectRatio="none">
-                <path d="M 30,90 Q 70,30 110,65 T 180,20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-            </svg>
+            <!-- Si todavía no hay fotos -->
+            <div class="pub-sin-foto" id="sin-foto">
+                <span>Comparte tu recorrido por el campus</span>
+                <button type="button" id="btn-agregar-foto-grande">📷 Agregar fotos</button>
+            </div>
 
             <button class="activity-badge-btn" id="open-activity-modal" title="Cambiar Actividad">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/></svg>
@@ -43,32 +46,24 @@
                 <div class="activity-name-tag" id="display-activity-name">CAMINATA</div>
                 <div class="metrics-row">
                     <div class="m-col">
-                        <span class="m-val" id="display-dist">2.00 KM</span>
+                        <span class="m-val" id="display-dist">—</span>
                         <span class="m-lbl">DISTANCIA</span>
                     </div>
                     <div class="m-col">
-                        <span class="m-val" id="display-dur">00:22:35</span>
+                        <span class="m-val" id="display-dur">—</span>
                         <span class="m-lbl">DURACIÓN</span>
                     </div>
                     <div class="m-col">
-                        <span class="m-val" id="display-cal">125</span>
+                        <span class="m-val" id="display-cal">—</span>
                         <span class="m-lbl">CALORÍAS</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Galería (2x4) -->
-        <section class="gallery-grid">
-            <div class="gallery-item active"><img src="assets/uag-campus.jpg" alt="Foto 1"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 2"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 3"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 4"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 5"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 6"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 7"></div>
-            <div class="gallery-item"><img src="assets/campus-2.jpg" alt="Foto 8"></div>
-        </section>
+        <!-- Fotos elegidas (hasta 3) -->
+        <section class="pub-miniaturas" id="miniaturas"></section>
+        <input type="file" id="input-fotos" accept="image/*" multiple hidden>
     </div>
 
     <!-- ================= PASO 2: FINALIZAR PUBLICACIÓN ================= -->
@@ -83,23 +78,23 @@
         <div class="publish-details-container">
             <!-- Preview Cuadrado de la Foto Elegida -->
             <div class="publish-card-preview">
-                <img src="assets/uag-campus.jpg" alt="Foto a publicar" class="selected-publish-img" id="selected-publish-img">
+                <img src="" alt="Foto a publicar" class="selected-publish-img hidden" id="selected-publish-img">
 
                 <!-- Badge Circular de Actividad -->
-                <div class="publish-badge-icon">🚶</div>
+                <div class="publish-badge-icon" id="publish-badge">🚶</div>
 
                 <!-- Overlay de Métricas -->
-                <div class="publish-overlay-stats">
+                <div class="publish-overlay-stats hidden" id="overlay-stats">
                     <div class="stat-item">
-                        <strong>2.80 KM</strong>
+                        <strong id="ov-dist">—</strong>
                         <span>DISTANCIA</span>
                     </div>
                     <div class="stat-item">
-                        <strong>00:32:25</strong>
+                        <strong id="ov-dur">—</strong>
                         <span>DURACIÓN</span>
                     </div>
                     <div class="stat-item">
-                        <strong>125</strong>
+                        <strong id="ov-cal">—</strong>
                         <span>CALORÍAS</span>
                     </div>
                 </div>
@@ -107,50 +102,55 @@
 
             <!-- Campo de Texto / Pie de foto -->
             <div class="caption-input-box">
-                <textarea placeholder="Escribe un comentario o pie de foto..." maxlength="250"></textarea>
+                <textarea id="pie-foto" placeholder="Escribe un comentario o pie de foto..." maxlength="250"></textarea>
             </div>
 
             <!-- Sección Añadir Detalles -->
             <div class="details-list-section">
                 <h4 class="details-section-title">AÑADIR DETALLES</h4>
 
-                <div class="details-item">
+                <div class="details-item deshabilitado">
                     <div class="details-left">
                         <span class="detail-icon">👥</span>
-                        <span>Etiquetar Personas</span>
+                        <div class="detail-text-col">
+                            <span>Etiquetar Personas</span>
+                            <small>Próximamente</small>
+                        </div>
                     </div>
-                    <span class="arrow">›</span>
                 </div>
 
-                <div class="details-item">
+                <div class="details-item tocable" id="fila-ubicacion">
                     <div class="details-left">
                         <span class="detail-icon">📍</span>
                         <div class="detail-text-col">
                             <span>Añadir Ubicación</span>
-                            <small>UAG State University</small>
+                            <small id="txt-ubicacion">Sin ubicación</small>
                         </div>
                     </div>
                     <span class="arrow">›</span>
                 </div>
 
-                <div class="details-item">
+                <div class="details-item tocable" id="fila-privacidad">
                     <div class="details-left">
                         <span class="detail-icon">🔒</span>
                         <div class="detail-text-col">
                             <span>Privacidad de la Publicación</span>
-                            <small>Todos</small>
+                            <small id="txt-privacidad">Todos</small>
                         </div>
                     </div>
                     <span class="arrow">›</span>
                 </div>
 
-                <div class="details-item switch-item">
+                <div class="details-item switch-item" id="fila-stats">
                     <div class="details-left">
                         <span class="detail-icon">📈</span>
-                        <span>Mostrar Estadística</span>
+                        <div class="detail-text-col">
+                            <span>Mostrar Estadística</span>
+                            <small id="txt-stats-ayuda"></small>
+                        </div>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" checked>
+                        <input type="checkbox" id="chk-stats" checked>
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -160,23 +160,21 @@
 
     <!-- Navegación Inferior -->
     <nav class="bottom-nav">
-        <a href="feed.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <a href="feed.html" id="nav-inicio" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>INICIO</span>
         </a>
-        <a href="registro.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
-            <span>REGISTRO</span>
+        <a href="registro.html" class="nav-item" id="nav-iniciar-ruta">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <span>INICIAR RUTA</span>
         </a>
-        <a href="#" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+        <a href="mensajes.html" id="nav-mensajes" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <!-- En la barra inferior (bottom-nav) -->
         <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
-        </a>
         </a>
     </nav>
 
@@ -226,8 +224,8 @@
 </main>
 
 <script src="js/api.js"></script>
-<script src="js/feed.js"></script>
-<script src="js/tutorial.js"></script>
+<script src="js/mapa-busqueda.js"></script>
+<script src="js/actividades.js"></script>
 <script src="js/publicacion.js"></script>
 </body>
 </html>

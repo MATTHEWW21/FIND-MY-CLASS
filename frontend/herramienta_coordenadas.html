@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta de coordenadas (temporal)</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        #panel { padding: 10px; background: #fff; border-bottom: 1px solid #ddd; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        #panel label { font-size: 14px; }
+        select, input[type=text], button { font-size: 14px; padding: 6px 8px; max-width: 100%; }
+        button { background: #d07f4c; color: #fff; border: 0; border-radius: 6px; cursor: pointer; }
+        button.sec { background: #888; }
+        #map { flex: 1; min-height: 240px; }
+        #salida { height: 170px; font-family: monospace; font-size: 12px; width: 100%; border: 0; border-top: 1px solid #ddd; padding: 8px; }
+        #estado { font-size: 13px; color: #555; }
+        .oculto { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="panel">
+    <label><input type="radio" name="modo" value="edificio" checked> Edificio</label>
+    <label><input type="radio" name="modo" value="lugar"> Lugar del mapa UAG</label>
+    <label><input type="radio" name="modo" value="servicio"> Snack / Bebedero</label>
+    <label><input type="radio" name="modo" value="punto"> Punto de ruta</label>
+
+    <span id="grp-edificio"><select id="sel-edificio"></select></span>
+
+    <span id="grp-lugar" class="oculto"><select id="sel-lugar"></select></span>
+
+    <span id="grp-servicio" class="oculto">
+        <select id="tipo-servicio">
+            <option value="snacks">Máquina de snacks</option>
+            <option value="bebedero">Bebedero</option>
+            <option value="ambos">Los dos aquí (snacks + bebedero)</option>
+        </select>
+        <input type="text" id="nombre-servicio" placeholder="Nombre (ej. Snacks edificio C)">
+    </span>
+
+    <span id="grp-punto" class="oculto">
+        <input type="text" id="nombre-punto" placeholder="Nombre (opcional)">
+        <label><input type="checkbox" id="accesible" checked> Accesible (sin escaleras)</label>
+    </span>
+
+    <button id="btn-deshacer" class="sec">Deshacer último</button>
+    <button id="btn-copiar">Copiar SQL</button>
+    <label title="Muestra TODO lo capturado, incluso lo que marcaste como ya corrido. Úsalo solo para revisar o recuperar algo; no corras ese SQL completo si ya metiste esas filas."><input type="checkbox" id="chk-todo"> Incluir lo ya corrido</label>
+    <button id="btn-reset-sb" class="sec" title="Borra de esta pantalla SOLO los snacks y bebederos para volver a capturarlos. No toca edificios, lugares ni puntos">Reiniciar snacks/bebederos</button>
+    <button id="btn-corrido" class="sec" title="Úsalo después de correr el SQL en la base, para que los siguientes archivos no repitan snacks, bebederos ni puntos">Ya corrí este SQL</button>
+    <span id="estado">Toca el mapa para colocar el punto.</span>
+</div>
+
+<div id="map"></div>
+<textarea id="salida" readonly placeholder="Aquí aparece el SQL..."></textarea>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// Herramienta TEMPORAL: sirve para capturar coordenadas tocando el mapa. Bórrala cuando termines.
+// Ábrela con el backend corriendo:  http://localhost:3000/herramienta_coordenadas.html
+// Requiere haber corrido ya la migración 008 (el SQL que genera actualiza esos lugares).
+
+// Cuidado: en el mapa oficial de la UAG las letras A-F dentro de círculos verdes son CANCHAS, no edificios.
+const EDIFICIOS = [
+    ['R','Rectoría'], ['A','Edificio A'], ['B','Edificio B'], ['C','Edificio C'], ['D','Edificio D'],
+    ['E','Edificio E'], ['F','Edificio F'], ['G','Edificio G'], ['H','Edificio H'], ['I','Edificio I'],
+    ['J','Edificio J'], ['N','Edificio N']
+];
+const LUGARES = [{"n": "P1", "nombre": "Puerta 1", "tipo": "puerta"}, {"n": "P2", "nombre": "Puerta 2", "tipo": "puerta"}, {"n": "1", "nombre": "Pan Comido", "tipo": "alimentos"}, {"n": "2", "nombre": "Tacos Charlie", "tipo": "alimentos"}, {"n": "3", "nombre": "Arroshito", "tipo": "alimentos"}, {"n": "4", "nombre": "Conolandia", "tipo": "alimentos"}, {"n": "5", "nombre": "Oxxo Smart", "tipo": "alimentos"}, {"n": "6", "nombre": "Flor de Córdoba", "tipo": "alimentos"}, {"n": "7", "nombre": "Snack Delicias", "tipo": "alimentos"}, {"n": "8", "nombre": "Dulce Estación", "tipo": "alimentos"}, {"n": "9", "nombre": "Limón y Chía", "tipo": "alimentos"}, {"n": "10", "nombre": "Tacos Jorgillo", "tipo": "alimentos"}, {"n": "11", "nombre": "Dirección de Internacionalización", "tipo": "oficina"}, {"n": "12", "nombre": "Oficina UAG Alumni", "tipo": "oficina"}, {"n": "13", "nombre": "Centro de Profesores y Egresados", "tipo": "oficina"}, {"n": "14", "nombre": "Oficina de Enlace UAG –ASU", "tipo": "oficina"}, {"n": "15", "nombre": "Centro de Competitividad Estudiantil", "tipo": "oficina"}, {"n": "16", "nombre": "CTIC", "tipo": "oficina"}, {"n": "17", "nombre": "CIDI", "tipo": "oficina"}, {"n": "18", "nombre": "Arte y Cultura", "tipo": "oficina"}, {"n": "19", "nombre": "CITSIA", "tipo": "oficina"}, {"n": "20", "nombre": "CTI", "tipo": "oficina"}, {"n": "21", "nombre": "Centro de Producción Audiovisual", "tipo": "oficina"}, {"n": "22", "nombre": "Incubadora de Negocios", "tipo": "oficina"}, {"n": "23", "nombre": "Centro de Simulación", "tipo": "oficina"}, {"n": "24", "nombre": "Centro Internacional de Idiomas", "tipo": "oficina"}, {"n": "25", "nombre": "Auditorio Dr. Luis Garibay Gutiérrez", "tipo": "auditorio"}, {"n": "26", "nombre": "Auditorio Hermann Neuberger", "tipo": "auditorio"}, {"n": "27", "nombre": "Auditorio Lic. Antonio Leaño Reyes", "tipo": "auditorio"}, {"n": "28", "nombre": "Amazon Locker", "tipo": "servicio"}, {"n": "29", "nombre": "Biblioteca", "tipo": "servicio"}, {"n": "30", "nombre": "UAG Solutions", "tipo": "servicio"}, {"n": "31", "nombre": "Recursos Humanos", "tipo": "servicio"}, {"n": "32", "nombre": "Activos Fijos", "tipo": "servicio"}, {"n": "33", "nombre": "Protección Civil", "tipo": "servicio"}, {"n": "34", "nombre": "Dirección de Asistencia Social", "tipo": "servicio"}, {"n": "35", "nombre": "Folia", "tipo": "servicio"}, {"n": "36", "nombre": "Librerías Gonvill", "tipo": "servicio"}, {"n": "37", "nombre": "UAG Store", "tipo": "servicio"}, {"n": "38", "nombre": "Banco Santander", "tipo": "servicio"}, {"n": "39", "nombre": "Foto Estudio", "tipo": "servicio"}, {"n": "40", "nombre": "Ideal-Lab", "tipo": "servicio"}, {"n": "41", "nombre": "Mr. Pencil (papelería)", "tipo": "servicio"}, {"n": "42", "nombre": "Midoku (centro de copiado)", "tipo": "servicio"}, {"n": "43", "nombre": "Vivero UAG", "tipo": "servicio"}, {"n": "44", "nombre": "Almacén General", "tipo": "servicio"}, {"n": "45", "nombre": "Planta Física", "tipo": "servicio"}, {"n": "46", "nombre": "Estadio 3 de Marzo", "tipo": "deportes"}, {"n": "47", "nombre": "Canchas de Futbol (A, B, C, D, E, F)", "tipo": "deportes"}, {"n": "48", "nombre": "Canchas de Tenis y Frontón", "tipo": "deportes"}, {"n": "49", "nombre": "Crossfit", "tipo": "deportes"}, {"n": "50", "nombre": "Canchas de Basquetbol", "tipo": "deportes"}, {"n": "51", "nombre": "Futbol Rápido", "tipo": "deportes"}, {"n": "52", "nombre": "Cancha de Voleibol de Playa", "tipo": "deportes"}, {"n": "53", "nombre": "Estadio de Beisbol Miguel Sotomayor", "tipo": "deportes"}, {"n": "54", "nombre": "Estadio de Futbol Americano 23 de Octubre", "tipo": "deportes"}, {"n": "55", "nombre": "Cancha de Softbol", "tipo": "deportes"}, {"n": "56", "nombre": "Alberca Olímpica", "tipo": "deportes"}, {"n": "57", "nombre": "Gimnasio Universitario", "tipo": "deportes"}, {"n": "58", "nombre": "FEJ", "tipo": "deportes"}, {"n": "59", "nombre": "Consultorio Médico", "tipo": "salud"}, {"n": "60", "nombre": "Laboratorios Médicos", "tipo": "salud"}, {"n": "61", "nombre": "UPE (Unidad de Pacientes en Estudios)", "tipo": "salud"}, {"n": "E1", "nombre": "Estacionamiento 1", "tipo": "estacionamiento"}, {"n": "E2", "nombre": "Estacionamiento 2", "tipo": "estacionamiento"}, {"n": "E3", "nombre": "Estacionamiento 3", "tipo": "estacionamiento"}, {"n": "E4", "nombre": "Estacionamiento 4", "tipo": "estacionamiento"}, {"n": "E5", "nombre": "Estacionamiento 5", "tipo": "estacionamiento"}, {"n": "E6", "nombre": "Estacionamiento 6", "tipo": "estacionamiento"}, {"n": "E7", "nombre": "Estacionamiento 7", "tipo": "estacionamiento"}, {"n": "E8", "nombre": "Estacionamiento 8", "tipo": "estacionamiento"}, {"n": "E9", "nombre": "Estacionamiento 9", "tipo": "estacionamiento"}];
+const CLAVE = 'coordenadasTemporales';
+
+// Misma zona que mapa.js
+const boundsUAG = L.latLngBounds(L.latLng(20.6870, -103.4240), L.latLng(20.6990, -103.4110));
+const map = L.map('map', { minZoom: 15, maxZoom: 19 }).setView([20.6938, -103.4178], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
+L.rectangle(boundsUAG, { color: '#d07f4c', weight: 1, fill: false, dashArray: '4' }).addTo(map);
+
+// Estado: edificios{codigo:{lat,lng}}, lugares{numero:{lat,lng}}, servicios[], puntos[], orden[]
+let datos = { edificios: {}, lugares: {}, servicios: [], puntos: [], orden: [], servYa: 0, ptsYa: 0 };
+try {
+    const g = localStorage.getItem(CLAVE);
+    if (g) datos = Object.assign(datos, JSON.parse(g));
+} catch (e) {}
+const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(datos)); } catch (e) {} };
+
+const selEdificio = document.getElementById('sel-edificio');
+const selLugar = document.getElementById('sel-lugar');
+const salida = document.getElementById('salida');
+const estado = document.getElementById('estado');
+let marcadores = [];
+
+function llenarSelects() {
+    const ae = selEdificio.value, al = selLugar.value;
+    selEdificio.innerHTML = '';
+    EDIFICIOS.forEach(([c, nombre]) => {
+        const o = document.createElement('option');
+        o.value = c; o.textContent = nombre + (datos.edificios[c] ? ' ✔' : '');
+        selEdificio.appendChild(o);
+    });
+    selLugar.innerHTML = '';
+    LUGARES.forEach((l) => {
+        const o = document.createElement('option');
+        o.value = l.n; o.textContent = l.n + '. ' + l.nombre + ' [' + l.tipo + ']' + (datos.lugares[l.n] ? ' ✔' : '');
+        selLugar.appendChild(o);
+    });
+    if (ae) selEdificio.value = ae;
+    if (al) selLugar.value = al;
+}
+
+function dibujar() {
+    marcadores.forEach((m) => map.removeLayer(m));
+    marcadores = [];
+    Object.entries(datos.edificios).forEach(([c, p]) => {
+        const m = L.marker([p.lat, p.lng], { draggable: true, title: 'Edificio ' + c }).addTo(map).bindTooltip(c, { permanent: true, direction: 'top' });
+        m.on('dragend', () => { const ll = m.getLatLng(); datos.edificios[c] = { lat: ll.lat, lng: ll.lng }; guardar(); sql(); });
+        marcadores.push(m);
+    });
+    Object.entries(datos.lugares).forEach(([n, p]) => {
+        const m = L.circleMarker([p.lat, p.lng], { radius: 7, color: '#e08a1e', fillOpacity: .9 }).addTo(map).bindTooltip(n);
+        marcadores.push(m);
+    });
+    datos.servicios.forEach((s) => {
+        const m = L.circleMarker([s.lat, s.lng], { radius: 6, color: '#7b3fa0', fillOpacity: .9 }).addTo(map).bindTooltip(s.tipo === 'snacks' ? 'S' : 'B');
+        marcadores.push(m);
+    });
+    datos.puntos.forEach((p, i) => {
+        const m = L.circleMarker([p.lat, p.lng], { radius: 5, color: p.accesible ? '#2b7bd6' : '#d9534f', fillOpacity: .9 }).addTo(map).bindTooltip(String(i + 1));
+        marcadores.push(m);
+    });
+}
+
+const f = (n) => Number(n).toFixed(7);
+const esc = (s) => String(s).replace(/'/g, "''");
+
+function sql() {
+    let t = '-- Guarda esto como el siguiente número de migración (ej. 010_coordenadas.sql) y córrelo con docker cp + -f\n';
+    if (document.getElementById('chk-todo').checked) t += '-- ATENCIÓN: incluye TODO (también lo ya corrido). Si ya metiste esas filas, NO lo corras completo.\n';
+    const eds = Object.entries(datos.edificios);
+    if (eds.length) {
+        t += '\n-- Coordenadas de edificios\n';
+        eds.forEach(([c, p]) => { t += `UPDATE edificios SET latitud = ${f(p.lat)}, longitud = ${f(p.lng)} WHERE codigo = '${c}';\n`; });
+    }
+    const lugs = Object.entries(datos.lugares);
+    if (lugs.length) {
+        t += '\n-- Coordenadas de los lugares del mapa oficial\n';
+        lugs.forEach(([n, p]) => { t += `UPDATE servicios SET latitud = ${f(p.lat)}, longitud = ${f(p.lng)} WHERE numero_mapa = '${n}';\n`; });
+    }
+    // Los INSERT no se pueden repetir (duplicarían filas): solo salen los que no hayas marcado como "ya corridos".
+    const contTipo = { snacks: 0, bebedero: 0 };
+    const todosS = datos.servicios.map((x) => {
+        contTipo[x.tipo]++;
+        return { x, nombre: x.nombre || (x.tipo === 'snacks' ? 'Máquina de snacks ' : 'Bebedero ') + contTipo[x.tipo] };
+    });
+    const verTodo = document.getElementById('chk-todo').checked;
+    const nuevosS = todosS.slice(verTodo ? 0 : (datos.servYa || 0));
+    if (nuevosS.length) {
+        t += '\n-- Máquinas de snacks y bebederos nuevos\n';
+        t += 'INSERT INTO servicios (nombre, tipo, latitud, longitud) VALUES\n';
+        t += nuevosS.map(({ x, nombre }) => `  ('${esc(nombre)}', '${x.tipo}', ${f(x.lat)}, ${f(x.lng)})`).join(',\n') + ';\n';
+    }
+    const nuevosP = datos.puntos.map((p, i) => ({ p, nombre: p.nombre || 'Punto ' + (i + 1) })).slice(verTodo ? 0 : (datos.ptsYa || 0));
+    if (nuevosP.length) {
+        t += '\n-- Puntos de ruta (en el orden en que los colocaste)\n';
+        t += 'INSERT INTO puntos (nombre, latitud, longitud, es_accesible) VALUES\n';
+        t += nuevosP.map(({ p, nombre }) => `  ('${esc(nombre)}', ${f(p.lat)}, ${f(p.lng)}, ${p.accesible})`).join(',\n') + ';\n';
+    }
+    salida.value = t;
+    estado.textContent = `${eds.length}/${EDIFICIOS.length} edificios · ${lugs.length}/${LUGARES.length} lugares · ${datos.servicios.length} snacks/bebederos (${nuevosS.length} nuevos) · ${datos.puntos.length} puntos (${nuevosP.length} nuevos)`;
+}
+
+function modo() { return document.querySelector('input[name=modo]:checked').value; }
+function mostrarGrupo() {
+    ['edificio', 'lugar', 'servicio', 'punto'].forEach((g) => document.getElementById('grp-' + g).classList.toggle('oculto', modo() !== g));
+}
+document.querySelectorAll('input[name=modo]').forEach((r) => r.addEventListener('change', mostrarGrupo));
+
+map.on('click', (e) => {
+    const { lat, lng } = e.latlng;
+    const m = modo();
+    if (m === 'edificio') {
+        const c = selEdificio.value;
+        datos.edificios[c] = { lat, lng };
+        datos.orden.push('e:' + c);
+        const sig = EDIFICIOS.find(([x]) => !datos.edificios[x]);
+        llenarSelects();
+        if (sig) selEdificio.value = sig[0];
+    } else if (m === 'lugar') {
+        const n = selLugar.value;
+        datos.lugares[n] = { lat, lng };
+        datos.orden.push('l:' + n);
+        const sig = LUGARES.find((l) => !datos.lugares[l.n]);
+        llenarSelects();
+        if (sig) selLugar.value = sig.n;
+    } else if (m === 'servicio') {
+        const tipo = document.getElementById('tipo-servicio').value;
+        const nombre = document.getElementById('nombre-servicio').value.trim();
+        if (tipo === 'ambos') {
+            // Dos filas independientes en el mismo lugar: una de snacks y una de bebedero
+            datos.servicios.push({ tipo: 'snacks', nombre: nombre ? nombre + ' (snacks)' : '', lat, lng });
+            datos.servicios.push({ tipo: 'bebedero', nombre: nombre ? nombre + ' (bebedero)' : '', lat, lng });
+            datos.orden.push('s', 's');
+        } else {
+            datos.servicios.push({ tipo, nombre, lat, lng });
+            datos.orden.push('s');
+        }
+        document.getElementById('nombre-servicio').value = '';
+    } else {
+        datos.puntos.push({
+            nombre: document.getElementById('nombre-punto').value.trim(),
+            lat, lng,
+            accesible: document.getElementById('accesible').checked,
+        });
+        datos.orden.push('p');
+        document.getElementById('nombre-punto').value = '';
+    }
+    guardar(); dibujar(); sql();
+});
+
+document.getElementById('btn-deshacer').addEventListener('click', () => {
+    const ult = datos.orden.pop();
+    if (!ult) return;
+    if (ult === 'p') { datos.puntos.pop(); datos.ptsYa = Math.min(datos.ptsYa || 0, datos.puntos.length); }
+    else if (ult === 's') { datos.servicios.pop(); datos.servYa = Math.min(datos.servYa || 0, datos.servicios.length); }
+    else if (ult.startsWith('e:')) delete datos.edificios[ult.slice(2)];
+    else if (ult.startsWith('l:')) delete datos.lugares[ult.slice(2)];
+    llenarSelects(); guardar(); dibujar(); sql();
+});
+
+document.getElementById('btn-copiar').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(salida.value); estado.textContent = 'SQL copiado ✔'; }
+    catch (e) { salida.select(); estado.textContent = 'Selecciona y copia (Ctrl+C).'; }
+});
+
+document.getElementById('btn-corrido').addEventListener('click', () => {
+    if (!confirm('¿Ya corriste el SQL actual en la base? Los snacks, bebederos y puntos que ya aparecen no volverán a salir en el siguiente SQL (los UPDATE de edificios y lugares sí se repiten, no hacen daño).')) return;
+    datos.servYa = datos.servicios.length;
+    datos.ptsYa = datos.puntos.length;
+    guardar(); sql();
+});
+
+document.getElementById('btn-reset-sb').addEventListener('click', () => {
+    if (!confirm('Esto borra de ESTA pantalla todos los snacks y bebederos capturados (no toca edificios, lugares ni puntos). Antes corre limpiar_snacks_bebederos.sql en la base. Continuar?')) return;
+    datos.servicios = []; datos.servYa = 0;
+    guardar(); dibujar(); sql();
+});
+
+document.getElementById('chk-todo').addEventListener('change', sql);
+
+llenarSelects(); dibujar(); sql();
+</script>
+</body>
+</html>

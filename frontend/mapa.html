@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mapa.css">
+    <link rel="stylesheet" href="css/mapa-buscador.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/role-ui.js"></script>
 </head>
@@ -32,8 +33,9 @@
 
     <!-- Chips Filtros Flotantes -->
     <div class="filter-chips">
-        <button class="chip">🍿 MÁQUIS DE SNACKS</button>
-        <button class="chip">🏪 TIENDAS DE ABARROTES</button>
+        <button class="chip" data-tipo="snacks">🍿 MÁQUINAS DE SNACKS</button>
+        <button class="chip" data-tipo="alimentos">🍽️ COMIDA</button>
+        <button class="chip" data-tipo="bebedero">💧 BEBEDEROS</button>
     </div>
 
     <!-- Panel 1: Ruta Detallada (Guía paso a paso) -->
@@ -43,20 +45,20 @@
         <div class="route-loc-box">
             <div class="loc-row">
                 <span class="dot orange"></span>
-                <span class="lbl-ubi">TU UBICACIÓN</span>
+                <span class="lbl-ubi" id="origin-label">TU UBICACIÓN</span>
             </div>
             <div class="loc-divider"></div>
             <div class="loc-row">
                 <span class="dot pin">📍</span>
-                <span class="val-dest">Cafetería - planta baja</span>
+                <span class="val-dest" id="dest-name">Elige un destino</span>
             </div>
         </div>
 
         <button class="btn-change">📍 VER OTRA RUTA</button>
 
         <div class="metrics-row">
-            <div class="metric-box">🚶 7 MIN - 600 M</div>
-            <div class="metric-box">🚴 4 MIN - 600 M</div>
+            <div class="metric-box" id="metric-walk">🚶 -- MIN</div>
+            <div class="metric-box" id="metric-bike">🚴 -- MIN</div>
         </div>
 
         <div class="actions-row">
@@ -65,9 +67,8 @@
         </div>
 
         <div class="instructions-text">
-            <p>Comienza caminando hasta pasar por todos los puntos azules.</p>
-            <p>Al llegar al edificio y continúa derecho hasta subir las escaleras para llegar al final del patio de cristal.</p>
-            <p>Gira a la derecha y al fondo del tercer pasillo <strong>TU SALÓN ES EL TERCERO QUE SE ENCONTRARÁ A TU IZQUIERDA.</strong></p>
+            <label class="toggle-accesible"><input type="checkbox" id="toggle-accesible"> ♿ Solo ruta accesible</label>
+            <p id="route-hint">Busca un destino para ver la distancia y el tiempo aproximados.</p>
         </div>
     </div>
 
@@ -83,7 +84,7 @@
             </div>
             <div class="arrival-text-group">
                 <h2 class="arrival-title">¡Llegaste a tu destino!</h2>
-                <p class="arrival-subtitle">Aula 15 - Campus Internacional</p>
+                <p class="arrival-subtitle" id="arrival-name">UAG Campus CU</p>
             </div>
         </div>
 
@@ -167,31 +168,31 @@
                 </div>
 
                 <div class="categories-grid">
-                    <button class="category-chip active">
+                    <button class="category-chip active" data-categoria="camino">
                         <span class="cat-icon">🛣️</span>
                         <span>Camino / Banqueta</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="bache">
                         <span class="cat-icon">🕳️</span>
                         <span>Bache</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="escalera">
                         <span class="cat-icon">🪜</span>
                         <span>Escalera</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="iluminacion">
                         <span class="cat-icon">💡</span>
                         <span>Iluminación</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="mobiliario">
                         <span class="cat-icon">🪑</span>
                         <span>Mobiliario</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="limpieza">
                         <span class="cat-icon">🗑️</span>
                         <span>Limpieza</span>
                     </button>
-                    <button class="category-chip">
+                    <button class="category-chip" data-categoria="otro">
                         <span class="cat-icon">💬</span>
                         <span>Otro</span>
                     </button>
@@ -222,9 +223,7 @@
                         <p>Toca el mapa para colocar el pin en el lugar exacto.</p>
                     </div>
                 </div>
-                <div class="mini-map-preview">
-                    <div class="pin-marker-map">🛣️</div>
-                </div>
+                <div class="mini-map-preview" id="report-map-box"></div>
             </div>
 
             <!-- Botones de Acción -->
@@ -236,6 +235,16 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- Panel: Buscador (se abre al tocar "BUSCA AQUÍ") -->
+    <div class="search-panel hidden" id="search-panel">
+        <div class="search-top">
+            <button type="button" class="search-close" id="btn-close-search" aria-label="Cerrar buscador">←</button>
+            <input type="search" id="search-input" placeholder="Busca edificios, comida, bebederos..." autocomplete="off">
+        </div>
+        <div class="search-cats" id="search-cats"></div>
+        <div class="search-results" id="search-results"></div>
     </div>
 
     <!-- Barra Inferior de Navegación -->
@@ -271,6 +280,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/api.js"></script>
+<script src="js/mapa-busqueda.js"></script>
+<script src="js/mapa-rutas.js"></script>
 <script src="js/mapa.js"></script>
 <script src="js/tutorial.js"></script>
 </body>
