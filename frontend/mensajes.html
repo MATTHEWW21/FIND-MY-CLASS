@@ -6,6 +6,7 @@
     <title>Find My Class - Mensajes</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mensajes.css">
+    <link rel="stylesheet" href="css/mensajes_extra.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/role-ui.js"></script>
 </head>
@@ -21,129 +22,52 @@
     <!-- Sub-header de Mensajes con Buscador -->
     <div class="chat-subheader">
         <div class="chat-title-row">
-            <span class="chat-back-arrow">←</span>
+            <a class="chat-back-arrow" href="feed.html" id="chat-back" aria-label="Volver">←</a>
             <h2>MENSAJES</h2>
-            <button class="add-contact-btn" title="Añadir contacto">
+            <button type="button" class="add-contact-btn" id="btn-amigos" title="Añadir contacto">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <span class="badge-solicitudes hidden" id="badge-solicitudes">0</span>
             </button>
         </div>
 
         <!-- Buscador -->
         <div class="search-bar-wrapper">
             <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" placeholder="Buscar amigos..." class="search-input">
+            <input type="text" placeholder="Buscar amigos..." class="search-input" id="buscar-amigos" autocomplete="off">
         </div>
 
-        <!-- Carrusel de Contactos / Historias -->
-        <div class="stories-carousel">
-            <div class="story-item">
+        <!-- Carrusel de amigos (se llena con mensajes.js) -->
+        <div class="stories-carousel" id="carrusel">
+            <div class="story-item" id="nuevo-chat">
                 <div class="story-circle new-chat">+</div>
                 <span class="story-name">Nuevo chat</span>
-            </div>
-            <div class="story-item active">
-                <div class="story-circle-img">
-                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120" alt="Matias">
-                    <span class="online-status"></span>
-                </div>
-                <span class="story-name">Matias Fernández</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle-img">
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120" alt="Ángel">
-                    <span class="online-status"></span>
-                </div>
-                <span class="story-name">Ángel Orozco</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle-img">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120" alt="Sofía">
-                    <span class="online-status"></span>
-                </div>
-                <span class="story-name">Sofía Ramírez</span>
-            </div>
-            <div class="story-item">
-                <div class="story-circle-img">
-                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120" alt="Daniel">
-                    <span class="online-status"></span>
-                </div>
-                <span class="story-name">Daniel Torres</span>
             </div>
         </div>
     </div>
 
     <!-- Encabezado del Chat Activo -->
-    <div class="active-chat-header">
+    <div class="active-chat-header hidden" id="chat-header">
         <div class="chat-user-info">
-            <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=120" alt="Matias" class="active-chat-avatar">
-            <div>
-                <h3 class="active-chat-name">Matias Fernández</h3>
-                <span class="active-chat-status">En línea</span>
-            </div>
-        </div>
-        <div class="active-chat-actions">
-            <button class="chat-action-btn">📞</button>
-            <button class="chat-action-btn">⋮</button>
+            <div class="avatar-iniciales" id="chat-avatar"></div>
+            <h3 class="active-chat-name" id="chat-nombre"></h3>
         </div>
     </div>
 
     <!-- Área de Mensajes de Conversación -->
     <div class="chat-messages-area" id="chat-messages">
-
-        <!-- Mensaje recibido -->
-        <div class="message-bubble received">
-            <p>Bro, ¿ya viste el mapa del campus?</p>
-            <span class="msg-time">10:14 a.m.</span>
-        </div>
-
-        <!-- Mensaje enviado -->
-        <div class="message-bubble sent">
-            <p>Sí, está muy buena la ruta.</p>
-            <span class="msg-time">10:15 a.m. ✓✓</span>
-        </div>
-
-        <!-- Mensaje recibido -->
-        <div class="message-bubble received">
-            <p>Te esperé en la cafetería, pero no llegaste 😅</p>
-            <span class="msg-time">10:15 a.m.</span>
-        </div>
-
-        <!-- Mensaje enviado -->
-        <div class="message-bubble sent">
-            <p>Ya voy para allá, me tardé un poco</p>
-            <span class="msg-time">10:16 a.m. ✓✓</span>
-        </div>
-
-        <!-- Mensaje recibido -->
-        <div class="message-bubble received">
-            <p>Jaja, no pasa nada. ¿Ya comiste?</p>
-            <span class="msg-time">10:16 a.m.</span>
-        </div>
-
-        <!-- Mensaje enviado -->
-        <div class="message-bubble sent">
-            <p>Aún no, voy con hambre</p>
-            <span class="msg-time">10:16 a.m. ✓✓</span>
-        </div>
-
-        <!-- Mensaje recibido -->
-        <div class="message-bubble received">
-            <p>Dale, nos vemos ahí</p>
-            <span class="msg-time">10:17 a.m. 👍</span>
-        </div>
-
-        <!-- Mensaje enviado -->
-        <div class="message-bubble sent">
-            <p>Súper</p>
-            <span class="msg-time">10:17 a.m. ✓✓</span>
-        </div>
-
+        <p class="chat-vacio" id="chat-vacio">Elige un amigo para empezar a chatear.</p>
     </div>
 
-    <!-- Input de Texto para Enviar Mensajes -->
-    <div class="chat-input-bar">
-        <button class="attach-btn" title="Adjuntar">📎</button>
-        <input type="text" id="chat-input-field" placeholder="Escribe un mensaje..." class="chat-input">
-        <button class="send-btn" id="btn-send-msg">
+    <!-- Input para enviar mensajes -->
+    <div class="chat-input-bar hidden" id="chat-input-bar">
+        <button type="button" class="attach-btn" id="btn-adjuntar" title="Enviar una foto">📎</button>
+        <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden>
+        <div class="foto-previa hidden" id="foto-previa">
+            <img id="foto-previa-img" alt="Foto por enviar">
+            <button type="button" id="foto-quitar" aria-label="Quitar foto">✕</button>
+        </div>
+        <input type="text" id="chat-input-field" placeholder="Escribe un mensaje..." class="chat-input" maxlength="1000" autocomplete="off">
+        <button type="button" class="send-btn" id="btn-send-msg" aria-label="Enviar">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="m2 21 21-9L2 3v7l15 2-15 2v7z"/></svg>
         </button>
     </div>
@@ -170,9 +94,31 @@
 
 </main>
 
+<!-- Amigos: buscar personas y responder solicitudes -->
+<div class="amigos-fondo hidden" id="amigos-fondo">
+    <div class="amigos-hoja" role="dialog" aria-label="Amigos">
+        <div class="amigos-cabecera">
+            <h2>Amigos</h2>
+            <button type="button" class="amigos-cerrar" id="amigos-cerrar" aria-label="Cerrar">✕</button>
+        </div>
+
+        <input type="text" class="amigos-buscar" id="amigos-buscar" placeholder="Busca a una persona por nombre..." autocomplete="off" maxlength="40">
+        <div id="amigos-resultados" class="amigos-lista"></div>
+
+        <h3 class="amigos-titulo" id="titulo-recibidas">Solicitudes recibidas</h3>
+        <div id="amigos-recibidas" class="amigos-lista"></div>
+
+        <h3 class="amigos-titulo" id="titulo-enviadas">Solicitudes enviadas</h3>
+        <div id="amigos-enviadas" class="amigos-lista"></div>
+
+        <h3 class="amigos-titulo" id="titulo-mis-amigos">Mis amigos</h3>
+        <div id="amigos-mis" class="amigos-lista"></div>
+
+        <p class="amigos-mensaje" id="amigos-mensaje" role="status"></p>
+    </div>
+</div>
+
 <script src="js/api.js"></script>
-<script src="js/feed.js"></script>
-<script src="js/tutorial.js"></script>
 <script src="js/mensajes.js"></script>
 </body>
 </html>

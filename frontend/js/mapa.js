@@ -79,11 +79,29 @@ document.addEventListener("DOMContentLoaded", () => {
         return m;
     }
 
+    // ---------- Visitante: solo ve lo que corresponde a su asunto ----------
+    // tipos: categorias que se muestran completas; servicios: nombres sueltos de la categoria "servicio".
+    const ASUNTOS = {
+        administrativo: { etiqueta: 'Administrativo', tipos: ['oficina', 'puerta', 'estacionamiento'], servicios: /banco|solutions|recursos humanos|asistencia social|store|protecci/ },
+        medico:         { etiqueta: 'Médico',         tipos: ['salud', 'puerta', 'estacionamiento'] },
+        deportivo:      { etiqueta: 'Deportivo',      tipos: ['deportes', 'bebedero', 'puerta', 'estacionamiento'] },
+        evento:         { etiqueta: 'Evento',         tipos: ['auditorio', 'alimentos', 'puerta', 'estacionamiento'] },
+    };
+    const asuntoVisita = localStorage.getItem('userRole') === 'visitante' ? ASUNTOS[localStorage.getItem('visitaAsunto')] : null;
+
+    function filtrarPorAsunto(lista) {
+        if (!asuntoVisita) return lista;
+        return lista.filter((l) =>
+            asuntoVisita.tipos.includes(l.tipo) ||
+            (l.tipo === 'servicio' && asuntoVisita.servicios && asuntoVisita.servicios.test(B.normalizar(l.nombre)))
+        );
+    }
+
     function dibujarPines() {
         capaBase.clearLayers();
         Object.keys(capasChip).forEach((k) => capasChip[k].clearLayers());
         lugares.forEach((l) => {
-            if (l.tipo === 'edificio' || l.tipo === 'puerta') {
+            if (l.tipo === 'edificio' || l.tipo === 'puerta' || (asuntoVisita && !capasChip[l.tipo])) {
                 crearPin(l, false).addTo(capaBase);
             } else if (capasChip[l.tipo]) {
                 crearPin(l, false).addTo(capasChip[l.tipo]);
@@ -102,10 +120,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // Para el visitante: aviso del asunto elegido (con enlace para cambiarlo) y sin chips vacios
+    function prepararAvisoAsunto() {
+        if (!asuntoVisita) return;
+        const cont = document.querySelector('.filter-chips');
+        if (!cont || cont.querySelector('.chip-asunto')) return;
+        const a = document.createElement('a');
+        a.className = 'chip chip-asunto';
+        a.href = 'visitante-asunto.html';
+        a.textContent = '🎯 ' + asuntoVisita.etiqueta.toUpperCase() + ' · CAMBIAR';
+        cont.insertBefore(a, cont.firstChild);
+        cont.querySelectorAll('.chip[data-tipo]').forEach((c) => {
+            if (!lugares.some((l) => l.tipo === c.dataset.tipo)) c.style.display = 'none';
+        });
+    }
+
     async function cargarLugares() {
         try {
             const data = await apiFetch('/mapa/lugares');
-            lugares = B.preparar(data);
+            lugares = filtrarPorAsunto(B.preparar(data));
+            prepararAvisoAsunto();
             dibujarPines();
         } catch (err) {
             console.error('No se pudieron cargar los lugares del mapa:', err);
@@ -240,14 +274,10 @@ document.addEventListener("DOMContentLoaded", () => {
         destino = null;
     }
 
-    // Opción "Solo ruta accesible" (se recuerda en este navegador)
-    const toggleAccesible = document.getElementById("toggle-accesible");
-    try { if (toggleAccesible) toggleAccesible.checked = localStorage.getItem("soloAccesible") === "1"; } catch (e) {}
-    if (toggleAccesible) {
-        toggleAccesible.addEventListener("change", () => {
-            try { localStorage.setItem("soloAccesible", toggleAccesible.checked ? "1" : "0"); } catch (e) {}
-            if (destino) trazarRuta(destino);
-        });
+    // Las rutas accesibles ya no se eligen aqui: salen de la respuesta en Preferencias
+    // (se guarda en la cuenta y llega en localStorage como accessibleRoutes)
+    function necesitaRutaAccesible() {
+        try { return localStorage.getItem("accessibleRoutes") === "true"; } catch (e) { return false; }
     }
 
     async function seleccionarDestino(l) {
@@ -275,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         capaSel.clearLayers();
         crearPin(l, true).addTo(capaSel);
 
-        const soloAccesible = !!(toggleAccesible && toggleAccesible.checked);
+        const soloAccesible = necesitaRutaAccesible();
         let ruta = R ? R.calcular(grafo, origen, l, { soloAccesible }) : null;
         let aviso = "";
         if (!ruta && soloAccesible && R) {
@@ -287,7 +317,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ruta) {
             metros = Math.round(ruta.metros / 10) * 10;
             L.polyline(ruta.camino.map((p) => [p.lat, p.lng]), { color: "#d07f4c", weight: 5, opacity: 0.9 }).addTo(capaSel);
-            hint = `Ruta por los andadores del campus hacia ${l.nombre}.${soloAccesible && !aviso ? " Camino accesible." : ""}${aviso}`;
+            // Las rampas solo se destacan cuando la persona pidio rutas accesibles (para los demas son un tramo normal)
+            const rampas = soloAccesible ? (ruta.rampas || []) : [];
+            rampas.forEach((r) => L.circleMarker([r.lat, r.lng], { radius: 9, color: "#ffffff", weight: 2, fillColor: "#2e9e5b", fillOpacity: 1 }).bindTooltip("Rampa ♿").addTo(capaSel));
+            const textoRampas = rampas.length ? ` Pasa por ${rampas.length === 1 ? "una rampa" : rampas.length + " rampas"} ♿.` : "";
+            hint = `Ruta por los andadores del campus hacia ${l.nombre}.${soloAccesible && !aviso ? " Camino accesible." : ""}${textoRampas}${aviso}`;
         } else {
             metros = Math.round(map.distance([origen.lat, origen.lng], [l.lat, l.lng]) * FACTOR_CAMINO / 10) * 10;
             L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#d07f4c", weight: 4, dashArray: "8 8" }).addTo(capaSel);
@@ -320,6 +354,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 distancia_m: rutaActual.metros, duracion_s: segundos, destino: destino.nombre, ts: Date.now(),
             }));
         } catch (e) {}
+        // También se guarda en la cuenta para el perfil y la racha (si no se logra, no pasa nada)
+        if (typeof registrarActividad === "function") {
+            registrarActividad({ tipo: "caminata", origen: "mapa", destino: destino.nombre, distancia_m: Math.round(rutaActual.metros), duracion_s: segundos });
+        }
     }
 
     // BOTÓN EMPEZAR Y FINALIZAR

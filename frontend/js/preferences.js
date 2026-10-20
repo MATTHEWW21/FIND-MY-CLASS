@@ -3,9 +3,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const rol = localStorage.getItem('userRole');
 
-    // El visitante no tiene preferencias guardadas
+    // El visitante solo responde si necesita rutas accesibles (no se guarda en ninguna cuenta)
+    if (rol === 'visitante') {
+        ['student-fields', 'worker-fields'].forEach((id) => { document.getElementById(id).style.display = 'none'; });
+        let acc = null;
+        const yes = document.getElementById('btn-accessible-yes');
+        const no = document.getElementById('btn-accessible-no');
+        yes.addEventListener('click', () => { acc = true; yes.classList.add('active'); no.classList.remove('active'); });
+        no.addEventListener('click', () => { acc = false; no.classList.add('active'); yes.classList.remove('active'); });
+        document.getElementById('btn-save').addEventListener('click', () => {
+            if (acc === null) { alert('Indica si necesitas rutas accesibles.'); return; }
+            localStorage.setItem('accessibleRoutes', String(acc));
+            window.location.href = 'loading.html';
+        });
+        return;
+    }
     if (rol !== 'estudiante' && rol !== 'colaborador') {
-        window.location.href = 'mapa.html';
+        window.location.href = 'index.html';
         return;
     }
     const esEstudiante = rol === 'estudiante';

@@ -16,6 +16,9 @@
     box-shadow: 0 0 0 3px rgba(208, 127, 76, .45), 0 3px 8px rgba(0, 0, 0, .4);
 }
 
+/* Aviso del asunto del visitante (es un enlace con forma de chip) */
+.filter-chips .chip-asunto { text-decoration: none; color: #5a4636; white-space: nowrap; display: inline-flex; align-items: center; background: #fff3e6; }
+
 /* Chips de filtros: cuando están prendidos */
 .filter-chips .chip.active { background: #d07f4c; color: #fff; border-color: #d07f4c; }
 

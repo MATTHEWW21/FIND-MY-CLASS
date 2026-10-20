@@ -21,8 +21,8 @@
             const a = nodos.get(r.origen), b = nodos.get(r.destino);
             if (!a || !b || a === b) return;
             const m = r.metros > 0 ? r.metros : distancia(a, b);
-            a.vecinos.push({ a: b, m });
-            b.vecinos.push({ a, m });
+            a.vecinos.push({ a: b, m, tipo: r.tipo });
+            b.vecinos.push({ a, m, tipo: r.tipo });
         });
         return nodos;
     }
@@ -79,7 +79,13 @@
         const camino = [{ lat: origen.lat, lng: origen.lng }]
             .concat(ids.map((id) => ({ lat: nodos.get(id).lat, lng: nodos.get(id).lng })))
             .concat([{ lat: destino.lat, lng: destino.lng }]);
-        return { metros: mejor.metros, camino };
+        // Cuantos tramos del camino son rampas (para avisarlo y marcarlos en el mapa)
+        const rampas = [];
+        for (let k = 0; k + 1 < ids.length; k++) {
+            const v = nodos.get(ids[k]).vecinos.find((x) => x.a.id === ids[k + 1] && x.tipo === 'rampa');
+            if (v) rampas.push({ lat: (nodos.get(ids[k]).lat + nodos.get(ids[k + 1]).lat) / 2, lng: (nodos.get(ids[k]).lng + nodos.get(ids[k + 1]).lng) / 2 });
+        }
+        return { metros: mejor.metros, camino, rampas };
     }
 
     const api = { distancia, construir, calcular };

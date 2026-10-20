@@ -24,6 +24,7 @@ router.post('/restablecer-password', limitador, ctrl.restablecerPassword);
 
 router.get('/me', verificarToken, ctrl.me);
 router.patch('/me', verificarToken, ctrl.actualizarPerfil);
+router.post('/me/password', verificarToken, limitador, ctrl.cambiarPassword);
 router.put('/me/preferencias', verificarToken, ctrl.actualizarPreferencias);
 
 module.exports = router;

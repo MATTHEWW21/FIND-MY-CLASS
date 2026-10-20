@@ -1,0 +1,52 @@
+/* registro-extra.css - piezas nuevas de INICIAR RUTA (GPS, terminar, resumen, SOS real). Va despues de registro.css. */
+.hidden { display: none !important; }
+
+.gps-estado { margin: 10px 16px 0; text-align: center; font-size: .72rem; font-weight: 700; color: #8c8275; min-height: 1.1em; }
+.gps-estado.ok { color: #2e8b46; }
+.gps-estado.aviso { color: #b8601f; }
+
+.activity-selector { gap: 10px; flex-wrap: wrap; justify-content: center; padding: 0 12px; }
+.selector-btn:disabled { opacity: .45; cursor: default; }
+
+.finish-btn {
+    width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; border: 2px solid #b3382c; background: #fff;
+    color: #b3382c; font-size: .85rem; font-weight: 900; letter-spacing: .5px; cursor: pointer;
+}
+.finish-btn:active { background: #b3382c; color: #fff; }
+
+/* Resumen al terminar */
+.resumen-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 9998;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.resumen-card {
+    width: 100%; max-width: 360px; background: #faf7f2; border-radius: 20px; padding: 22px 18px 18px;
+    text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, .3);
+}
+.resumen-icono {
+    width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center;
+}
+.resumen-card h2 { margin: 0 0 12px; font-size: 1.1rem; color: #1a1a1a; }
+.resumen-stats { display: flex; justify-content: space-around; margin-bottom: 12px; }
+.resumen-stats div { display: flex; flex-direction: column; align-items: center; }
+.resumen-stats strong { font-size: 1.15rem; font-weight: 800; color: #1a1a1a; }
+.resumen-stats span { font-size: .6rem; font-weight: 800; color: #8c8275; letter-spacing: .5px; }
+.resumen-estado { min-height: 1.1em; margin: 0 0 12px; font-size: .78rem; font-weight: 700; color: #2e8b46; }
+.resumen-estado.error { color: #b3382c; }
+.resumen-btn {
+    width: 100%; margin-top: 8px; padding: 12px; border-radius: 12px; border: 2px solid #d97736; background: #fff;
+    color: #b8601f; font-size: .85rem; font-weight: 800; cursor: pointer;
+}
+.resumen-btn.principal { background: #d97736; color: #fff; }
+.resumen-btn:disabled { opacity: .6; cursor: default; }
+
+/* SOS */
+.sos-aviso { margin: 0 0 10px; font-size: .72rem; font-weight: 700; color: #b8601f; text-align: center; line-height: 1.35; }
+.sos-aviso a { color: #b8601f; }
+.btn-sos-call:disabled, .btn-sos-contact:disabled { opacity: .6; cursor: default; }
+
+/* Mapa real de ayuda cercana */
+.medical-map-view { min-height: 0; }
+.medical-map { position: absolute; inset: 0; }
+.medical-nota { margin: 0 0 10px; font-size: .72rem; font-weight: 600; color: #666; line-height: 1.35; }
+.arrival-card-time { font-size: 1.9rem; }

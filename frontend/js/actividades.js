@@ -16,10 +16,10 @@
         scooter:   { nombre: 'Scooter',             color: '#6b6b6b' },
     };
 
-    // Devuelve el SVG (blanco) de la actividad, del tamaño pedido en px
-    function icono(clave, tam) {
+    // Devuelve el SVG de la actividad (blanco por defecto), del tamaño pedido en px
+    function icono(clave, tam, color) {
         const t = TRAZOS[clave] || TRAZOS.caminata;
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="${tam}" height="${tam}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${t}</svg>`;
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="${tam}" height="${tam}" viewBox="0 0 24 24" fill="none" stroke="${color || '#fff'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${t}</svg>`;
     }
 
     root.FMCActividades = { ACTIVIDADES, icono };

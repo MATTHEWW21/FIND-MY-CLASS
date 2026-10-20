@@ -58,10 +58,10 @@ router.get('/grafo', async (req, res) => {
         `SELECT id, nombre, latitud, longitud, es_accesible FROM puntos ORDER BY id`
     );
     const rutas = await pool.query(
-        `SELECT id, origen_punto_id, destino_punto_id, distancia_metros, es_accesible
+        `SELECT *
          FROM rutas
-        WHERE origen_punto_id IS NOT NULL AND destino_punto_id IS NOT NULL
-        ORDER BY id`
+         WHERE origen_punto_id IS NOT NULL AND destino_punto_id IS NOT NULL
+         ORDER BY id`
     );
     res.json({
       puntos: puntos.rows.map((p) => ({
@@ -77,6 +77,7 @@ router.get('/grafo', async (req, res) => {
         destino: r.destino_punto_id,
         metros: r.distancia_metros === null ? null : Number(r.distancia_metros),
         es_accesible: r.es_accesible !== false,
+        tipo: r.tipo || (r.es_accesible === false ? 'escaleras' : 'normal'),
       })),
     });
   } catch (err) {

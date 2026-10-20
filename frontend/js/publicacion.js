@@ -24,6 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (r && Date.now() - r.ts < 12 * 3600 * 1000 && r.distancia_m > 0 && r.duracion_s > 0) {
             estado.ruta = r;
             estado.ubicacion = r.destino || null;
+            if (r.actividad && MET[r.actividad]) estado.actividad = r.actividad;   // la que se registró en INICIAR RUTA
         }
     } catch (e) {}
 

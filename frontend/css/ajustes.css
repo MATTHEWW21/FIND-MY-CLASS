@@ -1,0 +1,66 @@
+/* ajustes.css - tuerca del perfil y hoja de Ajustes. Va despues de mi_perfil.css. */
+.registro-header { position: relative; }
+.btn-ajustes {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #2b2b2b; cursor: pointer; padding: 6px; display: flex;
+}
+.my-profile-name { margin: 8px 0 0; text-align: center; font-weight: 800; font-size: 0.95rem; color: #1a1a1a; }
+
+.hidden { display: none !important; }
+.ajustes-fondo {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 50;
+    display: flex; align-items: flex-end; justify-content: center;
+}
+.ajustes-hoja {
+    width: 100%; max-width: 414px; max-height: 90vh; overflow-y: auto; box-sizing: border-box;
+    background: #faf7f2; border-radius: 20px 20px 0 0; padding: 16px 18px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+}
+.ajustes-cabecera { display: flex; justify-content: space-between; align-items: center; }
+.ajustes-cabecera h2 { margin: 0; font-family: Georgia, serif; font-size: 1.2rem; }
+.ajustes-cerrar { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #5a4636; }
+.ajustes-cuenta { display: flex; flex-direction: column; gap: 2px; font-size: .85rem; color: #5a4636; }
+.ajustes-cuenta strong { color: #1a1a1a; font-size: 1rem; }
+.ajustes-fila {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    background: #fff; border: 1px solid #e2d7c5; border-radius: 12px; padding: 12px 14px;
+    font-size: .9rem; font-weight: 600; color: #3b2f25;
+}
+.ajustes-fila input { width: 20px; height: 20px; accent-color: #d07f4c; }
+.ajustes-boton {
+    width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #d07f4c; background: #fff;
+    color: #a85a2a; font-weight: 700; font-size: .9rem; cursor: pointer;
+}
+.ajustes-boton.principal { background: #e2925d; color: #fff; border-color: #e2925d; }
+.ajustes-boton.salir { background: #fff; color: #b3382c; border-color: #b3382c; margin-top: 4px; }
+.ajustes-boton:disabled { opacity: .6; cursor: default; }
+.ajustes-password { display: flex; flex-direction: column; gap: 8px; }
+.ajustes-password input {
+    padding: 12px 14px; border-radius: 12px; border: 1px solid #e2d7c5; background: #fff; font-size: .9rem;
+}
+.ajustes-password small { color: #7a6a5a; font-size: .75rem; }
+.ajustes-mensaje { margin: 0; min-height: 1.1em; font-size: .85rem; font-weight: 600; text-align: center; color: #2e8b46; }
+.ajustes-mensaje.error { color: #b3382c; }
+
+/* ---- Perfil con datos reales ---- */
+.perfil-vacio { margin: 4px 0 8px; font-size: .75rem; font-weight: 700; color: #8c8275; }
+.activity-icon-type .act-circulo {
+    width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none;
+}
+.friends-column { text-decoration: none; color: inherit; }
+.friend-avatar {
+    width: 40px; height: 40px; border-radius: 6px; color: #fff; font-weight: 800; font-size: .8rem;
+    display: flex; align-items: center; justify-content: center; border: 1px solid #d0c2b0; box-sizing: border-box;
+}
+.friend-mas { font-size: .65rem; font-weight: 800; color: #d97736; text-align: center; max-width: 70px; }
+.milestone-card { text-align: center; }
+.milestone-card .milestone-tag { min-height: 2.2em; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.1; }
+.badge-circle.bloqueado { filter: grayscale(1); opacity: .35; }
+.milestone-progreso { font-size: .58rem; font-weight: 800; color: #8c8275; margin-top: 4px; }
+.milestones-grid { row-gap: 14px; }
+
+/* contacto de emergencia en Ajustes */
+.ajustes-contacto { display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid #e2d7c5; border-radius: 12px; padding: 12px 14px; }
+.ajustes-contacto strong { font-size: .9rem; color: #3b2f25; }
+.ajustes-contacto small { font-size: .72rem; color: #7a6a5a; }
+.ajustes-contacto input { padding: 11px 14px; border-radius: 12px; border: 1px solid #e2d7c5; background: #faf7f2; font-size: .9rem; }

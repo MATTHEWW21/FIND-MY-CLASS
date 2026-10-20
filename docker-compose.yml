@@ -8,13 +8,9 @@ services:
       - ./backend:/app
       - ./frontend:/frontend
       - /app/node_modules
-    environment:
-      - PORT=3000
-      - DB_HOST=postgres_db
-      - DB_USER=uag_admin
-      - DB_PASSWORD=secret_password
-      - DB_NAME=findmyclass_db
-      - DB_PORT=5432
+    # Todas las variables (base de datos, JWT, etc.) salen del archivo .env de la raiz del proyecto
+    env_file:
+      - .env
     depends_on:
       - postgres_db
 
@@ -23,11 +19,12 @@ services:
     container_name: naviu_postgres
     restart: always
     environment:
-      POSTGRES_USER: uag_admin
-      POSTGRES_PASSWORD: secret_password
-      POSTGRES_DB: findmyclass_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      # Solo accesible desde tu computadora (no desde la red)
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

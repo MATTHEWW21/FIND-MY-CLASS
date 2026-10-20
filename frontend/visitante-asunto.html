@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My Class - Asunto de visita</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<main class="welcome-container">
+    <div class="logo-container">
+        <img src="assets/logo.png" alt="Find My Class Logo" class="logo-img" onerror="this.style.display='none'">
+    </div>
+
+    <header class="header-text">
+        <h1>Bienvenido a<br><span>FIND MY CLASS</span></h1>
+        <p class="question">¿Qué asunto tienes?</p>
+    </header>
+
+    <section class="role-selection">
+        <button class="role-btn" data-asunto="administrativo">ADMINISTRATIVO</button>
+        <button class="role-btn" data-asunto="medico">MÉDICO</button>
+        <button class="role-btn" data-asunto="deportivo">DEPORTIVO</button>
+        <button class="role-btn" data-asunto="evento">ASISTENTE A EVENTO</button>
+    </section>
+
+    <footer class="footer-action">
+        <button class="btn-primary" id="btn-continuar">Continuar</button>
+    </footer>
+</main>
+
+<script src="js/api.js"></script>
+<script src="js/visitante-asunto.js"></script>
+</body>
+</html>

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find My Class - Iniciar Ruta</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/registro-extra.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/role-ui.js"></script>
 </head>
@@ -34,14 +36,19 @@
     <!-- Grid de Métricas -->
     <div class="metrics-grid">
         <div class="metric-item">
-            <span class="metric-value"><span id="distancia">0.00</span> km</span>
-            <span class="metric-label">DISTANCIA</span>
+            <span class="metric-value"><span id="distancia">0.00</span></span>
+            <span class="metric-label">DISTANCIA (KM)</span>
         </div>
         <div class="metric-item">
             <span class="metric-value" id="calorias">0</span>
             <span class="metric-label">CALORÍAS</span>
         </div>
+        <div class="metric-item">
+            <span class="metric-value" id="velocidad">0.0</span>
+            <span class="metric-label">VELOCIDAD (KM/H)</span>
+        </div>
     </div>
+    <p class="gps-estado" id="gps-estado">Elige tu actividad y pulsa COMENZAR</p>
 
     <!-- Botón SOS -->
     <div class="sos-wrapper">
@@ -50,29 +57,8 @@
 
     <hr class="divider">
 
-    <!-- Selector de Modos -->
-    <div class="activity-selector">
-        <!-- Caminata -->
-        <button class="selector-btn active" data-mode="caminata" title="Caminata">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/>
-            </svg>
-        </button>
-
-        <!-- Carrera (Correr) -->
-        <button class="selector-btn" data-mode="carrera" title="Carrera">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="15" cy="4" r="2"/><path d="M7 21l3-4 2 1 3 4"/><path d="M11 13l-2-2 3-3 4 2 3-2"/><path d="M14 8l-2 5"/>
-            </svg>
-        </button>
-
-        <!-- Bicicleta -->
-        <button class="selector-btn" data-mode="bicicleta" title="Bicicleta">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2l1.5 4.5"/><path d="M12 17.5V14l-3-4 4-3.5 3 3"/>
-            </svg>
-        </button>
-    </div>
+    <!-- Selector de actividades (lo llena registro.js con las mismas actividades y colores de "Nueva publicación") -->
+    <div class="activity-selector" id="selector"></div>
 
     <!-- Botón Comenzar -->
     <div class="start-action-wrapper">
@@ -81,29 +67,25 @@
                 <span class="start-title">COMENZAR</span>
                 <span class="start-subtitle" id="selected-activity-text">CAMINATA</span>
             </div>
-            <span>▶</span>
+            <span id="start-flecha">▶</span>
         </button>
+        <button class="finish-btn hidden" id="btn-terminar">TERMINAR Y GUARDAR</button>
     </div>
 
     <!-- Navegación Inferior -->
     <nav class="bottom-nav">
-        <a href="feed.html" class="nav-item">
+        <a href="feed.html" id="nav-inicio" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>INICIO</span>
         </a>
-
-        <a href="registro.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
-                <path d="M5 3l14 9-14 9V3z"/>
-            </svg>
+        <a href="registro.html" id="nav-iniciar-ruta" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
             <span>INICIAR RUTA</span>
         </a>
-
-        <a href="#" class="nav-item">
+        <a href="mensajes.html" id="nav-mensajes" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <!-- En la barra inferior (bottom-nav) -->
         <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
@@ -211,6 +193,8 @@
                     </button>
                 </div>
 
+                <p class="sos-aviso hidden" id="sos-aviso" role="status"></p>
+
                 <button class="btn-sos-cancel" id="btn-sos-cancel">
                     CANCELAR SOS
                 </button>
@@ -229,29 +213,14 @@
             </header>
 
             <div class="medical-map-view">
-                <div class="map-bg-campus">
-                    <div class="map-label-campus">UAG International Campus</div>
-                    <div class="map-label-av">Av. Universidad</div>
-
-                    <span class="med-pin pin-1">🏥</span>
-                    <span class="med-pin pin-2">🏥</span>
-                    <span class="med-pin pin-3">🏥</span>
-                    <span class="med-pin pin-4">📍</span>
-
-                    <div class="route-dots-path">
-                        <span class="dot-path"></span>
-                        <span class="dot-path"></span>
-                        <span class="dot-path"></span>
-                        <span class="dot-path"></span>
-                        <span class="dot-path"></span>
-                    </div>
-                </div>
+                <div id="medical-map" class="medical-map"></div>
             </div>
 
             <div class="arrival-time-card">
-                <span class="arrival-card-title">TIEMPO DE LLEGADA:</span>
-                <span class="arrival-card-time" id="medical-countdown">2:00 min</span>
-                <button class="btn-close-medical" id="btn-close-medical">Cerrar Asistencia</button>
+                <span class="arrival-card-title" id="medical-titulo">CONSULTORIO MÉDICO MÁS CERCANO</span>
+                <span class="arrival-card-time" id="medical-eta">--</span>
+                <p class="medical-nota" id="medical-nota"></p>
+                <button class="btn-close-medical" id="btn-close-medical">Cerrar</button>
             </div>
 
             <nav class="bottom-nav">
@@ -263,12 +232,12 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
                     <span>INICIAR RUTA</span>
                 </a>
-                <a href="mensajes.html" id="nav-mensajes" class="nav-item">
+                <a href="mensajes.html" class="nav-item">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                     <span>MENSAJES</span>
                 </a>
                 <!-- En la barra inferior (bottom-nav) -->
-                <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
+                <a href="mi_perfil.html" class="nav-item">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>PERFIL</span>
                 </a>
@@ -277,11 +246,29 @@
         </div>
     </div>
 
+    <!-- Resumen al terminar la actividad -->
+    <div class="resumen-overlay hidden" id="resumen-overlay">
+        <div class="resumen-card">
+            <div class="resumen-icono" id="resumen-icono"></div>
+            <h2 id="resumen-titulo">¡Actividad terminada!</h2>
+            <div class="resumen-stats">
+                <div><strong id="res-distancia">0.00</strong><span>KM</span></div>
+                <div><strong id="res-tiempo">00:00:00</strong><span>TIEMPO</span></div>
+                <div><strong id="res-calorias">0</strong><span>CALORÍAS</span></div>
+            </div>
+            <p class="resumen-estado" id="resumen-estado" role="status"></p>
+            <button class="resumen-btn principal hidden" id="btn-publicar">PUBLICAR EN EL FEED</button>
+            <button class="resumen-btn hidden" id="btn-reintentar">REINTENTAR GUARDAR</button>
+            <button class="resumen-btn" id="btn-resumen-listo">LISTO</button>
+        </div>
+    </div>
+
 </main>
 
-<script src="js/registro.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/api.js"></script>
-<script src="js/feed.js"></script>
-<script src="js/tutorial.js"></script>
+<script src="js/actividades.js"></script>
+<script src="js/mapa-rutas.js"></script>
+<script src="js/registro.js"></script>
 </body>
 </html>

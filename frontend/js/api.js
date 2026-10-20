@@ -5,7 +5,7 @@ const API_BASE = '/api';
 
 const CLAVES_SESION = [
     'token', 'userLoggedIn', 'userRole', 'userEmail', 'userName', 'userVista',
-    'accessibleRoutes', 'pendingEmail',
+    'accessibleRoutes', 'pendingEmail', 'visitaAsunto',
 ];
 
 function limpiarSesion() {
@@ -94,4 +94,18 @@ function homePara(rol, vista) {
 // Lo mismo, leyendo la sesión guardada en el teléfono (para la pantalla de carga)
 function rutaHome() {
     return homePara(localStorage.getItem('userRole'), localStorage.getItem('userVista'));
+}
+
+
+// Guarda una actividad terminada en la cuenta (perfil, racha y premios). Los visitantes no tienen cuenta: no se guarda.
+// datos: { tipo, distancia_m, duracion_s, origen?, destino? }. Devuelve la actividad guardada o null si no se pudo.
+async function registrarActividad(datos) {
+    const rol = localStorage.getItem('userRole');
+    if (rol !== 'estudiante' && rol !== 'colaborador') return null;
+    try {
+        return await apiFetch('/actividades', { method: 'POST', body: datos });
+    } catch (err) {
+        console.error('No se pudo guardar la actividad:', err);
+        return null;
+    }
 }
