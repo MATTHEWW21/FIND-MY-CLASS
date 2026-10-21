@@ -2,14 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Find My Class - Mapa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAGPS - Mapa</title>
     <!-- CSS Leaflet Mapa -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mapa.css">
     <link rel="stylesheet" href="css/mapa-buscador.css">
+    <link rel="stylesheet" href="css/voz.css">
     <link rel="stylesheet" href="css/role-ui.css">
+    <link rel="stylesheet" href="css/accesibilidad.css">
     <script src="js/role-ui.js"></script>
 </head>
 <body>
@@ -18,7 +20,7 @@
 
     <!-- Header Fijo Superior -->
     <header class="map-header">
-        <h1>FIND MY CLASS</h1>
+        <h1>UAGPS</h1>
     </header>
 
     <!-- Contenedor Mapa Leaflet -->
@@ -26,35 +28,37 @@
 
     <!-- Buscador Flotante -->
     <div class="map-search-bar" id="search-trigger">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87948" stroke-width="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-        <input type="text" placeholder="BUSCA AQUÍ" readonly>
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87948" stroke-width="2.5"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a87948" stroke-width="2.5" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <input type="text" placeholder="BUSCA AQUÍ" readonly aria-label="Buscar un lugar del campus" aria-haspopup="dialog">
+        <button type="button" class="search-mic" id="btn-voz-busqueda" aria-label="Buscar con la voz">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a87948" stroke-width="2.5" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </button>
     </div>
 
     <!-- Chips Filtros Flotantes -->
-    <div class="filter-chips">
-        <button class="chip" data-tipo="snacks">🍿 MÁQUINAS DE SNACKS</button>
-        <button class="chip" data-tipo="alimentos">🍽️ COMIDA</button>
-        <button class="chip" data-tipo="bebedero">💧 BEBEDEROS</button>
+    <div class="filter-chips" role="group" aria-label="Filtrar lugares por tipo">
+        <button class="chip" data-tipo="snacks"><span aria-hidden="true">🍿</span> MÁQUINAS DE SNACKS</button>
+        <button class="chip" data-tipo="alimentos"><span aria-hidden="true">🍽️</span> COMIDA</button>
+        <button class="chip" data-tipo="bebedero"><span aria-hidden="true">💧</span> BEBEDEROS</button>
     </div>
 
     <!-- Panel 1: Ruta Detallada (Guía paso a paso) -->
     <div class="route-panel-overlay hidden" id="route-panel">
-        <div class="panel-handle"></div>
+        <div class="panel-handle" aria-hidden="true"></div>
 
         <div class="route-loc-box">
             <div class="loc-row">
-                <span class="dot orange"></span>
+                <span class="dot orange" aria-hidden="true"></span>
                 <span class="lbl-ubi" id="origin-label">TU UBICACIÓN</span>
             </div>
             <div class="loc-divider"></div>
             <div class="loc-row">
-                <span class="dot pin">📍</span>
+                <span class="dot pin" aria-hidden="true">📍</span>
                 <span class="val-dest" id="dest-name">Elige un destino</span>
             </div>
         </div>
 
-        <button class="btn-change">📍 VER OTRA RUTA</button>
+        <button class="btn-change"><span aria-hidden="true">📍</span> VER OTRA RUTA</button>
 
         <div class="metrics-row">
             <div class="metric-box" id="metric-walk">🚶 -- MIN</div>
@@ -73,10 +77,10 @@
 
     <!-- Panel 2: ¡Llegaste a tu destino! (Aparece al pulsar FINALIZAR) -->
     <div class="route-panel-overlay hidden" id="arrival-panel">
-        <div class="panel-handle"></div>
+        <div class="panel-handle" aria-hidden="true"></div>
 
         <div class="arrival-header">
-            <div class="check-circle-icon">
+            <div class="check-circle-icon" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
@@ -92,11 +96,11 @@
 
     <!-- Panel 3: Valoración de Experiencia (Aparece tras pulsar Continuar) -->
     <div class="route-panel-overlay hidden" id="feedback-panel">
-        <div class="panel-handle"></div>
+        <div class="panel-handle" aria-hidden="true"></div>
 
         <!-- Encabezado con Icono -->
         <div class="feedback-header-badge">
-            <div class="star-badge-icon">⭐</div>
+            <div class="star-badge-icon" aria-hidden="true">⭐</div>
             <div class="badge-text-group">
                 <span class="badge-title">TU EXPERIENCIA</span>
                 <span class="badge-subtitle">Califica tu caminata (opcional)</span>
@@ -108,12 +112,12 @@
             <h3 class="feedback-question">¿Cómo te pareció la caminata desde aquí hasta tu destino?</h3>
 
             <!-- Selector de Estrellas -->
-            <div class="star-rating-row">
-                <span class="star-btn" data-value="1">☆</span>
-                <span class="star-btn" data-value="2">☆</span>
-                <span class="star-btn" data-value="3">☆</span>
-                <span class="star-btn" data-value="4">☆</span>
-                <span class="star-btn" data-value="5">☆</span>
+            <div class="star-rating-row" role="group" aria-label="Calificación de 1 a 5 estrellas">
+                <span class="star-btn" data-value="1" role="button" tabindex="0" aria-pressed="false" aria-label="Calificar con 1 estrella de 5">☆</span>
+                <span class="star-btn" data-value="2" role="button" tabindex="0" aria-pressed="false" aria-label="Calificar con 2 estrellas de 5">☆</span>
+                <span class="star-btn" data-value="3" role="button" tabindex="0" aria-pressed="false" aria-label="Calificar con 3 estrellas de 5">☆</span>
+                <span class="star-btn" data-value="4" role="button" tabindex="0" aria-pressed="false" aria-label="Calificar con 4 estrellas de 5">☆</span>
+                <span class="star-btn" data-value="5" role="button" tabindex="0" aria-pressed="false" aria-label="Calificar con 5 estrellas de 5">☆</span>
             </div>
             <div class="star-labels">
                 <span>Muy mala</span>
@@ -123,8 +127,8 @@
             <hr class="feedback-divider">
 
             <!-- Campo de Texto -->
-            <label class="comment-label">¿Hay algo que podamos mejorar?</label>
-            <textarea class="comment-textarea" placeholder="Escribe tu comentario aquí..."></textarea>
+            <label class="comment-label" for="comentario-caminata">¿Hay algo que podamos mejorar?</label>
+            <textarea class="comment-textarea" id="comentario-caminata" placeholder="Escribe tu comentario aquí..."></textarea>
 
             <!-- Botón Enviar -->
             <button class="btn-send-feedback" id="btn-send-feedback">
@@ -136,7 +140,7 @@
             <div class="feedback-footer-actions">
                 <button class="btn-skip-feedback" id="btn-skip-feedback">Ahora no, gracias</button>
                 <button class="btn-report-issue" id="btn-report-issue">
-                    Reportar <span class="report-icon">❗️</span>
+                    Reportar <span class="report-icon" aria-hidden="true">❗️</span>
                 </button>
             </div>
         </div>
@@ -144,11 +148,11 @@
 
     <!-- Panel 4: Reportar Incidencia -->
     <div class="route-panel-overlay hidden" id="report-panel">
-        <div class="panel-handle"></div>
+        <div class="panel-handle" aria-hidden="true"></div>
 
         <!-- Header con botón atrás -->
         <div class="report-header">
-            <button class="btn-back-report" id="btn-back-report">←</button>
+            <button class="btn-back-report" id="btn-back-report" aria-label="Volver a la calificación">←</button>
             <div class="report-header-text">
                 <h2>Reportar incidencia</h2>
                 <p>Ayúdanos a mantener el campus seguro y accesible</p>
@@ -159,40 +163,40 @@
             <!-- Sección 1: Categorías -->
             <div class="report-card-section">
                 <div class="section-title-row">
-                    <div class="section-icon warning">⚠️</div>
+                    <div class="section-icon warning" aria-hidden="true">⚠️</div>
                     <div>
                         <h3>¿Qué tipo de problema encontraste?</h3>
                         <p>Selecciona la categoría que corresponda.</p>
                     </div>
                 </div>
 
-                <div class="categories-grid">
-                    <button class="category-chip active" data-categoria="camino">
-                        <span class="cat-icon">🛣️</span>
+                <div class="categories-grid" role="group" aria-label="Tipo de problema">
+                    <button class="category-chip active" data-categoria="camino" aria-pressed="true">
+                        <span class="cat-icon" aria-hidden="true">🛣️</span>
                         <span>Camino / Banqueta</span>
                     </button>
-                    <button class="category-chip" data-categoria="bache">
-                        <span class="cat-icon">🕳️</span>
+                    <button class="category-chip" data-categoria="bache" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">🕳️</span>
                         <span>Bache</span>
                     </button>
-                    <button class="category-chip" data-categoria="escalera">
-                        <span class="cat-icon">🪜</span>
+                    <button class="category-chip" data-categoria="escalera" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">🪜</span>
                         <span>Escalera</span>
                     </button>
-                    <button class="category-chip" data-categoria="iluminacion">
-                        <span class="cat-icon">💡</span>
+                    <button class="category-chip" data-categoria="iluminacion" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">💡</span>
                         <span>Iluminación</span>
                     </button>
-                    <button class="category-chip" data-categoria="mobiliario">
-                        <span class="cat-icon">🪑</span>
+                    <button class="category-chip" data-categoria="mobiliario" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">🪑</span>
                         <span>Mobiliario</span>
                     </button>
-                    <button class="category-chip" data-categoria="limpieza">
-                        <span class="cat-icon">🗑️</span>
+                    <button class="category-chip" data-categoria="limpieza" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">🗑️</span>
                         <span>Limpieza</span>
                     </button>
-                    <button class="category-chip" data-categoria="otro">
-                        <span class="cat-icon">💬</span>
+                    <button class="category-chip" data-categoria="otro" aria-pressed="false">
+                        <span class="cat-icon" aria-hidden="true">💬</span>
                         <span>Otro</span>
                     </button>
                 </div>
@@ -201,14 +205,14 @@
             <!-- Sección 2: Descripción -->
             <div class="report-card-section">
                 <div class="section-title-row">
-                    <div class="section-icon desc">📝</div>
+                    <div class="section-icon desc" aria-hidden="true">📝</div>
                     <div>
                         <h3>Describe la incidencia</h3>
                         <p>Cuéntanos qué pasó o qué viste.</p>
                     </div>
                 </div>
                 <div class="textarea-wrapper">
-                    <textarea class="report-textarea" maxlength="200" placeholder="Ej. Hay un bache grande en el camino..."></textarea>
+                    <textarea class="report-textarea" aria-label="Describe la incidencia" maxlength="200" placeholder="Ej. Hay un bache grande en el camino..."></textarea>
                     <span class="char-count">0/200</span>
                 </div>
             </div>
@@ -216,13 +220,13 @@
             <!-- Sección 3: Mapa interactivo / Pin -->
             <div class="report-card-section">
                 <div class="section-title-row">
-                    <div class="section-icon map-pin">📍</div>
+                    <div class="section-icon map-pin" aria-hidden="true">📍</div>
                     <div>
                         <h3>Ubica la incidencia en el mapa</h3>
                         <p>Toca el mapa para colocar el pin en el lugar exacto.</p>
                     </div>
                 </div>
-                <div class="mini-map-preview" id="report-map-box"></div>
+                <div class="mini-map-preview" id="report-map-box" role="group" aria-label="Mapa para ubicar el problema. Si no puedes usarlo, el botón de abajo coloca el pin en tu ubicación"></div>
             </div>
 
             <!-- Botones de Acción -->
@@ -240,29 +244,29 @@
     <div class="search-panel hidden" id="search-panel">
         <div class="search-top">
             <button type="button" class="search-close" id="btn-close-search" aria-label="Cerrar buscador">←</button>
-            <input type="search" id="search-input" placeholder="Busca edificios, comida, bebederos..." autocomplete="off">
+            <input type="search" id="search-input" placeholder="Busca edificios, comida, bebederos..." aria-label="Buscar edificios, comida o bebederos" autocomplete="off">
         </div>
         <div class="search-cats" id="search-cats"></div>
         <div class="search-results" id="search-results"></div>
     </div>
 
     <!-- Barra Inferior de Navegación -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" aria-label="Navegación principal">
         <a href="feed.html" id="nav-inicio" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>INICIO</span>
         </a>
         <a href="registro.html" id="nav-iniciar-ruta" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
             <span>INICIAR RUTA</span>
         </a>
         <a href="mensajes.html" id="nav-mensajes" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
         <!-- En la barra inferior (bottom-nav) -->
         <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
         </a>
     </nav>
@@ -281,7 +285,10 @@
 <script src="js/api.js"></script>
 <script src="js/mapa-busqueda.js"></script>
 <script src="js/mapa-rutas.js"></script>
+<script src="js/voz-guia.js"></script>
 <script src="js/mapa.js"></script>
+<script src="js/voz.js"></script>
 <script src="js/tutorial.js"></script>
+<script src="js/accesibilidad.js"></script>
 </body>
 </html>

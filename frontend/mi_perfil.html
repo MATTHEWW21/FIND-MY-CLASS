@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find My Class - Mi Perfil</title>
+    <title>UAGPS - Mi Perfil</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mi_perfil.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <link rel="stylesheet" href="css/ajustes.css">
+    <link rel="stylesheet" href="css/accesibilidad.css">
     <script src="js/role-ui.js"></script>
 </head>
 <body>
@@ -16,15 +17,15 @@
 
     <!-- Header Principal -->
     <header class="registro-header">
-        <h1>FIND MY CLASS</h1>
+        <h1>UAGPS</h1>
         <button type="button" class="btn-ajustes" id="btn-ajustes" aria-label="Ajustes">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
     </header>
 
     <!-- Avatar del Usuario -->
     <div class="my-profile-avatar-wrapper">
-        <div class="my-profile-avatar">
+        <div class="my-profile-avatar" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 14a8 8 0 0 0-8 8h16a8 8 0 0 0-8-8z"/>
             </svg>
@@ -42,7 +43,7 @@
 
             <!-- Botón 3 puntos ver más -->
             <button type="button" class="btn-more-activities hidden" id="btn-mas-actividades" aria-label="Ver más actividades">
-                <span>⋮</span>
+                <span aria-hidden="true">⋮</span>
             </button>
         </section>
 
@@ -52,7 +53,7 @@
             <div class="streak-box">
                 <h3 class="section-title-bold">RACHA SEMANAL</h3>
                 <div class="streak-data-row">
-                    <span class="streak-flame">🔥</span>
+                    <span class="streak-flame" aria-hidden="true">🔥</span>
                     <div class="streak-numbers">
                         <p><strong id="racha-semanas">0</strong> SEMANAS</p>
                         <p><strong id="racha-actividades">0</strong> ACTIVIDADES</p>
@@ -88,21 +89,21 @@
     </div>
 
     <!-- Navegación Inferior -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav" aria-label="Navegación principal">
         <a href="feed.html" id="nav-inicio" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>INICIO</span>
         </a>
         <a href="registro.html" id="nav-iniciar-ruta" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
             <span>INICIAR RUTA</span>
         </a>
         <a href="mensajes.html" id="nav-mensajes" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <a href="mi_perfil.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <a href="mi_perfil.html" class="nav-item active" aria-current="page">
+            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
         </a>
     </nav>
@@ -111,10 +112,10 @@
 
 <!-- Ajustes (se abre con la tuerca) -->
 <div class="ajustes-fondo hidden" id="ajustes-fondo">
-    <div class="ajustes-hoja" role="dialog" aria-label="Ajustes">
+    <div class="ajustes-hoja" role="dialog" aria-modal="true" aria-label="Ajustes">
         <div class="ajustes-cabecera">
             <h2>Ajustes</h2>
-            <button type="button" class="ajustes-cerrar" id="ajustes-cerrar" aria-label="Cerrar">✕</button>
+            <button type="button" class="ajustes-cerrar" id="ajustes-cerrar" aria-label="Cerrar ajustes"><span aria-hidden="true">✕</span></button>
         </div>
 
         <div class="ajustes-cuenta">
@@ -123,7 +124,7 @@
         </div>
 
         <label class="ajustes-fila">
-            <span>♿ Necesito rutas accesibles</span>
+            <span><span aria-hidden="true">♿</span> Necesito rutas accesibles</span>
             <input type="checkbox" id="ajuste-accesible">
         </label>
 
@@ -135,18 +136,18 @@
         <div class="ajustes-contacto" id="ajustes-contacto">
             <strong>Contacto de emergencia</strong>
             <small>Para el botón SOS: le abrimos un mensaje con tu ubicación.</small>
-            <input type="text" id="contacto-nombre" placeholder="Nombre (ej. Mamá)" maxlength="80" autocomplete="off">
-            <input type="tel" id="contacto-telefono" placeholder="Teléfono (10 dígitos o con lada)" maxlength="20" autocomplete="off">
+            <input type="text" id="contacto-nombre" placeholder="Nombre (ej. Mamá)" aria-label="Nombre del contacto de emergencia" maxlength="80" autocomplete="off">
+            <input type="tel" id="contacto-telefono" placeholder="Teléfono (10 dígitos o con lada)" aria-label="Teléfono del contacto de emergencia" maxlength="20" autocomplete="off">
             <button type="button" class="ajustes-boton" id="btn-guardar-contacto">Guardar contacto</button>
         </div>
 
         <button type="button" class="ajustes-boton" id="btn-abrir-password">Cambiar contraseña</button>
 
         <form class="ajustes-password hidden" id="form-password" autocomplete="off">
-            <input type="password" id="pw-actual" placeholder="Contraseña actual" required>
-            <input type="password" id="pw-nueva" placeholder="Nueva contraseña" required>
-            <input type="password" id="pw-confirma" placeholder="Confirma la nueva contraseña" required>
-            <small>Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.</small>
+            <input type="password" id="pw-actual" placeholder="Contraseña actual" aria-label="Contraseña actual" autocomplete="current-password" required>
+            <input type="password" id="pw-nueva" placeholder="Nueva contraseña" aria-label="Nueva contraseña" autocomplete="new-password" aria-describedby="pw-ayuda" required>
+            <input type="password" id="pw-confirma" placeholder="Confirma la nueva contraseña" aria-label="Confirma la nueva contraseña" autocomplete="new-password" required>
+            <small id="pw-ayuda">Mínimo 8 caracteres, una mayúscula, un número y un carácter especial.</small>
             <button type="submit" class="ajustes-boton principal" id="btn-guardar-password">Guardar contraseña</button>
         </form>
 
@@ -160,6 +161,7 @@
 <script src="js/actividades.js"></script>
 <script src="js/mi_perfil.js"></script>
 <script src="js/tutorial.js"></script>
+<script src="js/accesibilidad.js"></script>
 
 </body>
 </html>

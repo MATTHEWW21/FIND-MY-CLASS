@@ -63,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let ultimoDestino = null;   // se conserva hasta cerrar la calificación (limpiarRuta borra `destino`)
     let capaBase = L.layerGroup().addTo(map);   // edificios y puertas: siempre visibles
     let capaSel = L.layerGroup().addTo(map);    // destino elegido y línea de ruta
+    let marcaPosicion = null;                   // punto azul de "tu posición" mientras te guía la voz
     const capasChip = {};                       // snacks / alimentos / bebedero: se prenden con los chips
 
     function crearPin(l, seleccionado) {
@@ -148,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Red de caminos (puntos y tramos). Si todavia no hay, las rutas se dibujan en linea recta aproximada.
     const R = window.FMCRutas;
+    const GUIA = window.FMCGuia;   // indicaciones habladas (js/voz-guia.js); si no esta cargado, el mapa funciona igual
     let grafo = { puntos: [], rutas: [] };
     async function cargarGrafo() {
         try {
@@ -271,7 +273,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function limpiarRuta() {
         capaSel.clearLayers();
+        if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; }
         destino = null;
+        document.dispatchEvent(new CustomEvent("fmc:limpiar"));
     }
 
     // Las rutas accesibles ya no se eligen aqui: salen de la respuesta en Preferencias
@@ -329,15 +333,30 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         L.circleMarker([origen.lat, origen.lng], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1 }).addTo(capaSel);
 
+        // Indicaciones paso a paso (para leerlas en pantalla y para la guia por voz)
+        const tramos = ruta && ruta.tramos ? ruta.tramos : [{ a: { lat: origen.lat, lng: origen.lng }, b: { lat: l.lat, lng: l.lng }, metros, tipo: "libre" }];
+        const aproximada = !ruta;
+        const pasos = GUIA ? GUIA.generarPasos(tramos, l.nombre, { aproximada }) : [];
         rutaActual = { metros };
         textoPanel("origin-label", origen.etiqueta);
         textoPanel("metric-walk", `🚶 ${minutos(metros, MIN_CAMINANDO)} MIN - ${metros} M`);
         textoPanel("metric-bike", `🚴 ${minutos(metros, MIN_BICI)} MIN - ${metros} M`);
         textoPanel("route-hint", hint);
+
+        const resumenVoz = GUIA ? GUIA.resumen(l.nombre, metros, tramos, { aproximada, accesible: soloAccesible && !aviso }) : "";
+        document.dispatchEvent(new CustomEvent("fmc:ruta", {
+            detail: { destino: l, origen, metros, minutos: minutos(metros, MIN_CAMINANDO), tramos, pasos, aproximada, resumen: resumenVoz },
+        }));
     }
 
     // ABRIR EL BUSCADOR: al dar tap en "BUSCA AQUÍ" (y al pulsar "VER OTRA RUTA")
-    if (searchTrigger && searchPanel) searchTrigger.addEventListener("click", abrirBusqueda);
+    if (searchTrigger && searchPanel) {
+        searchTrigger.addEventListener("click", abrirBusqueda);
+        // Con teclado o lector de pantalla: Enter o espacio abren el buscador
+        searchTrigger.addEventListener("keydown", (e) => {
+            if ((e.target === searchTrigger || e.target.matches("input[readonly]")) && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); abrirBusqueda(); }
+        });
+    }
     if (btnChange && searchPanel) btnChange.addEventListener("click", abrirBusqueda);
 
     cargarLugares();
@@ -370,10 +389,12 @@ document.addEventListener("DOMContentLoaded", () => {
             btnFinish.style.backgroundColor = "#d9534f";
             btnFinish.style.color = "#ffffff";
             btnFinish.style.cursor = "pointer";
+            document.dispatchEvent(new CustomEvent("fmc:empezar"));
         });
 
         // PASO 1 A PASO 2: Al pulsar FINALIZAR abre "¡Llegaste a tu destino!"
         btnFinish.addEventListener("click", () => {
+            document.dispatchEvent(new CustomEvent("fmc:finalizar"));
             guardarUltimaRuta();
             routePanel.classList.add("hidden");
             setTimeout(() => {
@@ -562,6 +583,40 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // ==========================================
+    // PUENTE CON LA GUIA POR VOZ (js/voz.js)
+    // ==========================================
+    window.FMCMapa = {
+        lugares: () => lugares,
+        destino: () => destino,
+        seleccionarDestino: (l) => seleccionarDestino(l),
+        obtenerOrigen: () => obtenerOrigen(),
+        recalcular: () => (destino ? trazarRuta(destino) : Promise.resolve()),
+        dentroDelCampus: (lat, lng) => boundsUAG.contains(L.latLng(lat, lng)),
+        abrirBusqueda: () => abrirBusqueda(),
+        // Para quien no puede usar el mini mapa del reporte: coloca el pin en unas coordenadas (accesibilidad.js)
+        ponerPinReporte: (lat, lng) => {
+            if (!miniMapa) return false;
+            const ll = L.latLng(lat, lng);
+            ponerPin(ll);
+            miniMapa.setView(ll, 18);
+            return true;
+        },
+        empezar: () => { if (btnStart) btnStart.click(); },
+        enNavegacion: () => !!inicioNavegacion && !!btnFinish && !btnFinish.disabled,
+        finalizar: () => { if (btnFinish && !btnFinish.disabled) btnFinish.click(); },
+        // Punto azul con la posicion actual (o la simulada en el modo demo)
+        mostrarPosicion: (lat, lng) => {
+            if (!marcaPosicion) {
+                marcaPosicion = L.circleMarker([lat, lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1 }).addTo(map);
+            } else {
+                marcaPosicion.setLatLng([lat, lng]);
+            }
+            map.panTo([lat, lng], { animate: true });
+        },
+        quitarPosicion: () => { if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; } },
+    };
 
     // Contador de caracteres de la descripción
     const areaReporte = document.querySelector(".report-textarea");

@@ -1,0 +1,109 @@
+/* voz.css - botón de micrófono, panel de texto de la guía por voz y lista de indicaciones.
+   Va DESPUÉS de mapa.css y mapa-buscador.css. Los elementos viven dentro de .map-screen-container (el marco de 430 px). */
+
+/* Micrófono dentro de la barra de búsqueda (antes era solo un dibujo).
+   Área de toque de 44 px sin hacer más alta la barra (márgenes negativos). */
+.map-search-bar .search-mic {
+    background: none;
+    border: 0;
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -12px -8px -12px 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.map-search-bar .search-mic:active { background: rgba(168, 121, 72, .18); }
+
+/* Botón grande flotante (esquina superior derecha del mapa, debajo de los chips) */
+.voz-fab {
+    position: absolute;
+    right: 12px;
+    top: 164px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    background: #d97736;
+    color: #ffffff;
+    font-size: 26px;
+    line-height: 1;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .35);
+    z-index: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.voz-fab:focus-visible,
+.map-search-bar .search-mic:focus-visible,
+.voz-ctl:focus-visible,
+.voz-ruta-btn:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+.voz-fab.escuchando { background: #c0392b; animation: voz-pulso 1.1s ease-in-out infinite; }
+@keyframes voz-pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, .55), 0 4px 14px rgba(0, 0, 0, .35); }
+    50%      { box-shadow: 0 0 0 16px rgba(192, 57, 43, 0), 0 4px 14px rgba(0, 0, 0, .35); }
+}
+@media (prefers-reduced-motion: reduce) { .voz-fab.escuchando { animation: none; } }
+
+/* Panel con lo que se dice (para personas sordas, ruido alrededor o para confirmar lo entendido) */
+.voz-panel {
+    position: absolute;
+    left: 4%;
+    right: 84px;
+    top: 164px;
+    background: rgba(253, 250, 243, .98);
+    border: 2px solid #a87948;
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+    z-index: 700;
+    max-height: 34vh;
+    overflow-y: auto;
+    color: #2b2b2b;
+    font-size: 0.9rem;
+}
+.voz-panel[hidden], .voz-controles[hidden] { display: none; }
+.voz-estado { display: block; color: #a85a1f; font-size: 0.8rem; letter-spacing: .3px; }
+.voz-estado:empty { display: none; }
+.voz-texto { margin: 4px 0 0; line-height: 1.35; }
+.voz-texto:empty { display: none; }
+.voz-controles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.voz-ctl {
+    flex: 1 1 auto;
+    min-height: 40px;
+    padding: 6px 8px;
+    border: 1px solid #d97736;
+    background: #fff5f0;
+    color: #7a3f12;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Dentro del panel de ruta */
+.voz-acciones-ruta { display: flex; gap: 8px; margin-top: 10px; }
+.voz-ruta-btn {
+    flex: 1;
+    min-height: 44px;
+    border: 2px solid #d97736;
+    background: #ffffff;
+    color: #7a3f12;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+.voz-ruta-btn:active { background: #fff1e4; }
+.route-steps-box { margin-top: 8px; }
+.route-steps-box summary { cursor: pointer; font-weight: 800; font-size: 0.8rem; color: #7a3f12; min-height: 40px; display: flex; align-items: center; }
+.route-steps { margin: 2px 0 0; padding-left: 22px; font-size: 0.8rem; line-height: 1.4; }
+.route-steps li { padding: 3px 0; }
+.route-steps li.actual { font-weight: 800; background: #fff1e4; border-radius: 6px; }
+
+/* El tutorial resalta elementos con .step-highlight (position: relative); el botón flotante debe seguir siendo absoluto y redondo */
+.voz-fab.step-highlight { position: absolute !important; border-radius: 50% !important; padding: 0 !important; }

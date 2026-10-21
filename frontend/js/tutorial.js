@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
             position: "center"
         },
         {
-            text: "Permite cambiar de vista al mapa interactivo del campus para buscar rutas y edificios.",
+            text: "Permite cambiar de vista al mapa interactivo del campus para buscar rutas y edificios. Ahí también puedes pedir tu ruta con la voz.",
             target: "#btn-mapas",
             position: "bottom"
         },
@@ -39,11 +39,37 @@ document.addEventListener("DOMContentLoaded", () => {
             target: ".uag-events-section",
             position: "bottom"
         },
+        // Una publicación del feed, explicada pieza por pieza (si todavía no hay ninguna, sale un solo aviso)
         {
-            text: "Muestra el perfil del usuario, la fecha, el deporte y sus métricas (distancia, calorías, tiempo).\n\nAbajo puedes reaccionar, comentar y ver más opciones.",
-            target: ".feed-container .post-card",
-            position: "top",
-            scroll: "end"
+            text: "Cada publicación muestra quién la hizo y cuándo. El ícono de color de la derecha indica la actividad: caminata, carrera, bici, scooter o inclusiva.",
+            target: ".feed-container .post-card .pub-cabecera",
+            position: "bottom",
+            siFalta: "Aquí aparecerán las publicaciones de la comunidad: quién las hizo, el tipo de actividad, sus fotos y métricas. Todavía no hay ninguna, ¡puedes ser la primera persona en publicar!"
+        },
+        {
+            text: "Estas son las métricas de la actividad: distancia, calorías y tiempo.",
+            target: ".feed-container .post-card .metrics-grid",
+            position: "bottom"
+        },
+        {
+            text: "Las fotos que compartió la persona. Toca una para verla en grande.",
+            target: ".feed-container .post-card .pub-fotos",
+            position: "top"
+        },
+        {
+            text: "El corazón es para dar me gusta. Se pinta de rojo al tocarlo y abajo ves a quién más le gustó.",
+            target: ".feed-container .post-card .pub-btn.like",
+            position: "top"
+        },
+        {
+            text: "La burbuja abre los comentarios: puedes leer lo que escribieron y dejar el tuyo.",
+            target: ".feed-container .post-card .pub-acciones .izq .pub-btn:not(.like)",
+            position: "top"
+        },
+        {
+            text: "Los tres puntos abren más opciones: eliminar tu publicación o reportar una que sea inapropiada.",
+            target: ".feed-container .post-card .pub-acciones > .pub-btn",
+            position: "top"
         },
         {
             text: "Permite crear una nueva publicación para compartir tu actividad o recorrido dentro del campus.",
@@ -95,8 +121,13 @@ document.addEventListener("DOMContentLoaded", () => {
             position: "top"
         },
         {
-            text: "Permite buscar la ubicación que quieras (por texto o voz).",
+            text: "Permite buscar la ubicación que quieras: escribe el nombre, o toca el micrófono y dilo con tu voz.",
             target: "#search-trigger",
+            position: "bottom"
+        },
+        {
+            text: "Este es el asistente de voz. Tócalo y di a dónde quieres ir (por ejemplo: “llévame al consultorio” o “tengo sed”). Te dice la ruta y te va guiando hablando, con avisos de escaleras y rampas.",
+            target: "#btn-voz",
             position: "bottom"
         }
     ];
@@ -111,7 +142,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const el = document.querySelector(selector);
         return !!el && el.getClientRects().length > 0;
     }
-    const tutorialSteps = allSteps.filter(step => !step.target || esVisible(step.target));
+    // Si falta el elemento pero el paso trae un texto "siFalta" (p. ej. el feed todavía no tiene publicaciones), se muestra ese aviso solo.
+    // Se calcula hasta que el feed termine de cargar (las publicaciones llegan del servidor un momento después de abrir la página)
+    let tutorialSteps = null;
+    function prepararPasos() {
+        tutorialSteps = allSteps.map(step => {
+            if (!step.target || esVisible(step.target)) return step;
+            if (step.siFalta) return { text: step.siFalta, target: null, position: "center" };
+            return null;
+        }).filter(Boolean);
+    }
+
+    // Lector de pantalla (TalkBack): el tutorial es un diálogo, anuncia cada paso y se avanza con Enter/espacio
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "Tutorial. Toca la pantalla para avanzar");
+    overlay.tabIndex = -1;
+    tutorialText.setAttribute("aria-live", "polite");
+    overlay.addEventListener("keydown", (e) => {
+        if (e.target === overlay && (e.key === "Enter" || e.key === " " || e.key === "ArrowRight")) { e.preventDefault(); overlay.click(); }
+        if (e.key === "Escape") closeTutorial();
+    });
 
     let currentStep = 0;
 
@@ -155,6 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     overlay.addEventListener("click", (e) => {
         if (skipBtn && (e.target === skipBtn || skipBtn.contains(e.target))) return;
+        if (!tutorialSteps) return;   // todavía cargando el feed
         currentStep++;
         updateStep();
     });
@@ -172,5 +224,23 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(claveVisto, "true");
     }
 
-    updateStep();
+    function arrancar() {
+        prepararPasos();
+        updateStep();
+        try { overlay.focus({ preventScroll: true }); } catch (e) { /* sin foco */ }
+    }
+
+    // En el feed espera (máximo 3 s) a que aparezca la primera publicación; en las demás pantallas arranca de inmediato
+    if (document.getElementById("feed-posts") && !document.querySelector("#feed-posts .post-card")) {
+        let esperado = 0;
+        const revisar = setInterval(() => {
+            esperado += 100;
+            if (document.querySelector("#feed-posts .post-card") || esperado >= 3000) {
+                clearInterval(revisar);
+                arrancar();
+            }
+        }, 100);
+    } else {
+        arrancar();
+    }
 });

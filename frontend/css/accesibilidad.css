@@ -1,0 +1,23 @@
+/* Accesibilidad: foco visible, zonas de toque cómodas (44 px) y menos movimiento si la persona lo pide.
+   Va al FINAL de los demás CSS. Solo agrega o agranda, no cambia colores ni la posición de nada. */
+
+:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+
+/* Controles pequeños: área de toque de al menos 44 px */
+.star-btn { min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.btn-back-report, .search-close, .ajustes-cerrar, .btn-ajustes, .btn-more-activities,
+.tutorial-skip-btn, .btn-skip-feedback, .btn-report-issue { min-width: 44px; min-height: 44px; }
+
+/* Botón "usar mi ubicación" del reporte (para quien no puede tocar el mini mapa) */
+.btn-pin-ubicacion {
+    display: block; width: 100%; min-height: 44px; margin-top: 10px; padding: 8px 12px;
+    border: 2px solid #d97736; border-radius: 12px; background: #fff; color: #7a3f12;
+    font: inherit; font-size: .85rem; font-weight: 800; cursor: pointer;
+}
+.btn-pin-ubicacion:active { background: #fff1e4; }
+.pin-ubicacion-estado { margin: 6px 0 0; font-size: .8rem; color: #7a3f12; }
+.pin-ubicacion-estado:empty { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}

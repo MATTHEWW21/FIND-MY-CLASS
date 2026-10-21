@@ -85,7 +85,20 @@
             const v = nodos.get(ids[k]).vecinos.find((x) => x.a.id === ids[k + 1] && x.tipo === 'rampa');
             if (v) rampas.push({ lat: (nodos.get(ids[k]).lat + nodos.get(ids[k + 1]).lat) / 2, lng: (nodos.get(ids[k]).lng + nodos.get(ids[k + 1]).lng) / 2 });
         }
-        return { metros: mejor.metros, camino, rampas };
+        // Tramo por tramo (con su tipo y metros): es lo que usa la guia por voz para decir "gira a la derecha", "hay escaleras"...
+        // El primero (origen -> red) y el ultimo (red -> destino) van en linea recta, por eso su tipo es 'libre'.
+        const tramos = [];
+        for (let k = 0; k + 1 < camino.length; k++) {
+            const a = camino[k], b = camino[k + 1];
+            let tipo = 'libre', metros = distancia(a, b);
+            if (k > 0 && k < camino.length - 2) {
+                const v = nodos.get(ids[k - 1]).vecinos.find((x) => x.a.id === ids[k]);
+                tipo = (v && v.tipo) || 'normal';
+                metros = v && v.m > 0 ? v.m : metros;
+            }
+            tramos.push({ a, b, metros, tipo });
+        }
+        return { metros: mejor.metros, camino, rampas, tramos };
     }
 
     const api = { distancia, construir, calcular };
