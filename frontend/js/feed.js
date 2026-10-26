@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnLike.type = "button"; btnLike.setAttribute("aria-label", "Me gusta");
         btnLike.innerHTML = ICONO_CORAZON;
         const btnComent = el("button", "pub-btn");
-        btnComent.type = "button"; btnComent.setAttribute("aria-label", "Comentarios");
+        btnComent.type = "button"; btnComent.setAttribute("aria-label", `Comentarios: ${p.comentarios}`);
         btnComent.innerHTML = ICONO_COMENT;
         const nComent = el("span", "", String(p.comentarios));
         btnComent.appendChild(nComent);
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
             btnLike.classList.toggle("activo", p.yo_di_like); textoL.textContent = textoLikes(p);
         });
 
-        btnComent.addEventListener("click", () => abrirComentarios(p, (n) => { p.comentarios = n; nComent.textContent = String(n); }));
+        btnComent.addEventListener("click", () => abrirComentarios(p, (n) => { p.comentarios = n; nComent.textContent = String(n); btnComent.setAttribute("aria-label", `Comentarios: ${n}`); }));
         btnMas.addEventListener("click", () => abrirMenu(p, card));
         return card;
     }
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- comentarios ----------
     async function abrirComentarios(p, alCambiar) {
         const caja = el("div");
-        caja.appendChild(el("h4", "", "Comentarios"));
+        caja.appendChild(el("h2", "", "Comentarios"));
         const lista = el("div", "lista");
         const form = el("form", "pub-form");
         const entrada = el("input"); entrada.type = "text"; entrada.maxLength = 300; entrada.placeholder = "Escribe un comentario…";
@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             boton("🚩 Reportar publicación", "peligro", () => {
                 caja.innerHTML = "";
-                caja.appendChild(el("h4", "", "¿Por qué la reportas?"));
+                caja.appendChild(el("h2", "", "¿Por qué la reportas?"));
                 MOTIVOS.forEach(([clave, texto]) => boton(texto, "", async () => {
                     try {
                         await apiFetch(`/publicaciones/${p.id}/reportar`, { method: "POST", body: { motivo: clave } });

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nombreCorto = (a) => [a.nombre, (a.apellido || '').split(' ')[0]].filter(Boolean).join(' ');
     const nombreCompleto = (a) => [a.nombre, a.apellido].filter(Boolean).join(' ');
     function colorDe(id) {
-        const colores = ['#d96828', '#2b73d9', '#2e8b46', '#7b3294', '#b8512f', '#3d7a8a', '#a8567a'];
+        const colores = ['#B04E0E', '#2b73d9', '#237a3a', '#7b3294', '#b8512f', '#3d7a8a', '#a8567a'];
         return colores[id % colores.length];
     }
     function avatar(a, clase) {

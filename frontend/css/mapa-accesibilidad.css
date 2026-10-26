@@ -1,0 +1,15 @@
+/* Pines de accesibilidad: la forma y la letra dicen el tipo, el color solo refuerza (paleta Okabe-Ito) */
+.acc-pin-wrap { background: transparent; border: 0; }
+.acc-pin {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; box-sizing: border-box;
+    font: 800 15px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    border: 3px solid #fff; box-shadow: 0 0 0 1.5px #000, 0 2px 5px rgba(0,0,0,.35);
+    color: #000;
+}
+.acc-escalera { background: #D55E00; border-radius: 4px; }                     /* cuadrado */
+.acc-rampa { background: #0072B2; color: #fff; border-radius: 50% 50% 4px 4px; } /* arco */
+.acc-estacionamiento { background: #56B4E9; border-radius: 50%; }                /* círculo */
+.acc-paso_peatonal { background: #009E73; border-radius: 50% 4px; }              /* hoja */
+.acc-elevador { background: #F0E442; border-radius: 4px; transform: rotate(45deg); }
+.leaflet-marker-icon.acc-pin-wrap:focus-visible .acc-pin { outline: 3px solid #1d4ed8; outline-offset: 3px; }

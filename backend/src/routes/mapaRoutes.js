@@ -9,16 +9,16 @@ const router = express.Router();
 router.get('/lugares', async (req, res) => {
   try {
     const edificios = await pool.query(
-        `SELECT id, codigo, nombre, latitud, longitud
+      `SELECT id, codigo, nombre, latitud, longitud
          FROM edificios
-         WHERE latitud IS NOT NULL AND longitud IS NOT NULL
-         ORDER BY codigo`
+        WHERE latitud IS NOT NULL AND longitud IS NOT NULL
+        ORDER BY codigo`
     );
     const servicios = await pool.query(
-        `SELECT id, nombre, tipo, numero_mapa, latitud, longitud, es_accesible
+      `SELECT id, nombre, tipo, numero_mapa, latitud, longitud, es_accesible
          FROM servicios
-         WHERE latitud IS NOT NULL AND longitud IS NOT NULL AND tipo IS NOT NULL
-         ORDER BY tipo, numero_mapa, id`
+        WHERE latitud IS NOT NULL AND longitud IS NOT NULL AND tipo IS NOT NULL
+        ORDER BY tipo, numero_mapa, id`
     );
 
     const lista = [
@@ -55,13 +55,13 @@ router.get('/lugares', async (req, res) => {
 router.get('/grafo', async (req, res) => {
   try {
     const puntos = await pool.query(
-        `SELECT id, nombre, latitud, longitud, es_accesible FROM puntos ORDER BY id`
+      `SELECT id, nombre, latitud, longitud, es_accesible FROM puntos ORDER BY id`
     );
     const rutas = await pool.query(
-        `SELECT *
+      `SELECT *
          FROM rutas
-         WHERE origen_punto_id IS NOT NULL AND destino_punto_id IS NOT NULL
-         ORDER BY id`
+        WHERE origen_punto_id IS NOT NULL AND destino_punto_id IS NOT NULL
+        ORDER BY id`
     );
     res.json({
       puntos: puntos.rows.map((p) => ({
@@ -81,6 +81,30 @@ router.get('/grafo', async (req, res) => {
       })),
     });
   } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
+// GET /api/mapa/accesibilidad
+// Escaleras, rampas, estacionamientos y pasos accesibles. El frontend los muestra como pines SOLO cuando la persona inicia una ruta.
+// Si la tabla todavia no existe (falta correr la migracion 017), responde una lista vacia para no romper el mapa.
+router.get('/accesibilidad', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, tipo, nombre, trazo, latitud, longitud, largo_m FROM accesibilidad ORDER BY id`
+    );
+    res.json(r.rows.map((a) => ({
+      id: a.id,
+      tipo: a.tipo,
+      nombre: a.nombre,
+      trazo: a.trazo,
+      lat: Number(a.latitud),
+      lng: Number(a.longitud),
+      largo_m: a.largo_m === null ? null : Number(a.largo_m),
+    })));
+  } catch (err) {
+    if (err.code === '42P01') return res.json([]);
     console.error(err);
     res.status(500).json({ error: 'Error interno del servidor' });
   }

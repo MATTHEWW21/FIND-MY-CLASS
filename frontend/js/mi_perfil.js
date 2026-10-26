@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const data = await apiFetch('/amigos');
             cont.replaceChildren();
-            const colores = ['#d96828', '#2b73d9', '#2e8b46', '#7b3294', '#b8512f', '#3d7a8a', '#a8567a'];
+            const colores = ['#B04E0E', '#2b73d9', '#237a3a', '#7b3294', '#b8512f', '#3d7a8a', '#a8567a'];
             data.amigos.slice(0, 3).forEach((a) => {
                 const d = document.createElement('div');
                 d.className = 'friend-avatar';

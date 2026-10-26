@@ -9,6 +9,10 @@ const PASSWORD_MENSAJE =
     'La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un carácter especial';
 const CODIGO_MINUTOS = 15;
 const MAX_INTENTOS = 5;
+const ESPERA_CODIGO_SEG = 60;   // entre un codigo y el siguiente para la misma cuenta (evita llenarle el correo a alguien)
+
+// Hash de relleno: si el correo no existe se compara contra este, para que login tarde igual y no revele quien tiene cuenta
+const HASH_FALSO = bcrypt.hashSync('relleno-Aa1!-no-es-una-contraseña', 12);
 
 // Dominio institucional permitido para registrarse (ej. edu.uag.mx).
 // Si la variable está vacía, no se valida el dominio.
@@ -46,6 +50,16 @@ const modoDev = () => process.env.DEV_MOSTRAR_CODIGO === 'true' && process.env.N
 const extraDev = (codigo) => (modoDev() ? { codigo_dev: codigo } : {});
 
 async function crearYEnviarCodigo(usuarioId, correo, tipo) {
+  // En produccion no se manda otro codigo si el ultimo se creo hace menos de ESPERA_CODIGO_SEG segundos
+  // (la respuesta a la persona es la misma, asi que no se revela nada). En desarrollo no aplica, para poder probar rapido.
+  if (!modoDev()) {
+    const reciente = await pool.query(
+        `SELECT 1 FROM codigos_verificacion
+          WHERE usuario_id = $1 AND tipo = $2 AND creado_en > NOW() - ($3 || ' seconds')::interval LIMIT 1`,
+        [usuarioId, tipo, ESPERA_CODIGO_SEG]
+    );
+    if (reciente.rowCount > 0) return null;
+  }
   const codigo = generarCodigo();
 
   // Invalida códigos anteriores del mismo tipo
@@ -211,13 +225,13 @@ async function login(req, res) {
   try {
     const correo = normalizar(req.body.correo);
     const { password } = req.body;
-    if (!correo || !password) {
+    if (!correo || !password || typeof password !== 'string') {
       return res.status(400).json({ error: 'Correo y contraseña requeridos' });
     }
 
     const { rows } = await pool.query('SELECT * FROM usuarios WHERE LOWER(correo) = $1', [correo]);
     const u = rows[0];
-    const coincide = u ? await bcrypt.compare(password, u.password_hash) : false;
+    const coincide = (await bcrypt.compare(password, u ? u.password_hash : HASH_FALSO)) && !!u;
     if (!coincide) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }

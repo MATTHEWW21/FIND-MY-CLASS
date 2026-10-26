@@ -589,6 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
     window.FMCMapa = {
         lugares: () => lugares,
+        mapa: () => map,   // para mapa-accesibilidad.js
         destino: () => destino,
         seleccionarDestino: (l) => seleccionarDestino(l),
         obtenerOrigen: () => obtenerOrigen(),

@@ -1,8 +1,9 @@
+// El .env se carga primero, antes que cualquier modulo que lea variables
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const pool = require('./config/db');
-require('dotenv').config();
+const { cabecerasSeguras, corsConfig, apiNoEncontrada, manejadorErrores } = require('./middleware/seguridad');
 
 // Sin un secreto real para firmar sesiones el servidor no debe arrancar
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
@@ -33,7 +34,8 @@ const PORT = process.env.PORT || 3000;
 if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 
 // Middlewares
-app.use(cors());
+app.use(cabecerasSeguras);
+app.use(corsConfig());
 // Las publicaciones llevan fotos (base64): este límite mayor va ANTES del express.json() general
 app.use('/api/publicaciones', express.json({ limit: '8mb' }));
 app.use('/api/mensajes', express.json({ limit: '3mb' }));
@@ -76,6 +78,10 @@ app.get('/api/health', async (req, res) => {
         res.status(500).json({ status: 'ERROR', message: 'Falla al conectar a la Base de Datos' });
     }
 });
+
+// Cualquier otra ruta /api/... responde 404 en JSON, y los errores no muestran detalles internos (va al final de las rutas)
+app.use('/api', apiNoEncontrada);
+app.use(manejadorErrores);
 
 // IMPORTANTE: Agregamos '0.0.0.0' para escuchar en toda la red local
 app.listen(PORT, '0.0.0.0', () => {

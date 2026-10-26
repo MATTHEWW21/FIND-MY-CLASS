@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let lugares = null;
     async function elegirUbicacion() {
         const caja = document.createElement("div");
-        const titulo = document.createElement("h4"); titulo.textContent = "Añadir ubicación";
+        const titulo = document.createElement("h2"); titulo.textContent = "Añadir ubicación";
         const buscador = document.createElement("div"); buscador.className = "pub-form";
         const entrada = document.createElement("input"); entrada.type = "text"; entrada.placeholder = "Busca un lugar del campus…";
         buscador.appendChild(entrada);

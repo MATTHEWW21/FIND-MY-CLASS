@@ -338,6 +338,9 @@
         pintarPasos(); pintarMute();
         mostrarTexto(ruta.pasos[0].texto, '🧭 Guiando');
         if (debeHablarGuia()) await hablar('Empezamos. ' + ruta.pasos[0].texto);
+        // Escaleras y rampas cerca del camino (pines de accesibilidad)
+        const accTxt = window.FMCAcc ? window.FMCAcc.resumen() : '';
+        if (accTxt && debeHablarGuia()) hablar(accTxt, { interrumpir: false });
         vibrar(120);
 
         if (DEMO) { simular(); return; }
@@ -370,6 +373,8 @@
         }
         guia.ultPos = p;
         if (window.FMCMapa) window.FMCMapa.mostrarPosicion(p.lat, p.lng);
+        const avisoAcc = window.FMCAcc ? window.FMCAcc.avisoCerca(p) : null;   // 'Adelante: escalera...' (una vez por elemento)
+        if (avisoAcc && debeHablarGuia()) hablar(avisoAcc, { interrumpir: false });
 
         const ult = ruta.pasos.length - 1;
         const final = ruta.pasos[ult].fin;

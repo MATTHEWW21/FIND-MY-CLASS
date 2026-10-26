@@ -1,0 +1,40 @@
+/* Contraste de color accesible (WCAG 1.4.3: texto 4.5:1). Se carga al final de cada pagina y solo ajusta los colores
+   que no llegaban: el naranja claro de la marca como TEXTO o como fondo con letras blancas, y varios grises. */
+:root {
+    --naranja-a11y: #B04E0E;   /* naranja quemado: 5.3:1 con blanco y 4.5:1 como texto sobre los fondos crema */
+    --gris-a11y: #665d54;      /* gris calido: 5.5:1 sobre crema y blanco */
+}
+
+/* Texto naranja sobre fondo claro */
+.action-btn, .action-btn span, .events-subtitle, .pub-mas, .question, .btn-text.next-btn { color: var(--naranja-a11y); }
+.bottom-nav .nav-item span { color: #6b5a50; }
+.bottom-nav .nav-item.active span, .bottom-nav .active span { color: var(--naranja-a11y); text-decoration: underline; text-underline-offset: 3px; } /* ademas del color, subrayado */
+
+/* Botones y tarjetas naranjas con letras blancas */
+.btn-primary, .btn-primary-submit, .info-card, #btn-agregar-foto-grande { background-color: var(--naranja-a11y); }
+.btn-primary:hover, .btn-primary-submit:hover { background-color: #96420A; }
+/* Pantalla de inicio de sesion: el recuadro de "Olvidaste tu contraseña" */
+.forgot-password-btn { background-color: var(--naranja-a11y); }
+
+/* Etiquetas de eventos y avatares con iniciales blancas */
+.event-tag { background-color: var(--naranja-a11y); font-size: 10px; }
+.event-tag.sports { background-color: #1f6f8b; }
+.event-tag.culture { background-color: #557337; }
+.avatar-iniciales { background-color: var(--naranja-a11y); }
+.avatar-iniciales.colaborador { background-color: #2a7f98; }
+#btn-add-friend { background-color: #7a6248; }
+
+/* Textos secundarios en gris */
+.post-time, .pub-ubicacion, .metric-label, .rule-invalid, .stat-label, .timer-label, .gps-estado,
+.perfil-vacio, .chat-vacio, .streaks-title, .sub-header-title { color: var(--gris-a11y); }
+
+/* Los titulos de las hojas inferiores ahora son h2 (antes h4, saltaba niveles): se ven igual */
+.pub-hoja h2 { margin: 0 0 10px; font-size: .85rem; text-align: center; color: #333; }
+
+/* Foco visible en lo que ahora se puede alcanzar con teclado o lector de pantalla (a11y-comun.js) */
+[role="button"]:focus-visible, [role="radio"]:focus-visible, .events-carousel:focus-visible, .pub-hoja h2:focus-visible,
+.amigos-hoja h2:focus-visible, .popover-title:focus-visible, .sos-header h2:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+.a11y-solo-lectores { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Enlace de créditos del mapa (Leaflet): se distingue por subrayado, no solo por color */
+.leaflet-control-attribution a { text-decoration: underline; }

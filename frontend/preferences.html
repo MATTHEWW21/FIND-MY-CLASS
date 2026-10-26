@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAGPS - Preferencias</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/contraste.css">
 </head>
 <body>
 
@@ -38,7 +39,7 @@
                     <span class="select-label">• Edificio Habitual</span>
                     <span class="select-arrow">▼</span>
                 </div>
-                <select id="select-building" class="hidden-select">
+                <select id="select-building" class="hidden-select" aria-label="Edificio habitual">
                     <option value="" disabled selected>Selecciona una opción</option>
                 </select>
             </div>
@@ -48,7 +49,7 @@
                     <span class="select-label">• ¿Que estudias?</span>
                     <span class="select-arrow">▼</span>
                 </div>
-                <select id="select-career" class="hidden-select">
+                <select id="select-career" class="hidden-select" aria-label="¿Qué estudias?">
                     <option value="" disabled selected>Selecciona tu carrera</option>
                 </select>
             </div>
@@ -61,7 +62,7 @@
                     <span class="select-label">• Selecciona tu espacio principal de trabajo</span>
                     <span class="select-arrow">▼</span>
                 </div>
-                <select id="select-space" class="hidden-select">
+                <select id="select-space" class="hidden-select" aria-label="Espacio principal de trabajo">
                     <option value="" disabled selected>Selecciona una opción</option>
                     <option value="sala_maestro">Sala de maestro</option>
                     <option value="cubiculo_oficina">Cubículo/Oficina</option>
@@ -75,7 +76,7 @@
                     <span class="select-label">• Seleccione su estancia</span>
                     <span class="select-arrow">▼</span>
                 </div>
-                <select id="select-stay" class="hidden-select">
+                <select id="select-stay" class="hidden-select" aria-label="Estancia">
                     <option value="" disabled selected>Selecciona una opción</option>
                 </select>
             </div>
@@ -85,7 +86,7 @@
                     <span class="select-label">• Detalle de la interfaz de usuario</span>
                     <span class="select-arrow">▼</span>
                 </div>
-                <select id="select-view" class="hidden-select">
+                <select id="select-view" class="hidden-select" aria-label="Detalle de la interfaz de usuario">
                     <option value="" disabled selected>Selecciona una opción</option>
                     <option value="simplificada">Vista Simplificada (Sin feed, sin publicaciones)</option>
                     <option value="completa">Vista Completa (Incluye todo)</option>
@@ -102,5 +103,6 @@
 
 <script src="js/api.js"></script>
 <script src="js/preferences.js"></script>
+<script src="js/a11y-comun.js"></script>
 </body>
 </html>
