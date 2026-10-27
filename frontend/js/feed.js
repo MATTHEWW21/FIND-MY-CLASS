@@ -27,6 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return p.map((x) => x.charAt(0).toUpperCase()).join("") || "?";
     }
 
+    function enlacePerfil(autor, clase, hijo, oculto) {
+        const a = el("a", clase);
+        a.href = "perfil_usuario.html?id=" + encodeURIComponent(autor.id);
+        if (oculto) { a.tabIndex = -1; a.setAttribute("aria-hidden", "true"); }
+        a.appendChild(hijo);
+        return a;
+    }
+
     function avatar(autor, chico) {
         return el("span", `avatar-iniciales ${autor.rol === "colaborador" ? "colaborador" : ""} ${chico ? "chico" : ""}`, iniciales(autor.nombre));
     }
@@ -89,9 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const card = el("article", "post-card");
 
         const cab = el("div", "pub-cabecera");
-        cab.appendChild(avatar(p.autor));
+        cab.appendChild(enlacePerfil(p.autor, "enlace-perfil", avatar(p.autor), true));
         const info = el("div", "user-info");
-        const nombre = el("h3", "user-name", p.autor.nombre);
+        const nombre = el("h3", "user-name");
+        nombre.appendChild(enlacePerfil(p.autor, "enlace-perfil", document.createTextNode(p.autor.nombre)));
         if (p.autor.rol === "colaborador") nombre.appendChild(el("span", "pub-insignia", "Colaborador UAG"));
         info.appendChild(nombre);
         info.appendChild(el("span", "post-time", `${cuando(p.creado_en)}${p.privacidad === "solo_yo" ? " · 🔒 Solo tú" : ""}`));
@@ -194,9 +203,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!items.length) lista.appendChild(el("p", "pub-vacio", "Aún no hay comentarios. ¡Escribe el primero!"));
                 items.forEach((c) => {
                     const fila = el("div", "pub-coment");
-                    fila.appendChild(avatar(c.autor, true));
+                    fila.appendChild(enlacePerfil(c.autor, "enlace-perfil", avatar(c.autor, true), true));
                     const cuerpo = el("div", "cuerpo");
-                    cuerpo.appendChild(el("div", "nombre", c.autor.nombre));
+                    { const n = el("div", "nombre"); n.appendChild(enlacePerfil(c.autor, "enlace-perfil", document.createTextNode(c.autor.nombre))); cuerpo.appendChild(n); }
                     cuerpo.appendChild(el("div", "txt", c.texto));
                     if (c.puedo_borrar) {
                         const b = el("button", "borrar", "Eliminar"); b.type = "button";
@@ -242,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         if (p.es_mio) {
             boton("🗑️ Eliminar publicación", "peligro", async () => {
-                if (!confirm("¿Eliminar esta publicación? No se puede deshacer.")) return;
+                if (!(await FMCAviso.confirmar("¿Eliminar esta publicación? No se puede deshacer.", { si: "Eliminar", no: "Cancelar", peligro: true }))) return;
                 try {
                     await apiFetch(`/publicaciones/${p.id}`, { method: "DELETE" });
                     fondo.remove(); card.remove();

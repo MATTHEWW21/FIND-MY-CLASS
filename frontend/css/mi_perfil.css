@@ -14,7 +14,7 @@
     background-color: #faf7f2;
     overflow-y: auto;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    padding-bottom: 75px;
+    padding-bottom: 95px;
     box-sizing: border-box;
 }
 
@@ -245,9 +245,11 @@
 
 /* Bottom Nav Fijo */
 .bottom-nav {
-    position: absolute;
+    position: fixed;
     bottom: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 414px;
     width: 100%;
     display: flex;
     justify-content: space-around;

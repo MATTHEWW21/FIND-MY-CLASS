@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('login-password').value;
 
         if (!correo || !password) {
-            alert('Por favor, ingresa tu correo y contraseña.');
+            FMCAviso.aviso('Por favor, ingresa tu correo y contraseña.', 'error');
             return;
         }
 
@@ -28,11 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Cuenta creada pero sin verificar: mandarlo a verificar
             if (err.data && err.data.requiereVerificacion) {
                 localStorage.setItem('pendingEmail', correo);
-                alert('Tu cuenta aún no está verificada. Ingresa el código que te enviamos.');
+                await FMCAviso.alerta('Tu cuenta aún no está verificada. Ingresa el código que te enviamos.', 'info');
                 window.location.href = 'verify.html';
                 return;
             }
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
             submitBtn.disabled = false;
         }
     });

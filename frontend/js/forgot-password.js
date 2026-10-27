@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
             body: { correo },
         });
         if (data.codigo_dev) {
-            alert(`[Modo desarrollo]\nTu código de recuperación es: ${data.codigo_dev}`);
+            await FMCAviso.alerta(`[Modo desarrollo]\nTu código de recuperación es: ${data.codigo_dev}`, 'info');
         } else {
-            alert('Si el correo está registrado, te enviamos un código.');
+            FMCAviso.aviso('Si el correo está registrado, te enviamos un código.', 'ok');
         }
     }
 
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await pedirCodigo();
             mostrarPaso('reset');
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
         } finally {
             btn.disabled = false;
         }
@@ -74,11 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         if (!Object.values(rules).every(({ test }) => test(passMain.value))) {
-            alert('La nueva contraseña debe cumplir con todas las reglas de seguridad.');
+            FMCAviso.aviso('La nueva contraseña debe cumplir con todas las reglas de seguridad.', 'error');
             return;
         }
         if (passMain.value !== passConfirm.value) {
-            alert('Las contraseñas no coinciden. Por favor verifica.');
+            FMCAviso.aviso('Las contraseñas no coinciden. Por favor verifica.', 'error');
             return;
         }
 
@@ -89,10 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 method: 'POST',
                 body: { correo, codigo: inputCode.value.trim(), password: passMain.value },
             });
-            alert('¡Tu contraseña ha sido actualizada con éxito!');
+            await FMCAviso.alerta('¡Tu contraseña ha sido actualizada con éxito!', 'ok');
             window.location.href = 'login.html';
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
             btn.disabled = false;
         }
     });
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await pedirCodigo();
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
         }
     });
 

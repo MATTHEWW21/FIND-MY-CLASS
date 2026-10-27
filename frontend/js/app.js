@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('visitaAsunto');
                     window.location.href = 'visitante-asunto.html';
                 } catch (err) {
-                    alert(err.message);
+                    FMCAviso.aviso(err.message, 'error');
                     enCurso = false;
                 }
                 return;

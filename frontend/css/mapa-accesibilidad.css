@@ -2,9 +2,9 @@
 .acc-pin-wrap { background: transparent; border: 0; }
 .acc-pin {
     display: flex; align-items: center; justify-content: center;
-    width: 30px; height: 30px; box-sizing: border-box;
-    font: 800 15px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    border: 3px solid #fff; box-shadow: 0 0 0 1.5px #000, 0 2px 5px rgba(0,0,0,.35);
+    width: 22px; height: 22px; box-sizing: border-box;
+    font: 800 11px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    border: 2px solid #fff; box-shadow: 0 0 0 1px #000, 0 1px 4px rgba(0,0,0,.35);
     color: #000;
 }
 .acc-escalera { background: #D55E00; border-radius: 4px; }                     /* cuadrado */

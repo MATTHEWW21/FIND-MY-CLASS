@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const todasOk = Object.values(rules).every(({ test }) => test(passMain.value));
         if (!todasOk) {
-            alert('La contraseña debe cumplir con todas las reglas de seguridad.');
+            FMCAviso.aviso('La contraseña debe cumplir con todas las reglas de seguridad.', 'error');
             return;
         }
         if (passMain.value !== passConfirm.value) {
-            alert('Las contraseñas no coinciden. Por favor verifica.');
+            FMCAviso.aviso('Las contraseñas no coinciden. Por favor verifica.', 'error');
             return;
         }
 
@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('pendingEmail', correo);
             // Solo aparece si el backend tiene DEV_MOSTRAR_CODIGO=true (pruebas)
             if (data.codigo_dev) {
-                alert(`[Modo desarrollo]\nTu código de verificación es: ${data.codigo_dev}`);
+                await FMCAviso.alerta(`[Modo desarrollo]\nTu código de verificación es: ${data.codigo_dev}`, 'info');
             }
             window.location.href = 'verify.html';
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
             btnSubmit.disabled = false;
         }
     });

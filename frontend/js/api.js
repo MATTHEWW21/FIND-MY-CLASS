@@ -5,7 +5,7 @@ const API_BASE = '/api';
 
 const CLAVES_SESION = [
     'token', 'userLoggedIn', 'userRole', 'userEmail', 'userName', 'userVista',
-    'accessibleRoutes', 'pendingEmail', 'visitaAsunto',
+    'accessibleRoutes', 'pendingEmail', 'visitaAsunto', 'rutaMapa', 'modoMovilidad',
 ];
 
 function limpiarSesion() {
@@ -35,7 +35,7 @@ async function apiFetch(path, { method = 'GET', body } = {}) {
         // (el login fallido también responde 401, por eso se excluye).
         if (res.status === 401 && token && !path.startsWith('/auth/login')) {
             limpiarSesion();
-            alert('Tu sesión expiró. Inicia sesión de nuevo.');
+            await FMCAviso.alerta('Tu sesión expiró. Inicia sesión de nuevo.', 'info');
             window.location.href = 'login.html';
         }
         const err = new Error(data.error || 'Ocurrió un error inesperado');

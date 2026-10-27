@@ -62,6 +62,38 @@ router.get('/buscar', limiteBuscar, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
+// GET /api/amigos/perfil/:id -> perfil publico (solo nombre, rol y conteos; nunca correo, telefono ni registro)
+router.get('/perfil/:id', async (req, res) => {
+  try {
+    const yo = req.usuario.id;
+    const id = idDe(req.params.id);
+    if (!id) return res.status(400).json({ error: 'Persona no válida' });
+    const { rows } = await pool.query(
+      `SELECT u.id, u.nombre, u.apellido, u.rol,
+              (SELECT COUNT(*)::int FROM amistades x
+                WHERE x.estado = 'aceptada' AND (x.solicitante_id = u.id OR x.destinatario_id = u.id)) AS n_amigos,
+              (SELECT COUNT(*)::int FROM publicaciones p WHERE p.usuario_id = u.id AND p.privacidad = 'todos') AS n_publicaciones,
+              a.id AS amistad_id, a.estado, (a.solicitante_id = $1) AS la_envie
+         FROM usuarios u
+         LEFT JOIN amistades a
+                ON (a.solicitante_id = $1 AND a.destinatario_id = u.id)
+                OR (a.destinatario_id = $1 AND a.solicitante_id = u.id)
+        WHERE u.id = $2 AND u.verificado = TRUE AND u.rol IN ('estudiante','colaborador')
+          AND NOT (u.rol = 'colaborador' AND u.vista_preferida = 'simplificada')`,
+      [yo, id]
+    );
+    if (!rows.length) return res.status(404).json({ error: 'No encontramos a esa persona' });
+    const r = rows[0];
+    res.json({
+      id: r.id, nombre: r.nombre, apellido: r.apellido, rol: r.rol,
+      n_amigos: r.n_amigos, n_publicaciones: r.n_publicaciones,
+      es_yo: r.id === yo,
+      amistad_id: r.amistad_id || null,
+      relacion: r.id === yo ? 'yo' : !r.estado ? 'ninguna' : r.estado === 'aceptada' ? 'amigo' : r.la_envie ? 'enviada' : 'recibida',
+    });
+  } catch (err) { error500(res, err); }
+});
+
 // POST /api/amigos/solicitar { usuario_id }
 router.post('/solicitar', limiteSolicitar, async (req, res) => {
   try {

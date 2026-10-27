@@ -1,100 +1,91 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const profileMenuBtn = document.getElementById("profile-menu-btn");
-    const profileDropdown = document.getElementById("profile-dropdown-menu");
-    const btnAddFriend = document.getElementById("btn-add-friend");
-    const blockedBanner = document.getElementById("blocked-banner");
+// perfil.js - perfil de otra persona (perfil_usuario.html?id=N). Datos reales desde /api/amigos/perfil/:id
+document.addEventListener("DOMContentLoaded", async () => {
+    if (typeof requerirSesion === "function" && !requerirSesion()) return;
+    const $ = (id) => document.getElementById(id);
+    const rol = localStorage.getItem("userRole");
+    if (rol !== "estudiante" && rol !== "colaborador") { window.location.href = "mapa.html"; return; }
 
-    // Opciones del menú
-    const optSilenciar = document.getElementById("opt-silenciar");
-    const optReportar = document.getElementById("opt-reportar");
-    const optDenunciar = document.getElementById("opt-denunciar");
-    const optBloquear = document.getElementById("opt-bloquear");
+    const id = Number(new URLSearchParams(location.search).get("id"));
+    if (!Number.isInteger(id) || id <= 0) { window.location.replace("feed.html"); return; }
 
-    let isBlocked = false;
-    let isMuted = false;
+    const menuBtn = $("profile-menu-btn"), menu = $("profile-dropdown-menu"), btn = $("btn-add-friend");
+    let persona = null;
 
-    // Abrir / Cerrar Menú Desplegable
-    if (profileMenuBtn && profileDropdown) {
-        profileMenuBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            profileDropdown.classList.toggle("hidden");
-        });
+    // Menu desplegable
+    menuBtn.setAttribute("aria-haspopup", "true");
+    menuBtn.setAttribute("aria-expanded", "false");
+    function cerrarMenu() { menu.classList.add("hidden"); menuBtn.setAttribute("aria-expanded", "false"); }
+    menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const abierto = menu.classList.toggle("hidden") === false;
+        menuBtn.setAttribute("aria-expanded", String(abierto));
+    });
+    document.addEventListener("click", cerrarMenu);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") { cerrarMenu(); menuBtn.focus(); } });
 
-        // Cerrar menú si da clic fuera
-        document.addEventListener("click", () => {
-            if (!profileDropdown.classList.contains("hidden")) {
-                profileDropdown.classList.add("hidden");
+    const proximamente = () => FMCAviso.aviso("Esta opción estará disponible próximamente.", "info");
+    $("opt-reportar").addEventListener("click", proximamente);
+    $("opt-bloquear").addEventListener("click", proximamente);
+
+    $("perfil-volver").addEventListener("click", () => { if (history.length > 1) history.back(); else location.href = "feed.html"; });
+
+    const nombreDe = (p) => [p.nombre, p.apellido].filter(Boolean).join(" ");
+
+    function pintarBoton() {
+        const r = persona.relacion;
+        btn.classList.remove("hidden");
+        btn.style.backgroundColor = "";
+        btn.disabled = false;
+        const texto = { ninguna: "Agregar amigo", enviada: "Solicitud enviada", recibida: "Aceptar solicitud", amigo: "✓ Amigos" }[r];
+        btn.querySelector("span").textContent = texto;
+        btn.disabled = r === "enviada" || r === "amigo";
+        $("opt-quitar").classList.toggle("hidden", r !== "amigo");
+    }
+
+    function pintar(p) {
+        persona = p;
+        const nombre = nombreDe(p);
+        document.title = "UAGPS - " + nombre;
+        $("perfil-nombre").textContent = nombre;
+        $("perfil-handle").textContent = nombre.toUpperCase().replace(/\s+/g, "_");
+        $("perfil-rol").textContent = p.rol === "colaborador" ? "Colaborador UAG" : "Estudiante";
+        $("stat-amigos").textContent = p.n_amigos;
+        $("stat-pubs").textContent = p.n_publicaciones;
+        const av = $("perfil-avatar");
+        av.textContent = ((p.nombre || "?")[0] + ((p.apellido || "")[0] || "")).toUpperCase();
+        av.setAttribute("aria-hidden", "true");
+        pintarBoton();
+    }
+
+    btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+            if (persona.relacion === "ninguna") {
+                const r = await apiFetch("/amigos/solicitar", { method: "POST", body: { usuario_id: persona.id } });
+                FMCAviso.aviso(r.estado === "aceptada" ? "¡Ahora son amigos!" : "Solicitud enviada", "ok");
+            } else if (persona.relacion === "recibida") {
+                await apiFetch("/amigos/" + persona.amistad_id + "/aceptar", { method: "POST" });
+                FMCAviso.aviso("¡Ahora son amigos!", "ok");
             }
-        });
-    }
+            pintar(await apiFetch("/amigos/perfil/" + id));
+        } catch (e) { FMCAviso.aviso(e.message, "error"); pintarBoton(); }
+    });
 
-    // Acción: Silenciar
-    if (optSilenciar) {
-        optSilenciar.addEventListener("click", () => {
-            isMuted = !isMuted;
-            optSilenciar.textContent = isMuted ? "Desactivar silencio" : "Silenciar";
-            alert(isMuted ? "🔕 Usuario silenciado. No verás sus publicaciones en el feed." : "🔔 Se ha quitado el silencio al usuario.");
-        });
-    }
+    $("opt-quitar").addEventListener("click", async () => {
+        if (!(await FMCAviso.confirmar("¿Quitar a " + nombreDe(persona) + " de tus amigos?", { si: "Quitar", no: "Cancelar", peligro: true }))) return;
+        try {
+            await apiFetch("/amigos/" + persona.amistad_id, { method: "DELETE" });
+            pintar(await apiFetch("/amigos/perfil/" + id));
+            FMCAviso.aviso("Ya no son amigos", "ok");
+        } catch (e) { FMCAviso.aviso(e.message, "error"); }
+    });
 
-    // Acción: Reportar
-    if (optReportar) {
-        optReportar.addEventListener("click", () => {
-            alert("⚠️ Reporte enviado a los administradores de Find My Class UAG.");
-        });
-    }
-
-    // Acción: Denunciar
-    if (optDenunciar) {
-        optDenunciar.addEventListener("click", () => {
-            alert("📢 Denuncia registrada. Nuestro equipo de soporte revisará el perfil.");
-        });
-    }
-
-    // Acción: Bloquear / Desbloquear
-    if (optBloquear) {
-        optBloquear.addEventListener("click", () => {
-            isBlocked = !isBlocked;
-
-            if (isBlocked) {
-                optBloquear.textContent = "Desbloquear";
-                if (blockedBanner) blockedBanner.classList.remove("hidden");
-
-                if (btnAddFriend) {
-                    btnAddFriend.classList.add("blocked-btn");
-                    btnAddFriend.disabled = true;
-                    btnAddFriend.innerHTML = `<span>Usuario Bloqueado</span>`;
-                }
-
-                alert("🚫 Has bloqueado a Ángel Orozco.");
-            } else {
-                optBloquear.textContent = "Bloquear";
-                if (blockedBanner) blockedBanner.classList.add("hidden");
-
-                if (btnAddFriend) {
-                    btnAddFriend.classList.remove("blocked-btn");
-                    btnAddFriend.disabled = false;
-                    btnAddFriend.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                        <span>Agrega amigos</span>
-                    `;
-                }
-
-                alert("✅ Has desbloqueado a Ángel Orozco.");
-            }
-        });
-    }
-
-    // Lógica del botón de agregar amigos
-    if (btnAddFriend) {
-        btnAddFriend.addEventListener("click", () => {
-            if (!isBlocked) {
-                btnAddFriend.style.backgroundColor = "#5c8a5c";
-                btnAddFriend.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>¡Amigos agregados!</span>
-                `;
-            }
-        });
+    try {
+        const p = await apiFetch("/amigos/perfil/" + id);
+        if (p.es_yo) { window.location.replace("mi_perfil.html"); return; }
+        pintar(p);
+    } catch (e) {
+        $("perfil-nombre").textContent = "Perfil no disponible";
+        FMCAviso.aviso(e.message, "error");
     }
 });

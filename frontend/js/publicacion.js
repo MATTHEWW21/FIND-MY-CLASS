@@ -136,9 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- navegación entre pasos ----------
     const paso1 = $("step-photo-select"), paso2 = $("step-publish-details");
-    $("btn-close").addEventListener("click", () => {
+    $("btn-close").addEventListener("click", async () => {
         const hayCambios = estado.fotos.length || $("pie-foto").value.trim();
-        if (hayCambios && !confirm("¿Descartar esta publicación?")) return;
+        if (hayCambios && !(await FMCAviso.confirmar("¿Descartar esta publicación?", { si: "Descartar", no: "Seguir editando", peligro: true }))) return;
         window.location.href = "feed.html";
     });
     $("btn-next").addEventListener("click", () => { paso1.classList.add("hidden"); paso2.classList.remove("hidden"); window.scrollTo(0, 0); });

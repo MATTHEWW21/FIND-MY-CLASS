@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnContinuar.addEventListener('click', () => {
         if (!asunto) {
-            alert('Selecciona el asunto de tu visita.');
+            FMCAviso.aviso('Selecciona el asunto de tu visita.', 'error');
             return;
         }
         // El mapa usa este valor para mostrar solo los lugares de ese asunto

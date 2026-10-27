@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         yes.addEventListener('click', () => { acc = true; yes.classList.add('active'); no.classList.remove('active'); });
         no.addEventListener('click', () => { acc = false; no.classList.add('active'); yes.classList.remove('active'); });
         document.getElementById('btn-save').addEventListener('click', () => {
-            if (acc === null) { alert('Indica si necesitas rutas accesibles.'); return; }
+            if (acc === null) { FMCAviso.aviso('Indica si necesitas rutas accesibles.', 'error'); return; }
             localStorage.setItem('accessibleRoutes', String(acc));
             window.location.href = 'loading.html';
         });
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ddEdificio.llenar(edificios, 'nombre');
             ddCarrera.llenar(carreras, 'nombre');
         } catch (err) {
-            alert('No se pudieron cargar las opciones: ' + err.message);
+            FMCAviso.aviso('No se pudieron cargar las opciones: ' + err.message, 'error');
         }
     }
 
@@ -113,14 +113,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (miCarga !== cargaActual) return; // eligió otro espacio mientras cargaba
             ddEstancia.llenar(estancias, 'etiqueta');
         } catch (err) {
-            alert('No se pudieron cargar las estancias: ' + err.message);
+            FMCAviso.aviso('No se pudieron cargar las estancias: ' + err.message, 'error');
         }
     });
 
     // 4. Guardar y continuar
     btnSave.addEventListener('click', async () => {
         if (needsAccessibility === null) {
-            alert('Indica si necesitas rutas accesibles.');
+            FMCAviso.aviso('Indica si necesitas rutas accesibles.', 'error');
             return;
         }
 
@@ -128,11 +128,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (esEstudiante) {
             if (!ddEdificio.select.value) {
-                alert('Selecciona tu edificio habitual.');
+                FMCAviso.aviso('Selecciona tu edificio habitual.', 'error');
                 return;
             }
             if (!ddCarrera.select.value) {
-                alert('Selecciona tu carrera.');
+                FMCAviso.aviso('Selecciona tu carrera.', 'error');
                 return;
             }
             body.edificio_habitual_id = Number(ddEdificio.select.value);
@@ -140,15 +140,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             const espacio = ddEspacio.select.value;
             if (!espacio) {
-                alert('Selecciona tu espacio principal de trabajo.');
+                FMCAviso.aviso('Selecciona tu espacio principal de trabajo.', 'error');
                 return;
             }
             if (espacio !== 'no_aplica' && !ddEstancia.select.value) {
-                alert('Selecciona tu estancia.');
+                FMCAviso.aviso('Selecciona tu estancia.', 'error');
                 return;
             }
             if (!ddVista.select.value) {
-                alert('Selecciona el detalle de la interfaz de usuario.');
+                FMCAviso.aviso('Selecciona el detalle de la interfaz de usuario.', 'error');
                 return;
             }
             body.espacio_trabajo = espacio;
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             localStorage.setItem('userVista', data.usuario.vista_preferida);
             window.location.href = 'loading.html';
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
             btnSave.disabled = false;
         }
     });

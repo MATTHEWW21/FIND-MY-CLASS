@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // ----- cerrar sesión -----
-    $('btn-cerrar-sesion').addEventListener('click', () => {
-        if (confirm('¿Cerrar sesión?')) cerrarSesion();
+    $('btn-cerrar-sesion').addEventListener('click', async () => {
+        if (await FMCAviso.confirmar('¿Cerrar sesión?', { si: 'Cerrar sesión', no: 'Quedarme' })) cerrarSesion();
     });
 });

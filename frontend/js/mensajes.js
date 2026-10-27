@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         $('chat-messages').replaceChildren();
         $('chat-header').classList.remove('hidden');
         $('chat-input-bar').classList.remove('hidden');
-        $('chat-nombre').textContent = nombreCompleto(a);
-        $('chat-avatar').replaceWith(Object.assign(avatar(a, 'avatar-iniciales'), { id: 'chat-avatar' }));
+        { const n = $('chat-nombre'); n.replaceChildren(); const l = document.createElement('a'); l.className = 'enlace-perfil'; l.href = 'perfil_usuario.html?id=' + a.id; l.textContent = nombreCompleto(a); l.setAttribute('aria-label', 'Ver perfil de ' + nombreCompleto(a)); n.appendChild(l); }
+        { const av = Object.assign(avatar(a, 'avatar-iniciales'), { id: 'chat-avatar' }); const l = document.createElement('a'); l.className = 'enlace-perfil'; l.href = 'perfil_usuario.html?id=' + a.id; l.tabIndex = -1; l.setAttribute('aria-hidden', 'true'); l.appendChild(av); const viejo = $('chat-avatar'); (viejo.parentElement.classList.contains('enlace-perfil') ? viejo.parentElement : viejo).replaceWith(l); }
         pintarCarrusel();
         try {
             const data = await apiFetch('/mensajes/con/' + a.id);
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
             agregarMensajes(data.mensajes, true);
             marcarLeidos(data.leidos_hasta);
         } catch (err) {
-            if (miCarga === cargandoChat) alert(err.message);
+            if (miCarga === cargandoChat) FMCAviso.aviso(err.message, 'error');
         }
     }
 
@@ -226,12 +226,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const archivo = e.target.files && e.target.files[0];
         e.target.value = '';
         if (!archivo) return;
-        if (!/^image\/(jpeg|png|webp)$/.test(archivo.type)) { alert('Solo se pueden enviar fotos JPG, PNG o WebP.'); return; }
+        if (!/^image\/(jpeg|png|webp)$/.test(archivo.type)) { FMCAviso.aviso('Solo se pueden enviar fotos JPG, PNG o WebP.', 'error'); return; }
         try {
             fotoPendiente = await reducir(archivo);
             $('foto-previa-img').src = fotoPendiente;
             $('foto-previa').classList.remove('hidden');
-        } catch (err) { alert(err.message); }
+        } catch (err) { FMCAviso.aviso(err.message, 'error'); }
     });
 
     async function enviar() {
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 agregarMensajes([m], true);
             }
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
         } finally {
             enviando = false;
             $('btn-send-msg').disabled = false;
@@ -277,10 +277,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function fila(persona, botones, textoEstado) {
         const f = document.createElement('div');
         f.className = 'amigo-fila';
-        f.appendChild(avatar(persona));
+        const href = 'perfil_usuario.html?id=' + persona.id;
+        const la = document.createElement('a'); la.className = 'enlace-perfil'; la.href = href; la.tabIndex = -1; la.setAttribute('aria-hidden', 'true');
+        la.appendChild(avatar(persona));
+        f.appendChild(la);
         const n = document.createElement('span');
         n.className = 'nombre';
-        n.textContent = nombreCompleto(persona);
+        const ln = document.createElement('a'); ln.className = 'enlace-perfil'; ln.href = href; ln.textContent = nombreCompleto(persona);
+        n.appendChild(ln);
         f.appendChild(n);
         if (textoEstado) {
             const e = document.createElement('span');
@@ -332,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ])));
         llenar('amigos-mis', 'titulo-mis-amigos', data.amigos.map((p) => fila(p, [
             { texto: 'Quitar', clase: 'peligro', accion: async () => {
-                    if (!confirm('¿Quitar a ' + nombreCompleto(p) + ' de tus amigos?')) { return; }
+                    if (!(await FMCAviso.confirmar('¿Quitar a ' + nombreCompleto(p) + ' de tus amigos?', { si: 'Quitar', no: 'Cancelar', peligro: true }))) { return; }
                     await apiFetch('/amigos/' + p.amistad_id, { method: 'DELETE' });
                     if (actual && actual.id === p.id) cerrarChat();
                     await despues();

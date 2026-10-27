@@ -49,6 +49,8 @@
         const lista = await cargar();
         if (!ruta) { cercanos = []; return; }
         cercanos = lista.filter((f) => {
+            // Si el camino elegido es accesible (no pasa por escaleras), no se muestran escaleras: solo confundirían
+            if (ruta.accesible && f.tipo === 'escalera') return false;
             const puntos = (f.trazo && f.trazo.length ? f.trazo : [[f.lat, f.lng]]).map((q) => ({ lat: q[0], lng: q[1] }));
             return puntos.some((p) => distARuta(p) <= CERCA_RUTA_M);
         });
@@ -59,7 +61,7 @@
         return L.divIcon({
             className: 'acc-pin-wrap',
             html: `<span class="acc-pin acc-${t}" aria-hidden="true">${LETRA[t]}</span>`,
-            iconSize: [30, 30], iconAnchor: [15, 15],
+            iconSize: [22, 22], iconAnchor: [11, 11],
         });
     }
     function textoPin(f) {

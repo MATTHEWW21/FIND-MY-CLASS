@@ -223,11 +223,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    $('btn-terminar').addEventListener('click', () => {
+    $('btn-terminar').addEventListener('click', async () => {
         if (e.corriendo) pausar();
         const seg = Math.round(ms() / 1000);
         if (seg < MIN_GUARDAR_S) {
-            if (confirm('La actividad dura menos de 30 segundos y no se guardará. ¿Descartarla?')) reiniciar();
+            if (await FMCAviso.confirmar('La actividad dura menos de 30 segundos y no se guardará. ¿Descartarla?', { si: 'Descartar', no: 'Seguir', peligro: true })) reiniciar();
             return;
         }
         ultimoResumen = { tipo: e.tipo, distancia_m: Math.round(e.distanciaM), duracion_s: seg, calorias: calorias() };
@@ -264,6 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
             e.tipo = g.tipo; e.iniciado = true; e.acumuladoMs = g.acumuladoMs; e.distanciaM = g.distanciaM;
             estadoGps('Actividad en pausa: pulsa REANUDAR para continuar', 'aviso');
         } else localStorage.removeItem(CLAVE);
+    } catch (err) {}
+    // Si hay una ruta en curso en el mapa, se avisa y se propone la misma forma de moverse (solo si aun no empiezas)
+    try {
+        const r = JSON.parse(localStorage.getItem('rutaMapa') || 'null');
+        if (r && Date.now() - r.ts < 4 * 3600 * 1000 && r.nombre) {
+            $('ruta-mapa-texto').textContent = `Tienes una ruta ${r.empezo ? 'en curso' : 'preparada'} hacia ${r.nombre}.`;
+            $('ruta-mapa-aviso').classList.remove('hidden');
+            if (!e.iniciado && ACT[r.modo]) e.tipo = r.modo;
+        }
     } catch (err) {}
     pintarSelector();
     pintar();

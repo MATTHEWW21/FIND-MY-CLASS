@@ -13,7 +13,8 @@
     <link rel="stylesheet" href="css/role-ui.css">
     <link rel="stylesheet" href="css/accesibilidad.css">
     <link rel="stylesheet" href="css/mapa-accesibilidad.css">
-    <script src="js/role-ui.js"></script>
+    <script src="js/aviso.js"></script>
+<script src="js/role-ui.js"></script>
     <link rel="stylesheet" href="css/contraste.css">
 </head>
 <body>
@@ -62,18 +63,18 @@
 
         <button class="btn-change"><span aria-hidden="true">📍</span> VER OTRA RUTA</button>
 
-        <div class="metrics-row">
-            <div class="metric-box" id="metric-walk">🚶 -- MIN</div>
-            <div class="metric-box" id="metric-bike">🚴 -- MIN</div>
-        </div>
+        <p class="route-dist" id="route-dist" aria-live="polite"></p>
+        <div class="metrics-row" id="metrics-row" role="radiogroup" aria-label="Cómo te vas a mover"></div>
 
         <div class="actions-row">
             <button class="btn-start" id="btn-start">EMPEZAR</button>
             <button class="btn-finish" id="btn-finish" disabled>FINALIZAR</button>
         </div>
+        <button type="button" class="btn-cancelar-ruta" id="btn-cancelar-ruta">Cancelar ruta</button>
 
         <div class="instructions-text">
             <p id="route-hint">Busca un destino para ver la distancia y el tiempo aproximados.</p>
+            <ul id="route-legend" class="route-legend" aria-label="Cómo se ve cada tipo de camino en el mapa"></ul>
         </div>
     </div>
 
@@ -105,13 +106,13 @@
             <div class="star-badge-icon" aria-hidden="true">⭐</div>
             <div class="badge-text-group">
                 <span class="badge-title">TU EXPERIENCIA</span>
-                <span class="badge-subtitle">Califica tu caminata (opcional)</span>
+                <span class="badge-subtitle">Califica tu recorrido (opcional)</span>
             </div>
         </div>
 
         <!-- Tarjeta Principal de Feedback -->
         <div class="feedback-card-body">
-            <h3 class="feedback-question">¿Cómo te pareció la caminata desde aquí hasta tu destino?</h3>
+            <h3 class="feedback-question">¿Cómo te pareció el recorrido desde aquí hasta tu destino?</h3>
 
             <!-- Selector de Estrellas -->
             <div class="star-rating-row" role="group" aria-label="Calificación de 1 a 5 estrellas">

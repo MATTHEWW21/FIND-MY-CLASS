@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="css/registro.css">
     <link rel="stylesheet" href="css/registro-extra.css">
     <link rel="stylesheet" href="css/role-ui.css">
-    <script src="js/role-ui.js"></script>
+    <script src="js/aviso.js"></script>
+<script src="js/role-ui.js"></script>
     <link rel="stylesheet" href="css/contraste.css">
 </head>
 <body>
@@ -57,6 +58,12 @@
     </div>
 
     <hr class="divider">
+
+    <!-- Ruta en curso en el mapa (la llena registro.js si hay una) -->
+    <div class="ruta-mapa-aviso hidden" id="ruta-mapa-aviso" role="status">
+        <span id="ruta-mapa-texto"></span>
+        <a href="mapa.html" class="ruta-mapa-link">Volver al mapa</a>
+    </div>
 
     <!-- Selector de actividades (lo llena registro.js con las mismas actividades y colores de "Nueva publicación") -->
     <div class="activity-selector" id="selector"></div>

@@ -3,8 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Sin correo pendiente no hay nada que verificar
     if (!correo) {
-        alert('No hay un registro pendiente de verificar. Inicia sesión o regístrate.');
-        window.location.href = 'index.html';
+        FMCAviso.alerta('No hay un registro pendiente de verificar. Inicia sesión o regístrate.', 'error').then(() => { window.location.href = 'index.html'; });
         return;
     }
 
@@ -23,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: { correo, codigo: inputCode.value.trim() },
             });
             localStorage.removeItem('pendingEmail');
-            alert('¡Verificación exitosa! Ahora inicia sesión.');
+            await FMCAviso.alerta('¡Verificación exitosa! Ahora inicia sesión.', 'ok');
             window.location.href = 'login.html';
         } catch (err) {
-            alert(err.message);
+            FMCAviso.aviso(err.message, 'error');
             submitBtn.disabled = false;
         }
     });
@@ -40,12 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: { correo },
                 });
                 if (data.codigo_dev) {
-                    alert(`[Modo desarrollo]\nTu nuevo código es: ${data.codigo_dev}`);
+                    await FMCAviso.alerta(`[Modo desarrollo]\nTu nuevo código es: ${data.codigo_dev}`, 'info');
                 } else {
-                    alert('Te enviamos un nuevo código a tu correo institucional.');
+                    FMCAviso.aviso('Te enviamos un nuevo código a tu correo institucional.', 'ok');
                 }
             } catch (err) {
-                alert(err.message);
+                FMCAviso.aviso(err.message, 'error');
             }
         });
     }
