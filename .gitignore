@@ -2,9 +2,20 @@ node_modules/
 .idea/
 .vscode/
 .DS_Store
+Thumbs.db
+desktop.ini
 dist/
 build/
+coverage/
+
+# Datos de usuarios (fotos, mensajes) y respaldos: contienen informacion personal, NUNCA van a Git
 backend/uploads/
+respaldos/
+*.dump
+*.sql.gz
+*.bak
+*.sqlite
+*.sqlite3
 
 # Secretos: el .env real NUNCA va a Git (solo el .env.example, que no lleva valores reales)
 .env
@@ -13,8 +24,12 @@ backend/uploads/
 *.pem
 *.key
 *.p12
+*.pfx
 
 # Basura local
 *.log
 npm-debug.log*
+*.tmp
+*.swp
 cloudflared*.exe
+.git/COMMIT_MSG.txt
