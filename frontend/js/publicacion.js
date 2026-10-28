@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         scooter:   { emoji: "🛴", nombre: "SCOOTER" },
     };
 
-    const estado = { actividad: "caminata", fotos: [], ubicacion: null, privacidad: "todos", ruta: null };
+    const estado = { actividad: "caminata", fotos: [], ubicacion: null, privacidad: "todos", ruta: null, etiquetas: [] };
 
     // Última ruta terminada en el mapa (solo si es de las últimas 12 horas)
     try {
@@ -97,7 +97,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         $("txt-ubicacion").textContent = estado.ubicacion || "Sin ubicación";
-        $("txt-privacidad").textContent = estado.privacidad === "todos" ? "Todos" : "Solo yo";
+        $("txt-privacidad").textContent = PubSel.PRIVACIDADES.find((o) => o.clave === estado.privacidad).titulo;
+        $("txt-etiquetas").textContent = estado.privacidad === "solo_yo" ? "No disponible si solo tú la ves"
+            : estado.etiquetas.length ? estado.etiquetas.map((x) => x.nombre).join(", ") : "Nadie";
     }
 
     // ---------- fotos: se leen, se reducen y se guardan como JPEG (data URL) ----------
@@ -164,9 +166,19 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
 
     // ---------- privacidad ----------
-    $("fila-privacidad").addEventListener("click", () => {
-        estado.privacidad = estado.privacidad === "todos" ? "solo_yo" : "todos";
+    $("fila-privacidad").addEventListener("click", async () => {
+        const nueva = await PubSel.privacidad(estado.privacidad);
+        if (!nueva) return;
+        estado.privacidad = nueva;
+        if (nueva === "solo_yo") estado.etiquetas = [];     // una publicacion privada no etiqueta a nadie
         pintar();
+    });
+
+    // ---------- etiquetar amigos ----------
+    $("fila-etiquetas").addEventListener("click", async () => {
+        if (estado.privacidad === "solo_yo") { aviso("Cambia la privacidad para poder etiquetar"); return; }
+        const lista = await PubSel.etiquetas(estado.etiquetas);
+        if (lista) { estado.etiquetas = lista; pintar(); }
     });
 
     // ---------- ubicación: lista de lugares del campus ----------
@@ -228,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     fotos: estado.fotos,
                     ubicacion: estado.ubicacion,
                     privacidad: estado.privacidad,
+                    etiquetas: estado.etiquetas.map((x) => x.id),
                     mostrar_estadisticas: !!estado.ruta && $("chk-stats").checked,
                     distancia_m: estado.ruta ? estado.ruta.distancia_m : null,
                     duracion_s: estado.ruta ? estado.ruta.duracion_s : null,

@@ -5,6 +5,7 @@ const path = require('path');
 const rateLimit = require('express-rate-limit');
 const pool = require('../config/db');
 const { verificarToken, requerirRol } = require('../middleware/auth');
+const { hayBloqueo } = require('../middleware/moderacion');
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ const DIR_FOTOS = path.join(__dirname, '../../uploads/publicaciones');
 const ACTIVIDADES = ['caminata', 'carrera', 'ciclismo', 'inclusivo', 'scooter'];
 const MOTIVOS = ['ofensivo', 'spam', 'falso', 'otro'];
 const MAX_FOTOS = 3;
+const MAX_ETIQUETAS = 10;
 const MAX_BYTES_FOTO = 1.5 * 1024 * 1024;
 
 const limitePublicar = rateLimit({ windowMs: 15 * 60 * 1000, max: 15, standardHeaders: true, legacyHeaders: false, message: { error: 'Publicaste muchas veces seguidas, espera un momento' } });
@@ -31,6 +33,11 @@ const idParam = (req) => {
   const n = Number(req.params.id);
   return Number.isInteger(n) && n > 0 ? n : null;
 };
+// Quien puede ver una publicacion: todos, solo amigos (amistad aceptada) o solo su autor. $yo = parametro con mi id.
+const puedeVer = (yo, p = 'p') => `(${p}.usuario_id = ${yo} OR ${p}.privacidad = 'todos' OR (${p}.privacidad = 'amigos' AND EXISTS (
+    SELECT 1 FROM amistades f WHERE f.estado = 'aceptada'
+      AND ((f.solicitante_id = ${p}.usuario_id AND f.destinatario_id = ${yo}) OR (f.destinatario_id = ${p}.usuario_id AND f.solicitante_id = ${yo})))))`;
+const PRIVACIDADES = ['todos', 'amigos', 'solo_yo'];
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
 // ---------- Fotos: llegan como data URL (jpeg/png/webp), se validan y se guardan en backend/uploads ----------
@@ -61,12 +68,16 @@ const borrarArchivos = (nombres) => nombres.forEach((n) => {
 // ---------- Listado ----------
 const SELECT_PUBLICACION = `
   SELECT p.id, p.actividad, p.pie_foto, p.distancia_m, p.duracion_s, p.calorias, p.mostrar_estadisticas,
-         p.ubicacion, p.privacidad, p.creado_en,
+         p.ubicacion, p.privacidad, p.creado_en, p.editado_en,
          u.id AS autor_id, u.nombre AS autor_nombre, u.rol AS autor_rol,
          (SELECT COUNT(*) FROM publicacion_likes l WHERE l.publicacion_id = p.id)::int AS likes,
          EXISTS (SELECT 1 FROM publicacion_likes l WHERE l.publicacion_id = p.id AND l.usuario_id = $1) AS yo_di_like,
-         (SELECT COUNT(*) FROM publicacion_comentarios c WHERE c.publicacion_id = p.id)::int AS comentarios,
-         COALESCE((SELECT json_agg(f.archivo ORDER BY f.orden, f.id) FROM publicacion_fotos f WHERE f.publicacion_id = p.id), '[]'::json) AS fotos
+         (SELECT COUNT(*) FROM publicacion_comentarios c WHERE c.publicacion_id = p.id AND NOT ${hayBloqueo('$1', 'c.usuario_id')})::int AS comentarios,
+         COALESCE((SELECT json_agg(f.archivo ORDER BY f.orden, f.id) FROM publicacion_fotos f WHERE f.publicacion_id = p.id), '[]'::json) AS fotos,
+         COALESCE((SELECT json_agg(json_build_object('id', e.usuario_id, 'nombre', eu.nombre) ORDER BY e.creado_en, e.usuario_id)
+                     FROM publicacion_etiquetas e JOIN usuarios eu ON eu.id = e.usuario_id
+                    WHERE e.publicacion_id = p.id AND NOT ${hayBloqueo('$1', 'e.usuario_id')}), '[]'::json) AS etiquetas,
+         EXISTS (SELECT 1 FROM publicacion_etiquetas e WHERE e.publicacion_id = p.id AND e.usuario_id = $1) AS yo_etiquetado
     FROM publicaciones p
     JOIN usuarios u ON u.id = p.usuario_id`;
 
@@ -83,11 +94,14 @@ function aJson(r, yo) {
     ubicacion: r.ubicacion,
     privacidad: r.privacidad,
     creado_en: r.creado_en,
+    editado_en: r.editado_en,
     fotos: r.fotos.map((n) => `/uploads/publicaciones/${n}`),
     likes: r.likes,
     yo_di_like: r.yo_di_like,
     comentarios: r.comentarios,
     es_mio: r.autor_id === yo,
+    etiquetas: r.etiquetas,
+    yo_etiquetado: r.yo_etiquetado,
   };
 }
 
@@ -98,7 +112,10 @@ router.get('/', async (req, res) => {
   const antes = Number(req.query.antes);
   try {
     const params = [yo, limite];
-    let filtro = `WHERE (p.privacidad = 'todos' OR p.usuario_id = $1)`;
+    // No se muestran personas bloqueadas (de cualquiera de los dos lados) ni silenciadas
+    let filtro = `WHERE ${puedeVer('$1')}
+      AND NOT ${hayBloqueo('$1', 'p.usuario_id')}
+      AND NOT EXISTS (SELECT 1 FROM silenciados s WHERE s.usuario_id = $1 AND s.silenciado_id = p.usuario_id)`;
     if (Number.isInteger(antes) && antes > 0) { params.push(antes); filtro += ` AND p.id < $3`; }
     const { rows } = await pool.query(`${SELECT_PUBLICACION} ${filtro} ORDER BY p.id DESC LIMIT $2`, params);
     res.json({ publicaciones: rows.map((r) => aJson(r, yo)), hay_mas: rows.length === limite });
@@ -106,6 +123,18 @@ router.get('/', async (req, res) => {
 });
 
 // ---------- Crear ----------
+// Verdadero si TODOS los ids son amigos mios (aceptados), verificados y sin bloqueo
+async function sonMisAmigos(yo, ids) {
+  if (!ids.length) return true;
+  const r = await pool.query(
+    `SELECT u.id FROM usuarios u
+       JOIN amistades a ON a.estado = 'aceptada'
+        AND ((a.solicitante_id = $1 AND a.destinatario_id = u.id) OR (a.destinatario_id = $1 AND a.solicitante_id = u.id))
+      WHERE u.id = ANY($2::int[]) AND u.verificado = TRUE AND NOT ${hayBloqueo('$1', 'u.id')}`, [yo, ids]);
+  return r.rowCount === ids.length;
+}
+const limpiarIds = (v, yo) => [...new Set((Array.isArray(v) ? v : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n !== yo))];
+
 // POST /api/publicaciones { actividad, pie_foto?, distancia_m?, duracion_s?, calorias?, mostrar_estadisticas?, ubicacion?, privacidad?, fotos?: [dataUrl] }
 router.post('/', limitePublicar, async (req, res) => {
   const b = req.body || {};
@@ -123,7 +152,23 @@ router.post('/', limitePublicar, async (req, res) => {
   }
   if (!pie && !fotos.length) return res.status(400).json({ error: 'Escribe algo o agrega una foto' });
 
-  const privacidad = b.privacidad === 'solo_yo' ? 'solo_yo' : 'todos';
+  const privacidad = PRIVACIDADES.includes(b.privacidad) ? b.privacidad : 'todos';
+
+  // Etiquetas: solo amigos, sin bloqueos, y no en publicaciones solo para mi
+  const yo = req.usuario.id;
+  const etiquetas = [...new Set((Array.isArray(b.etiquetas) ? b.etiquetas : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n !== yo))];
+  if (etiquetas.length > MAX_ETIQUETAS) return res.status(400).json({ error: `Máximo ${MAX_ETIQUETAS} personas etiquetadas` });
+  if (etiquetas.length && privacidad === 'solo_yo') return res.status(400).json({ error: 'Una publicación solo para ti no puede etiquetar a nadie' });
+  if (etiquetas.length) {
+    try {
+      const amigos = await pool.query(
+        `SELECT u.id FROM usuarios u
+           JOIN amistades a ON a.estado = 'aceptada'
+            AND ((a.solicitante_id = $1 AND a.destinatario_id = u.id) OR (a.destinatario_id = $1 AND a.solicitante_id = u.id))
+          WHERE u.id = ANY($2::int[]) AND u.verificado = TRUE AND NOT ${hayBloqueo('$1', 'u.id')}`, [yo, etiquetas]);
+      if (amigos.rowCount !== etiquetas.length) return res.status(400).json({ error: 'Solo puedes etiquetar a tus amigos' });
+    } catch (err) { return error500(res, err); }
+  }
   const guardados = [];
   const cliente = await pool.connect();
   try {
@@ -142,6 +187,10 @@ router.post('/', limitePublicar, async (req, res) => {
     for (let i = 0; i < guardados.length; i++) {
       await cliente.query('INSERT INTO publicacion_fotos (publicacion_id, archivo, orden) VALUES ($1,$2,$3)', [id, guardados[i], i]);
     }
+    if (etiquetas.length) {
+      await cliente.query('INSERT INTO publicacion_etiquetas (publicacion_id, usuario_id) SELECT $1, unnest($2::int[])', [id, etiquetas]);
+      await cliente.query("INSERT INTO notificaciones (usuario_id, tipo, actor_id, publicacion_id) SELECT unnest($2::int[]), 'etiqueta', $3, $1", [id, etiquetas, yo]);
+    }
     await cliente.query('COMMIT');
     res.status(201).json({ ok: true, id });
   } catch (err) {
@@ -151,6 +200,85 @@ router.post('/', limitePublicar, async (req, res) => {
   } finally {
     cliente.release();
   }
+});
+
+// ---------- Una sola publicacion (para abrirla desde un aviso) ----------
+router.get('/:id', async (req, res) => {
+  const id = idParam(req);
+  const yo = req.usuario.id;
+  if (!id) return res.status(400).json({ error: 'Publicación inválida' });
+  try {
+    const { rows } = await pool.query(
+      `${SELECT_PUBLICACION} WHERE p.id = $2 AND ${puedeVer('$1')} AND NOT ${hayBloqueo('$1', 'p.usuario_id')}`, [yo, id]);
+    if (!rows.length) return res.status(404).json({ error: 'Esa publicación ya no está disponible' });
+    res.json(aJson(rows[0], yo));
+  } catch (err) { error500(res, err); }
+});
+
+// ---------- Editar mi publicacion: texto, ubicacion, privacidad y etiquetas (las fotos y las estadisticas no cambian) ----------
+router.patch('/:id', limitePublicar, async (req, res) => {
+  const id = idParam(req);
+  const yo = req.usuario.id;
+  if (!id) return res.status(400).json({ error: 'Publicación inválida' });
+  const b = req.body || {};
+  const cliente = await pool.connect();
+  try {
+    await cliente.query('BEGIN');
+    const act = await cliente.query(
+      `SELECT p.pie_foto, p.ubicacion, p.privacidad, (SELECT COUNT(*) FROM publicacion_fotos f WHERE f.publicacion_id = p.id)::int AS n_fotos
+         FROM publicaciones p WHERE p.id = $1 AND p.usuario_id = $2 FOR UPDATE`, [id, yo]);
+    if (!act.rowCount) { await cliente.query('ROLLBACK'); return res.status(404).json({ error: 'No encontramos esa publicación' }); }
+    const antes = act.rows[0];
+
+    const pie = 'pie_foto' in b ? texto(b.pie_foto, 250) : (antes.pie_foto || '');
+    const ubicacion = 'ubicacion' in b ? (texto(b.ubicacion, 120) || null) : antes.ubicacion;
+    if ('privacidad' in b && !PRIVACIDADES.includes(b.privacidad)) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: 'Privacidad no válida' }); }
+    const privacidad = 'privacidad' in b ? b.privacidad : antes.privacidad;
+    if (!pie && !antes.n_fotos) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: 'Escribe algo o deja al menos una foto' }); }
+
+    // Etiquetas: lista final deseada (si no la mandan, se conservan; si queda solo_yo, se quitan todas)
+    const actuales = (await cliente.query('SELECT usuario_id FROM publicacion_etiquetas WHERE publicacion_id = $1', [id])).rows.map((r) => r.usuario_id);
+    let finales = 'etiquetas' in b ? limpiarIds(b.etiquetas, yo) : actuales;
+    if (privacidad === 'solo_yo') {
+      if (limpiarIds(b.etiquetas, yo).length) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: 'Una publicación solo para ti no puede etiquetar a nadie' }); }
+      finales = [];
+    }
+    if (finales.length > MAX_ETIQUETAS) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: `Máximo ${MAX_ETIQUETAS} personas etiquetadas` }); }
+    const nuevas = finales.filter((x) => !actuales.includes(x));
+    const quitadas = actuales.filter((x) => !finales.includes(x));
+    if (!(await sonMisAmigos(yo, nuevas))) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: 'Solo puedes etiquetar a tus amigos' }); }
+
+    if (quitadas.length) {
+      await cliente.query('DELETE FROM publicacion_etiquetas WHERE publicacion_id = $1 AND usuario_id = ANY($2::int[])', [id, quitadas]);
+      await cliente.query("DELETE FROM notificaciones WHERE publicacion_id = $1 AND tipo = 'etiqueta' AND usuario_id = ANY($2::int[])", [id, quitadas]);
+    }
+    if (nuevas.length) {
+      await cliente.query('INSERT INTO publicacion_etiquetas (publicacion_id, usuario_id) SELECT $1, unnest($2::int[])', [id, nuevas]);
+      await cliente.query("INSERT INTO notificaciones (usuario_id, tipo, actor_id, publicacion_id) SELECT unnest($2::int[]), 'etiqueta', $3, $1", [id, nuevas, yo]);
+    }
+    const cambio = pie !== (antes.pie_foto || '') || ubicacion !== antes.ubicacion || privacidad !== antes.privacidad || nuevas.length || quitadas.length;
+    await cliente.query(
+      `UPDATE publicaciones SET pie_foto = $2, ubicacion = $3, privacidad = $4, editado_en = CASE WHEN $5 THEN NOW() ELSE editado_en END WHERE id = $1`,
+      [id, pie || null, ubicacion, privacidad, !!cambio]);
+    await cliente.query('COMMIT');
+    const { rows } = await pool.query(`${SELECT_PUBLICACION} WHERE p.id = $2`, [yo, id]);
+    res.json(aJson(rows[0], yo));
+  } catch (err) {
+    await cliente.query('ROLLBACK').catch(() => {});
+    error500(res, err);
+  } finally { cliente.release(); }
+});
+
+// ---------- Quitarme una etiqueta (la puede quitar la persona etiquetada) ----------
+router.delete('/:id/etiqueta', async (req, res) => {
+  const id = idParam(req);
+  if (!id) return res.status(400).json({ error: 'Publicación inválida' });
+  try {
+    const r = await pool.query('DELETE FROM publicacion_etiquetas WHERE publicacion_id = $1 AND usuario_id = $2', [id, req.usuario.id]);
+    await pool.query("DELETE FROM notificaciones WHERE publicacion_id = $1 AND usuario_id = $2 AND tipo = 'etiqueta'", [id, req.usuario.id]);
+    if (!r.rowCount) return res.status(404).json({ error: 'No estás etiquetada(o) en esa publicación' });
+    res.json({ ok: true });
+  } catch (err) { error500(res, err); }
 });
 
 // ---------- Borrar la propia publicacion ----------
@@ -168,7 +296,8 @@ router.delete('/:id', async (req, res) => {
 
 // Una publicacion que yo puedo ver (publica o mia)
 async function visible(id, yo) {
-  const r = await pool.query(`SELECT 1 FROM publicaciones WHERE id = $1 AND (privacidad = 'todos' OR usuario_id = $2)`, [id, yo]);
+  const r = await pool.query(
+    `SELECT 1 FROM publicaciones p WHERE p.id = $1 AND ${puedeVer('$2')} AND NOT ${hayBloqueo('$2', 'p.usuario_id')}`, [id, yo]);
   return r.rowCount > 0;
 }
 
@@ -199,8 +328,8 @@ router.get('/:id/comentarios', async (req, res) => {
          FROM publicacion_comentarios c
          JOIN usuarios u ON u.id = c.usuario_id
          JOIN publicaciones p ON p.id = c.publicacion_id
-        WHERE c.publicacion_id = $1
-        ORDER BY c.id ASC LIMIT 200`, [id]
+        WHERE c.publicacion_id = $1 AND NOT ${hayBloqueo('$2', 'c.usuario_id')}
+        ORDER BY c.id ASC LIMIT 200`, [id, req.usuario.id]
     );
     res.json(rows.map((c) => ({
       id: c.id, texto: c.texto, creado_en: c.creado_en,

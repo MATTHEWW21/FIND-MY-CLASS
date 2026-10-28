@@ -297,3 +297,25 @@
     padding: 8px 0;
     z-index: 10;
 }
+
+/* ---- Hoja para reportar a una persona ---- */
+.rep-hoja { gap: 8px; overflow-y: auto; }
+.rep-titulo { margin: 0; font-family: Georgia, serif; font-size: 1.15rem; color: #1a1a1a; }
+.rep-ayuda { margin: 0 0 4px; font-size: .82rem; color: #5a4636; }
+.rep-grupo { border: 0; margin: 0; padding: 0; }
+.rep-grupo legend { font-weight: 800; font-size: .9rem; margin-bottom: 4px; padding: 0; }
+.rep-opcion { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: .92rem; color: #222; cursor: pointer; }
+.rep-opcion input { width: 20px; height: 20px; accent-color: #B04E0E; flex: none; }
+.rep-etiqueta { font-weight: 800; font-size: .9rem; }
+.rep-hoja textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #cbbfa8; border-radius: 12px; font: inherit; font-size: .9rem; resize: vertical; }
+.rep-botones { display: flex; gap: 10px; margin-top: 6px; }
+.rep-botones button { flex: 1; min-height: 46px; border-radius: 12px; font-weight: 800; font-size: .92rem; cursor: pointer; border: 2px solid #B04E0E; }
+.rep-cancelar { background: #fff; color: #B04E0E; }
+.rep-enviar { background: #B04E0E; color: #fff; }
+.rep-botones button:disabled { opacity: .6; cursor: default; }
+
+/* Los elementos con la clase "hidden" deben desaparecer de verdad (el boton y las opciones del menu tenian su propio display) */
+.btn-add-friend.hidden, .dropdown-item.hidden { display: none; }
+
+/* Aviso de bloqueo con contraste suficiente (texto blanco sobre rojo oscuro) */
+.blocked-banner { background-color: #9b2c22; color: #ffffff; }

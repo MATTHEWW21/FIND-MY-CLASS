@@ -3,6 +3,7 @@ const rateLimit = require('express-rate-limit');
 const pool = require('../config/db');
 const { verificarToken, requerirRol } = require('../middleware/auth');
 const { soloVistaCompleta } = require('../middleware/comunidad');
+const { hayBloqueo } = require('../middleware/moderacion');
 
 const router = express.Router();
 router.use(verificarToken, requerirRol('estudiante', 'colaborador'), soloVistaCompleta);
@@ -50,6 +51,7 @@ router.get('/buscar', limiteBuscar, async (req, res) => {
                 OR (a.destinatario_id = $1 AND a.solicitante_id = u.id)
         WHERE u.id <> $1 AND u.verificado = TRUE AND u.rol IN ('estudiante','colaborador')
           AND NOT (u.rol = 'colaborador' AND u.vista_preferida = 'simplificada')
+          AND NOT ${hayBloqueo('$1', 'u.id')}
           AND (u.nombre || ' ' || COALESCE(u.apellido, '')) ILIKE $2
         ORDER BY u.nombre, u.apellido
         LIMIT 10`,
@@ -72,13 +74,15 @@ router.get('/perfil/:id', async (req, res) => {
       `SELECT u.id, u.nombre, u.apellido, u.rol,
               (SELECT COUNT(*)::int FROM amistades x
                 WHERE x.estado = 'aceptada' AND (x.solicitante_id = u.id OR x.destinatario_id = u.id)) AS n_amigos,
-              (SELECT COUNT(*)::int FROM publicaciones p WHERE p.usuario_id = u.id AND p.privacidad = 'todos') AS n_publicaciones,
+              (SELECT COUNT(*)::int FROM publicaciones p WHERE p.usuario_id = u.id AND (p.privacidad = 'todos' OR (p.privacidad = 'amigos' AND (a.estado = 'aceptada' OR u.id = $1)))) AS n_publicaciones,
+              EXISTS (SELECT 1 FROM bloqueos bl WHERE bl.bloqueador_id = $1 AND bl.bloqueado_id = u.id) AS bloqueado_por_mi,
+              EXISTS (SELECT 1 FROM silenciados si WHERE si.usuario_id = $1 AND si.silenciado_id = u.id) AS silenciado,
               a.id AS amistad_id, a.estado, (a.solicitante_id = $1) AS la_envie
          FROM usuarios u
          LEFT JOIN amistades a
                 ON (a.solicitante_id = $1 AND a.destinatario_id = u.id)
                 OR (a.destinatario_id = $1 AND a.solicitante_id = u.id)
-        WHERE u.id = $2 AND u.verificado = TRUE AND u.rol IN ('estudiante','colaborador')
+        WHERE u.id = $2 AND NOT EXISTS (SELECT 1 FROM bloqueos bt WHERE bt.bloqueador_id = u.id AND bt.bloqueado_id = $1) AND u.verificado = TRUE AND u.rol IN ('estudiante','colaborador')
           AND NOT (u.rol = 'colaborador' AND u.vista_preferida = 'simplificada')`,
       [yo, id]
     );
@@ -88,6 +92,8 @@ router.get('/perfil/:id', async (req, res) => {
       id: r.id, nombre: r.nombre, apellido: r.apellido, rol: r.rol,
       n_amigos: r.n_amigos, n_publicaciones: r.n_publicaciones,
       es_yo: r.id === yo,
+      bloqueado_por_mi: r.bloqueado_por_mi,
+      silenciado: r.silenciado,
       amistad_id: r.amistad_id || null,
       relacion: r.id === yo ? 'yo' : !r.estado ? 'ninguna' : r.estado === 'aceptada' ? 'amigo' : r.la_envie ? 'enviada' : 'recibida',
     });
@@ -102,9 +108,10 @@ router.post('/solicitar', limiteSolicitar, async (req, res) => {
     if (!otro || otro === yo) return res.status(400).json({ error: 'Persona no válida' });
 
     const destino = await pool.query(
-      `SELECT 1 FROM usuarios WHERE id = $1 AND verificado = TRUE AND rol IN ('estudiante','colaborador')
-          AND NOT (rol = 'colaborador' AND vista_preferida = 'simplificada')`,
-      [otro]
+      `SELECT 1 FROM usuarios u WHERE u.id = $1 AND u.verificado = TRUE AND u.rol IN ('estudiante','colaborador')
+          AND NOT (u.rol = 'colaborador' AND u.vista_preferida = 'simplificada')
+          AND NOT ${hayBloqueo('$2', 'u.id')}`,
+      [otro, yo]
     );
     if (!destino.rowCount) return res.status(404).json({ error: 'No encontramos a esa persona' });
 

@@ -103,7 +103,15 @@ document.addEventListener("DOMContentLoaded", () => {
         nombre.appendChild(enlacePerfil(p.autor, "enlace-perfil", document.createTextNode(p.autor.nombre)));
         if (p.autor.rol === "colaborador") nombre.appendChild(el("span", "pub-insignia", "Colaborador UAG"));
         info.appendChild(nombre);
-        info.appendChild(el("span", "post-time", `${cuando(p.creado_en)}${p.privacidad === "solo_yo" ? " · 🔒 Solo tú" : ""}`));
+        info.appendChild(el("span", "post-time", `${cuando(p.creado_en)}${p.privacidad === "solo_yo" ? " · 🔒 Solo tú" : p.privacidad === "amigos" ? " · 👥 Amigos" : ""}${p.editado_en ? " · editada" : ""}`));
+        if (p.etiquetas && p.etiquetas.length) {
+            const con = el("span", "post-con", "con ");
+            p.etiquetas.forEach((x, i) => {
+                if (i > 0) con.appendChild(document.createTextNode(i === p.etiquetas.length - 1 ? " y " : ", "));
+                con.appendChild(enlacePerfil(x, "enlace-perfil", document.createTextNode(x.nombre)));
+            });
+            info.appendChild(con);
+        }
         cab.appendChild(info);
         const insignia = el("div", "pub-insignia-actividad");
         insignia.innerHTML = window.FMCActividades ? window.FMCActividades.icono(p.actividad, 20) : ACT[p.actividad].emoji;
@@ -249,7 +257,18 @@ document.addEventListener("DOMContentLoaded", () => {
             b.addEventListener("click", fn);
             caja.appendChild(b);
         };
+        if (p.yo_etiquetado) {
+            boton("🏷️ Quitar mi etiqueta", "", async () => {
+                try {
+                    await apiFetch(`/publicaciones/${p.id}/etiqueta`, { method: "DELETE" });
+                    fondo.remove();
+                    card.replaceWith(crearTarjeta(await apiFetch(`/publicaciones/${p.id}`)));
+                    aviso("Ya no apareces en esta publicación");
+                } catch (e) { aviso(e.message); }
+            });
+        }
         if (p.es_mio) {
+            boton("✏️ Editar publicación", "", () => { fondo.remove(); abrirEditor(p, card); });
             boton("🗑️ Eliminar publicación", "peligro", async () => {
                 if (!(await FMCAviso.confirmar("¿Eliminar esta publicación? No se puede deshacer.", { si: "Eliminar", no: "Cancelar", peligro: true }))) return;
                 try {
@@ -276,6 +295,58 @@ document.addEventListener("DOMContentLoaded", () => {
         fondo = abrirHoja(caja);
     }
 
+    // ---------- editar mi publicación (texto, ubicación, privacidad y etiquetas) ----------
+    function abrirEditor(p, card) {
+        const nuevo = { privacidad: p.privacidad, etiquetas: (p.etiquetas || []).map((x) => ({ id: x.id, nombre: x.nombre })) };
+        const caja = el("div", "pub-menu ed-caja");
+        caja.appendChild(el("h2", "", "Editar publicación"));
+
+        const lblTxt = el("label", "ed-label", "Texto"); lblTxt.htmlFor = "ed-texto";
+        const txt = el("textarea", "ed-texto"); txt.id = "ed-texto"; txt.maxLength = 250; txt.value = p.pie_foto || "";
+        const lblUbi = el("label", "ed-label", "Ubicación"); lblUbi.htmlFor = "ed-ubicacion";
+        const ubi = el("input", "ed-input"); ubi.id = "ed-ubicacion"; ubi.type = "text"; ubi.maxLength = 120; ubi.value = p.ubicacion || "";
+        ubi.placeholder = "Sin ubicación";
+
+        const bPriv = el("button", "ed-fila"); bPriv.type = "button";
+        const bEt = el("button", "ed-fila"); bEt.type = "button";
+        const pintar = () => {
+            const o = PubSel.PRIVACIDADES.find((x) => x.clave === nuevo.privacidad);
+            bPriv.textContent = `Privacidad: ${o.icono} ${o.titulo}`;
+            bEt.textContent = nuevo.privacidad === "solo_yo" ? "Etiquetas: no disponibles si solo tú la ves"
+                : `Etiquetas: ${nuevo.etiquetas.length ? nuevo.etiquetas.map((x) => x.nombre).join(", ") : "nadie"}`;
+        };
+        bPriv.addEventListener("click", async () => {
+            const v = await PubSel.privacidad(nuevo.privacidad);
+            if (!v) return;
+            nuevo.privacidad = v;
+            if (v === "solo_yo") nuevo.etiquetas = [];
+            pintar();
+        });
+        bEt.addEventListener("click", async () => {
+            if (nuevo.privacidad === "solo_yo") { aviso("Cambia la privacidad para poder etiquetar"); return; }
+            const l = await PubSel.etiquetas(nuevo.etiquetas);
+            if (l) { nuevo.etiquetas = l; pintar(); }
+        });
+        pintar();
+
+        const guardar = el("button", "ed-guardar", "Guardar cambios"); guardar.type = "button";
+        const cancelar = el("button", "", "Cancelar"); cancelar.type = "button";
+        caja.append(lblTxt, txt, lblUbi, ubi, bPriv, bEt, guardar, cancelar);
+        const fondo = abrirHoja(caja);
+        cancelar.addEventListener("click", () => fondo.remove());
+        guardar.addEventListener("click", async () => {
+            guardar.disabled = true;
+            try {
+                const nueva = await apiFetch(`/publicaciones/${p.id}`, { method: "PATCH", body: {
+                    pie_foto: txt.value, ubicacion: ubi.value, privacidad: nuevo.privacidad, etiquetas: nuevo.etiquetas.map((x) => x.id),
+                } });
+                fondo.remove();
+                card.replaceWith(crearTarjeta(nueva));
+                aviso("Publicación actualizada");
+            } catch (e) { aviso(e.message); guardar.disabled = false; }
+        });
+    }
+
     // ---------- foto a pantalla completa ----------
     function verFoto(src) {
         const fondo = el("div", "pub-fondo");
@@ -300,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const q = ultimoId ? `?antes=${ultimoId}` : "";
             const r = await apiFetch(`/publicaciones${q}`);
-            r.publicaciones.forEach((p) => { cont.appendChild(crearTarjeta(p)); ultimoId = p.id; });
+            r.publicaciones.forEach((p) => { if (p.id !== destacadoId) cont.appendChild(crearTarjeta(p)); ultimoId = p.id; });
             if (!cont.querySelector(".post-card")) mostrarVacio();
             if (r.hay_mas) {
                 botonMas = el("button", "pub-mas", "Ver más publicaciones");
@@ -313,5 +384,58 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    cargar();
+    // ---------- avisos (por ahora: "te etiquetaron") ----------
+    const btnAvisos = document.getElementById("btn-avisos");
+    const insignia = document.getElementById("avisos-n");
+    function pintarInsignia(n) {
+        insignia.hidden = n === 0;
+        insignia.textContent = n > 9 ? "9+" : String(n);
+        btnAvisos.setAttribute("aria-label", n ? `Avisos, ${n} sin leer` : "Avisos");
+    }
+    async function cargarAvisos() {
+        try { pintarInsignia((await apiFetch("/notificaciones")).no_leidas); }
+        catch (e) { btnAvisos.hidden = true; }      // vista sin feed completo: no hay avisos
+    }
+    btnAvisos.addEventListener("click", async () => {
+        const caja = el("div", "pub-menu");
+        caja.appendChild(el("h2", "", "Avisos"));
+        const lista = el("div", "lista avisos-lista");
+        caja.appendChild(lista);
+        const cerrar = el("button", "", "Cerrar"); cerrar.type = "button";
+        caja.appendChild(cerrar);
+        const fondo = abrirHoja(caja);
+        cerrar.addEventListener("click", () => fondo.remove());
+        try {
+            const r = await apiFetch("/notificaciones");
+            if (!r.items.length) lista.appendChild(el("p", "pub-vacio", "No tienes avisos todavía."));
+            r.items.forEach((n) => {
+                const b = el("button", "aviso-item" + (n.leida ? "" : " nuevo"));
+                b.type = "button";
+                b.appendChild(el("span", "aviso-texto", `${n.actor.nombre} te etiquetó en una publicación`));
+                b.appendChild(el("small", "aviso-cuando", (n.leida ? "" : "Nuevo · ") + cuando(n.creado_en)));
+                b.addEventListener("click", () => { window.location.href = `feed.html?pub=${n.publicacion_id}`; });
+                lista.appendChild(b);
+            });
+            if (r.no_leidas) { await apiFetch("/notificaciones/leidas", { method: "POST" }); pintarInsignia(0); }
+        } catch (e) { lista.appendChild(el("p", "pub-error", e.message)); }
+    });
+
+    // Si llegas desde un aviso (feed.html?pub=ID), esa publicacion se muestra primero
+    let destacadoId = null;
+    async function mostrarDestacada() {
+        const id = Number(new URLSearchParams(location.search).get("pub"));
+        if (!Number.isInteger(id) || id < 1) return;
+        try {
+            const p = await apiFetch(`/publicaciones/${id}`);
+            destacadoId = p.id;
+            const caja = el("section", "pub-destacada");
+            caja.appendChild(el("h2", "pub-destacada-titulo", "Publicación en la que te etiquetaron"));
+            caja.appendChild(crearTarjeta(p));
+            cont.prepend(caja);
+            caja.scrollIntoView({ block: "start" });
+        } catch (e) { aviso(e.message); }
+    }
+
+    cargarAvisos();
+    mostrarDestacada().then(cargar);
 });

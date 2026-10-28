@@ -165,4 +165,45 @@ router.get('/', limitador, requerirAdmin, async (req, res) => {
     });
 });
 
+// ---------- Reportes de personas (los revisa quien administra) ----------
+// Aqui SI aparecen nombres (hace falta para actuar), por eso va detras de la llave de administrador. Nunca se muestran correos.
+// GET /api/estadisticas/reportes
+router.get('/reportes', limitador, requerirAdmin, async (req, res) => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT r.id, r.motivo, r.comentario, r.estado, r.creado_en,
+                    rp.id AS reportante_id, rp.nombre AS reportante_nombre, rp.apellido AS reportante_apellido,
+                    rd.id AS reportado_id, rd.nombre AS reportado_nombre, rd.apellido AS reportado_apellido,
+                    (SELECT COUNT(*) FROM reportes_usuario x WHERE x.reportado_id = r.reportado_id)::int AS total_contra
+               FROM reportes_usuario r
+               JOIN usuarios rp ON rp.id = r.reportante_id
+               JOIN usuarios rd ON rd.id = r.reportado_id
+              ORDER BY (r.estado = 'abierto') DESC, r.creado_en DESC
+              LIMIT 100`
+        );
+        res.json(rows.map((r) => ({
+            id: r.id, motivo: r.motivo, comentario: r.comentario, estado: r.estado, creado_en: r.creado_en,
+            reportante: { id: r.reportante_id, nombre: [r.reportante_nombre, r.reportante_apellido].filter(Boolean).join(' ') },
+            reportado: { id: r.reportado_id, nombre: [r.reportado_nombre, r.reportado_apellido].filter(Boolean).join(' '), reportes_en_total: r.total_contra },
+        })));
+    } catch (err) {
+        console.error('estadisticas/reportes:', err.message);
+        res.status(500).json({ status: 'fail', message: 'No se pudieron leer los reportes' });
+    }
+});
+
+// POST /api/estadisticas/reportes/:id/revisado
+router.post('/reportes/:id/revisado', limitador, requerirAdmin, async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ status: 'fail', message: 'Reporte no válido' });
+    try {
+        const r = await pool.query("UPDATE reportes_usuario SET estado = 'revisado' WHERE id = $1", [id]);
+        if (!r.rowCount) return res.status(404).json({ status: 'fail', message: 'No encontrado' });
+        res.json({ ok: true });
+    } catch (err) {
+        console.error('estadisticas/revisado:', err.message);
+        res.status(500).json({ status: 'fail', message: 'No se pudo actualizar' });
+    }
+});
+
 module.exports = router;

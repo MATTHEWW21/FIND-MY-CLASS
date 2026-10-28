@@ -73,3 +73,10 @@ a.enlace-perfil:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px;
 .ruta-mapa-aviso { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 8px 16px; padding: 10px 12px; background: #fff3e6; border: 2px solid var(--naranja-a11y); border-radius: 10px; font-size: 0.85rem; font-weight: 700; color: #3d2a1a; }
 .ruta-mapa-aviso.hidden { display: none; }
 .ruta-mapa-link { color: var(--naranja-a11y); font-weight: 800; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
+
+/* Campana de avisos en el encabezado del feed */
+.app-header { position: relative; }
+.campana { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: none; border: 0; cursor: pointer; color: var(--naranja-a11y); }
+.campana:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px; border-radius: 10px; }
+.campana-n { position: absolute; top: 4px; right: 2px; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: #9b2c22; color: #fff; font-size: .72rem; font-weight: 800; line-height: 20px; text-align: center; }
+.campana-n[hidden] { display: none; }

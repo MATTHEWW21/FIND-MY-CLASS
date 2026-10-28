@@ -133,7 +133,9 @@
         if (!est) return;
         est.quitar();
         abiertas.delete(fondo);
-        if (!abiertas.size) bloquearFondo(fondo, false);
+        bloquearFondo(fondo, false);
+        // Si queda otra ventana abierta debajo (p. ej. el editor tras cerrar el selector de amigos), esa pasa a ser la activa
+        if (abiertas.size) { const ultima = Array.from(abiertas.keys()).pop(); bloquearFondo(ultima, true); }
         if (est.opener && document.contains(est.opener) && typeof est.opener.focus === 'function') est.opener.focus({ preventScroll: true });
     }
 

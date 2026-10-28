@@ -64,3 +64,12 @@
 .ajustes-contacto strong { font-size: .9rem; color: #3b2f25; }
 .ajustes-contacto small { font-size: .72rem; color: #7a6a5a; }
 .ajustes-contacto input { padding: 11px 14px; border-radius: 12px; border: 1px solid #e2d7c5; background: #faf7f2; font-size: .9rem; }
+
+/* Personas bloqueadas y silenciadas */
+.ajustes-moderacion { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
+.ajustes-moderacion.hidden, .ajustes-vacio.hidden { display: none; }
+.ajustes-lista { list-style: none; margin: 0; padding: 0; }
+.ajustes-lista li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #efe8da; font-size: .9rem; }
+.ajustes-lista li small { display: block; color: #665d54; font-size: .75rem; }
+.ajustes-lista button { min-height: 44px; padding: 0 12px; border-radius: 10px; border: 2px solid #B04E0E; background: #fff; color: #B04E0E; font-weight: 800; cursor: pointer; }
+.ajustes-vacio { margin: 0; font-size: .85rem; color: #665d54; }

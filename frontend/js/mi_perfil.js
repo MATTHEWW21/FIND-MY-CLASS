@@ -170,7 +170,48 @@ document.addEventListener('DOMContentLoaded', async () => {
     else $('amigos-perfil').classList.add('hidden');
 
     // ----- abrir / cerrar -----
-    $('btn-ajustes').addEventListener('click', () => { avisar(''); fondo.classList.remove('hidden'); });
+    // ----- personas bloqueadas y silenciadas (para poder deshacerlo) -----
+    async function cargarModeracion() {
+        const caja = $('ajustes-moderacion');
+        try {
+            const data = await apiFetch('/moderacion/lista');
+            const ul = $('lista-moderacion');
+            ul.replaceChildren();
+            const filas = [
+                ...data.bloqueados.map((p) => ({ p, tipo: 'bloqueado' })),
+                ...data.silenciados.map((p) => ({ p, tipo: 'silenciado' })),
+            ];
+            $('moderacion-vacio').classList.toggle('hidden', filas.length > 0);
+            filas.forEach(({ p, tipo }) => {
+                const nombre = [p.nombre, p.apellido].filter(Boolean).join(' ');
+                const li = document.createElement('li');
+                const txt = document.createElement('span');
+                txt.textContent = nombre;
+                const etiqueta = document.createElement('small');
+                etiqueta.textContent = tipo === 'bloqueado' ? 'Bloqueada' : 'Silenciada';
+                txt.appendChild(etiqueta);
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = tipo === 'bloqueado' ? 'Desbloquear' : 'Dejar de silenciar';
+                b.setAttribute('aria-label', (tipo === 'bloqueado' ? 'Desbloquear a ' : 'Dejar de silenciar a ') + nombre);
+                b.addEventListener('click', async () => {
+                    b.disabled = true;
+                    try {
+                        await apiFetch('/moderacion/' + (tipo === 'bloqueado' ? 'bloquear/' : 'silenciar/') + p.id, { method: 'DELETE' });
+                        avisar(tipo === 'bloqueado' ? 'Desbloqueaste a ' + nombre : 'Ya verás de nuevo a ' + nombre);
+                        cargarModeracion();
+                    } catch (err) { b.disabled = false; avisar(err.message, true); }
+                });
+                li.append(txt, b);
+                ul.appendChild(li);
+            });
+            caja.classList.remove('hidden');
+        } catch (err) {
+            caja.classList.add('hidden');    // vista sin amigos/feed: no aplica
+        }
+    }
+
+    $('btn-ajustes').addEventListener('click', () => { avisar(''); fondo.classList.remove('hidden'); cargarModeracion(); });
     $('ajustes-cerrar').addEventListener('click', () => fondo.classList.add('hidden'));
     fondo.addEventListener('click', (e) => { if (e.target === fondo) fondo.classList.add('hidden'); });
 

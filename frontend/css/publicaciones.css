@@ -38,7 +38,7 @@
 .pub-mas { display: block; margin: 12px auto 24px; padding: 8px 18px; border: 1.5px solid #d96828; border-radius: 18px; background: #fff; color: #d96828; font-weight: 800; font-size: .78rem; cursor: pointer; }
 
 /* Hojas inferiores (comentarios y menú ⋮) */
-.pub-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; display: flex; align-items: flex-end; justify-content: center; }
+.pub-fondo { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1100; display: flex; align-items: flex-end; justify-content: center; }
 .pub-fondo.oculto { display: none; }
 .pub-hoja { width: 100%; max-width: 414px; max-height: 80vh; background: #faf7f2; border-radius: 20px 20px 0 0; padding: 14px 16px 16px; display: flex; flex-direction: column; box-sizing: border-box; }
 .pub-hoja h4 { margin: 0 0 10px; font-size: .85rem; text-align: center; color: #333; }
@@ -54,7 +54,7 @@
 .pub-menu button { display: block; width: 100%; padding: 13px; margin-bottom: 8px; border: 0; border-radius: 12px; background: #fff; font-size: .9rem; font-weight: 700; color: #222; cursor: pointer; }
 .pub-menu button.peligro { color: #b94a3d; }
 
-.pub-toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: #333; color: #fff; padding: 9px 16px; border-radius: 18px; font-size: .8rem; z-index: 80; max-width: 86%; text-align: center; }
+.pub-toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); background: #333; color: #fff; padding: 9px 16px; border-radius: 18px; font-size: .8rem; z-index: 1200; max-width: 86%; text-align: center; }
 
 /* Nueva publicación */
 .pub-miniaturas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 3px 0; background: #e6dfd3; }
@@ -68,3 +68,32 @@
 .details-item.tocable { cursor: pointer; }
 .pub-lugares-lista .item { padding: 11px 4px; border-bottom: 1px solid #efe8da; font-size: .85rem; cursor: pointer; }
 .pub-lugares-lista .item small { color: #888; margin-left: 6px; }
+
+
+/* Etiquetas y avisos */
+.post-con { display: block; font-size: .76rem; color: #5a4636; }
+.pub-destacada { margin: 8px 0 14px; padding: 8px 0; border-top: 3px solid #B04E0E; border-bottom: 1px solid #efe8da; background: #fff8f0; }
+.pub-destacada-titulo { margin: 4px 14px 6px; font-size: .85rem; font-weight: 800; color: #B04E0E; }
+.et-ayuda { margin: 0 0 8px; font-size: .8rem; color: #5a4636; }
+.et-lista { overflow-y: auto; flex: 1; min-height: 120px; margin-top: 8px; }
+.et-opcion { display: flex; align-items: center; gap: 10px; min-height: 48px; border-bottom: 1px solid #efe8da; font-size: .92rem; color: #222; cursor: pointer; }
+.et-opcion input { width: 22px; height: 22px; accent-color: #B04E0E; flex: none; }
+.et-listo { margin-top: 10px; min-height: 48px; border: 0; border-radius: 12px; background: #B04E0E; color: #fff; font-weight: 800; font-size: .95rem; cursor: pointer; }
+.avisos-lista { max-height: 55vh; overflow-y: auto; margin-bottom: 8px; }
+.aviso-item { display: block; width: 100%; text-align: left; padding: 12px; margin-bottom: 8px; border: 0; border-radius: 12px; background: #fff; cursor: pointer; font: inherit; color: #222; }
+.aviso-item.nuevo { border-left: 5px solid #B04E0E; font-weight: 700; }
+.aviso-texto { display: block; font-size: .9rem; }
+.aviso-cuando { display: block; margin-top: 2px; color: #665d54; font-size: .75rem; font-weight: 600; }
+
+/* Privacidad y editar publicación */
+.pub-menu .priv-opcion { text-align: left; border: 2px solid transparent; }
+.pub-menu .priv-opcion.elegida { border-color: #B04E0E; }
+.priv-titulo { display: block; font-size: .95rem; }
+.priv-ayuda { display: block; margin-top: 2px; color: #665d54; font-weight: 600; font-size: .78rem; }
+.ed-caja { overflow-y: auto; }
+.ed-label { display: block; margin: 8px 2px 4px; font-size: .8rem; font-weight: 800; color: #333; }
+.ed-texto, .ed-input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #cbbfa8; border-radius: 12px; font: inherit; font-size: .9rem; background: #fff; }
+.ed-texto { min-height: 84px; resize: vertical; }
+.pub-menu .ed-fila { text-align: left; margin-top: 8px; }
+.pub-menu .ed-guardar { background: #B04E0E; color: #fff; margin-top: 12px; }
+.pub-menu .ed-guardar:disabled { opacity: .6; }

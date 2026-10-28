@@ -25,6 +25,8 @@ const mensajeRoutes = require('./routes/mensajeRoutes');
 const actividadRoutes = require('./routes/actividadRoutes');
 const sosRoutes = require('./routes/sosRoutes');
 const estadisticasRoutes = require('./routes/estadisticasRoutes');
+const moderacionRoutes = require('./routes/moderacionRoutes');
+const notificacionRoutes = require('./routes/notificacionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -60,6 +62,8 @@ app.use('/api/mensajes', mensajeRoutes);
 app.use('/api/actividades', actividadRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/estadisticas', estadisticasRoutes);
+app.use('/api/moderacion', moderacionRoutes);
+app.use('/api/notificaciones', notificacionRoutes);
 app.use('/api/edificios', edificioRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/servicios', servicioRoutes);

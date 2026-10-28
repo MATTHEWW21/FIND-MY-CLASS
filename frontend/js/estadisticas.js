@@ -108,7 +108,49 @@
             { etiqueta: 'Rampas', n: d.mapa.rampas },
             { etiqueta: 'Aulas', n: d.mapa.aulas },
         ]);
-        $('pie').textContent = 'Actualizado: ' + new Date(d.generado_en).toLocaleString('es-MX') + ' · Solo cifras agregadas; no se muestran datos personales.';
+        $('pie').textContent = 'Actualizado: ' + new Date(d.generado_en).toLocaleString('es-MX') + ' · Las gráficas son cifras agregadas; solo la lista de reportes muestra nombres.';
+    }
+
+    const MOTIVOS = { acoso: 'Acoso o conducta ofensiva', spam: 'Spam', suplantacion: 'Suplantación', inapropiado: 'Contenido inapropiado', otro: 'Otro' };
+
+    function pintarReportes(lista) {
+        const ul = $('lista-reportes');
+        ul.textContent = '';
+        $('reportes-vacio').hidden = lista.length > 0;
+        $('reportes-vacio').textContent = 'No hay reportes de personas.';
+        lista.forEach((r) => {
+            const abierto = r.estado === 'abierto';
+            const li = el('li', {}, [
+                el('span', { className: 'quien', textContent: `${r.reportado.nombre} (id ${r.reportado.id}) · ${r.reportado.reportes_en_total} reporte(s) en total` }),
+                el('span', {}, [
+                    el('span', { className: 'estado' + (abierto ? '' : ' ok'), textContent: abierto ? 'Abierto' : 'Revisado' }),
+                    ' ' + (MOTIVOS[r.motivo] || r.motivo),
+                ]),
+                el('span', { textContent: r.comentario ? '“' + r.comentario + '”' : 'Sin comentario' }),
+                el('span', { className: 'meta', textContent: `Lo reportó ${r.reportante.nombre} · ${new Date(r.creado_en).toLocaleString('es-MX')}` }),
+            ]);
+            if (abierto) {
+                const b = el('button', { type: 'button', className: 'sec', textContent: 'Marcar como revisado' });
+                b.setAttribute('aria-label', 'Marcar como revisado el reporte contra ' + r.reportado.nombre);
+                b.addEventListener('click', async () => {
+                    b.disabled = true;
+                    try {
+                        const x = await fetch('/api/estadisticas/reportes/' + r.id + '/revisado', { method: 'POST', headers: { 'x-admin-key': leerLlave() } });
+                        if (!x.ok) throw new Error();
+                        cargarReportes();
+                    } catch (e) { b.disabled = false; $('error').textContent = 'No se pudo marcar el reporte.'; }
+                });
+                li.appendChild(b);
+            }
+            ul.appendChild(li);
+        });
+    }
+    async function cargarReportes() {
+        try {
+            const r = await fetch('/api/estadisticas/reportes', { headers: { 'x-admin-key': leerLlave() } });
+            if (!r.ok) throw new Error();
+            pintarReportes(await r.json());
+        } catch (e) { $('reportes-vacio').hidden = false; $('reportes-vacio').textContent = 'No se pudieron cargar los reportes (¿falta correr la migración 018?).'; }
     }
 
     function salir() {
@@ -135,6 +177,7 @@
         $('error').textContent = '';
         $('acceso').hidden = true; $('panel').hidden = false; $('acciones').hidden = false;
         pintar(datos);
+        cargarReportes();
     }
 
     $('form-acceso').addEventListener('submit', (e) => {

@@ -42,6 +42,13 @@
         .vacio { color: var(--gris); font-size: .85rem; margin: 4px 0; }
         svg.serie { width: 100%; height: 120px; display: block; }
         .pie { color: var(--gris); font-size: .8rem; margin-top: 24px; }
+        .reportes { list-style: none; margin: 0; padding: 0; }
+        .reportes li { border-top: 1px solid var(--linea); padding: 10px 0; display: grid; gap: 4px; font-size: .88rem; }
+        .reportes li:first-child { border-top: 0; }
+        .reportes .quien { font-weight: 700; }
+        .reportes .meta { color: var(--gris); font-size: .8rem; }
+        .reportes .estado { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: .75rem; font-weight: 700; background: #fde4d3; color: #7a2e0a; }
+        .reportes .estado.ok { background: #e1efe1; color: #1f5a2a; }
         [hidden] { display: none !important; }
         @media print { header .acciones, #acceso { display: none; } }
     </style>
@@ -90,6 +97,12 @@
         <div class="panel"><h3>Problemas reportados (incidencias)</h3><div id="b-incidencias"></div></div>
         <div class="panel"><h3>Alertas SOS por motivo</h3><div id="b-sos"></div></div>
         <div class="panel"><h3>Red de caminos del campus</h3><div id="b-mapa"></div></div>
+    </div>
+
+    <h2 class="sec">Reportes de personas</h2>
+    <div class="panel" id="panel-reportes">
+        <p class="vacio" id="reportes-vacio">Cargando…</p>
+        <ul class="reportes" id="lista-reportes"></ul>
     </div>
 
     <p class="pie" id="pie"></p>
