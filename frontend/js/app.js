@@ -1,17 +1,22 @@
 // Sesion recordada (como Instagram o WhatsApp): si ya inició sesión, se salta la bienvenida.
+// Quita la pantalla de "Cargando" y deja ver la bienvenida normal (elegir perfil)
+function mostrarBienvenida() { document.documentElement.classList.remove('comprobando'); }
+
 async function entrarSiHaySesion() {
-    if (!localStorage.getItem('token')) return;
+    if (!localStorage.getItem('token')) { mostrarBienvenida(); return; }
     if (localStorage.getItem('userRole') === 'visitante') {
         // El visitante no tiene cuenta: cada visita empieza eligiendo su asunto
         limpiarSesion();
+        mostrarBienvenida();
         return;
     }
     try {
         const data = await apiFetch('/auth/me');
         guardarSesion(localStorage.getItem('token'), data.usuario);
-        window.location.href = rutaInicio(data.usuario);
+        window.location.replace(rutaInicio(data.usuario));
     } catch (err) {
         // Sin red o error del servidor: se muestra la bienvenida normal (si el token expiró, apiFetch ya lo limpió)
+        mostrarBienvenida();
     }
 }
 entrarSiHaySesion();

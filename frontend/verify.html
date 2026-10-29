@@ -18,7 +18,9 @@
         <p class="verify-text">Ingresa el código que enviamos a tu correo institucional</p>
 
         <form id="form-verify" class="form-container margin-top-20">
-            <input type="text" id="verify-code" placeholder="Ingresa el codigo" maxlength="6" inputmode="numeric" required class="pill-input text-center">
+            <input type="text" id="verify-code" placeholder="Ingresa el codigo" aria-label="Código de verificación" maxlength="6" inputmode="numeric" required class="pill-input text-center">
+            <input type="password" id="verify-password" placeholder="Tu contraseña" aria-label="Tu contraseña, la que usaste al registrarte" aria-describedby="verify-ayuda" autocomplete="current-password" required class="pill-input text-center">
+            <small id="verify-ayuda" class="verify-text">Escribe también la contraseña que elegiste al registrarte. Así nadie más puede verificar tu cuenta.</small>
 
             <a href="#" id="btn-resend" class="link-back">Reenviar código</a>
 

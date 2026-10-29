@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiFetch('/auth/verificar', {
                 method: 'POST',
-                body: { correo, codigo: inputCode.value.trim() },
+                body: { correo, codigo: inputCode.value.trim(), password: document.getElementById('verify-password').value },
             });
             localStorage.removeItem('pendingEmail');
             await FMCAviso.alerta('¡Verificación exitosa! Ahora inicia sesión.', 'ok');

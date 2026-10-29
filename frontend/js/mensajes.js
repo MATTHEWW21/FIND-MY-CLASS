@@ -99,9 +99,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const img = document.createElement('img');
             img.className = 'msg-foto';
             img.alt = 'Foto';
-            img.loading = 'lazy';
-            img.src = '/uploads/mensajes/' + encodeURIComponent(m.foto);
-            img.addEventListener('click', () => window.open(img.src, '_blank', 'noopener'));
+            cargarFoto(img, '/api/mensajes/foto/' + encodeURIComponent(m.foto));
+            img.addEventListener('click', () => { if (img.src) window.open(img.src, '_blank', 'noopener'); });
             b.appendChild(img);
         }
         if (m.texto) {

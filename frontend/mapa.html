@@ -47,7 +47,8 @@
 
     <!-- Panel 1: Ruta Detallada (Guía paso a paso) -->
     <div class="route-panel-overlay hidden" id="route-panel">
-        <div class="panel-handle" aria-hidden="true"></div>
+        <!-- Se toca o se desliza hacia abajo para minimizar el panel y ver el mapa; hacia arriba para abrirlo -->
+        <button type="button" class="panel-asa" id="panel-asa" aria-expanded="true" aria-controls="route-panel" aria-label="Minimizar el panel de la ruta"></button>
 
         <div class="route-loc-box">
             <div class="loc-row">
@@ -61,7 +62,10 @@
             </div>
         </div>
 
-        <button class="btn-change"><span aria-hidden="true">📍</span> VER OTRA RUTA</button>
+        <div class="cambio-fila">
+            <button type="button" class="btn-change" id="btn-cambiar-destino"><span aria-hidden="true">📍</span> CAMBIAR DESTINO</button>
+            <button type="button" class="btn-change btn-otra-ruta" id="btn-otra-ruta" hidden><span aria-hidden="true">🔀</span> OTRA RUTA</button>
+        </div>
 
         <p class="route-dist" id="route-dist" aria-live="polite"></p>
         <div class="metrics-row" id="metrics-row" role="radiogroup" aria-label="Cómo te vas a mover"></div>
@@ -275,7 +279,7 @@
     </nav>
 
     <!-- Overlay del Tutorial -->
-    <div id="tutorial-overlay" class="tutorial-overlay">
+    <div id="tutorial-overlay" class="tutorial-overlay hidden">
         <button type="button" id="btn-skip-tutorial" class="tutorial-skip-btn">Omitir</button>
         <div id="tutorial-card" class="tutorial-card">
             <p id="tutorial-text" class="tutorial-text">Toca la pantalla para iniciar el tutorial</p>
@@ -290,6 +294,7 @@
 <script src="js/mapa-rutas.js"></script>
 <script src="js/voz-guia.js"></script>
 <script src="js/mapa.js"></script>
+<script src="js/mapa-panel.js"></script>
 <script src="js/mapa-accesibilidad.js"></script>
 <script src="js/voz.js"></script>
 <script src="js/tutorial.js"></script>

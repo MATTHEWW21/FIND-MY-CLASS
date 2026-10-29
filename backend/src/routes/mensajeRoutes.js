@@ -6,6 +6,8 @@ const rateLimit = require('express-rate-limit');
 const pool = require('../config/db');
 const { verificarToken, requerirRol } = require('../middleware/auth');
 const { soloVistaCompleta } = require('../middleware/comunidad');
+const { hayBloqueo } = require('../middleware/moderacion');
+const { NOMBRE_VALIDO, enviarFoto } = require('../middleware/fotos');
 
 const router = express.Router();
 router.use(verificarToken, requerirRol('estudiante', 'colaborador'), soloVistaCompleta);
@@ -17,6 +19,20 @@ const MAX_TEXTO = 1000;
 const limiteEnviar = rateLimit({ windowMs: 5 * 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false, message: { error: 'Estás enviando muchos mensajes seguidos, espera un momento' } });
 // La pantalla consulta cada pocos segundos: se deja un limite holgado solo para frenar abusos
 const limiteLeer = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false, message: { error: 'Demasiadas consultas, espera un momento' } });
+
+// GET /api/mensajes/foto/:archivo -> solo la ve quien la envio o quien la recibio (y sin bloqueo entre ambos)
+router.get('/foto/:archivo', async (req, res) => {
+  const archivo = String(req.params.archivo || '');
+  if (!NOMBRE_VALIDO.test(archivo)) return res.status(404).json({ error: 'No encontramos esa foto' });
+  try {
+    const yo = req.usuario.id;
+    const r = await pool.query(
+      `SELECT 1 FROM mensajes m WHERE m.foto = $2 AND (m.de_id = $1 OR m.para_id = $1)
+          AND NOT ${hayBloqueo('$1', 'CASE WHEN m.de_id = $1 THEN m.para_id ELSE m.de_id END')} LIMIT 1`, [yo, archivo]);
+    if (!r.rowCount) return res.status(404).json({ error: 'No encontramos esa foto' });
+    enviarFoto(res, DIR_FOTOS, archivo);
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); }
+});
 
 const idDe = (v) => { const n = Number(v); return Number.isInteger(n) && n > 0 ? n : null; };
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };

@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 const pool = require('../config/db');
 const { verificarToken, requerirRol } = require('../middleware/auth');
 const { hayBloqueo } = require('../middleware/moderacion');
+const { NOMBRE_VALIDO, enviarFoto } = require('../middleware/fotos');
 
 const router = express.Router();
 
@@ -95,7 +96,7 @@ function aJson(r, yo) {
     privacidad: r.privacidad,
     creado_en: r.creado_en,
     editado_en: r.editado_en,
-    fotos: r.fotos.map((n) => `/uploads/publicaciones/${n}`),
+    fotos: r.fotos.map((n) => `/api/publicaciones/foto/${n}`),
     likes: r.likes,
     yo_di_like: r.yo_di_like,
     comentarios: r.comentarios,
@@ -200,6 +201,20 @@ router.post('/', limitePublicar, async (req, res) => {
   } finally {
     cliente.release();
   }
+});
+
+// ---------- Foto de una publicacion: solo la ve quien puede ver la publicacion ----------
+router.get('/foto/:archivo', async (req, res) => {
+  const archivo = String(req.params.archivo || '');
+  if (!NOMBRE_VALIDO.test(archivo)) return res.status(404).json({ error: 'No encontramos esa foto' });
+  try {
+    const yo = req.usuario.id;
+    const r = await pool.query(
+      `SELECT 1 FROM publicacion_fotos f JOIN publicaciones p ON p.id = f.publicacion_id
+        WHERE f.archivo = $2 AND ${puedeVer('$1')} AND NOT ${hayBloqueo('$1', 'p.usuario_id')} LIMIT 1`, [yo, archivo]);
+    if (!r.rowCount) return res.status(404).json({ error: 'No encontramos esa foto' });
+    enviarFoto(res, DIR_FOTOS, archivo);
+  } catch (err) { error500(res, err); }
 });
 
 // ---------- Una sola publicacion (para abrirla desde un aviso) ----------

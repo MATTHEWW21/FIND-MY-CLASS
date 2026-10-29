@@ -24,9 +24,15 @@ router.post('/invitado', limitadorInvitado, ctrl.invitado);
 router.post('/olvide-password', limitador, ctrl.olvidePassword);
 router.post('/restablecer-password', limitador, ctrl.restablecerPassword);
 
+router.post('/logout', verificarToken, ctrl.logout);
+router.post('/logout-todas', verificarToken, limitador, ctrl.logoutTodas);
+router.get('/sesiones', verificarToken, ctrl.listarSesiones);
+router.delete('/sesiones/:id', verificarToken, ctrl.cerrarSesionDe);
+
 router.get('/me', verificarToken, ctrl.me);
 router.patch('/me', verificarToken, ctrl.actualizarPerfil);
 router.post('/me/password', verificarToken, limitadorLogin, ctrl.cambiarPassword);
+router.post('/me/tutorial-visto', verificarToken, ctrl.tutorialVisto);
 router.put('/me/preferencias', verificarToken, ctrl.actualizarPreferencias);
 
 module.exports = router;

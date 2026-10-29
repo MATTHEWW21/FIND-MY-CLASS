@@ -33,7 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnStart = document.getElementById("btn-start");
     const btnFinish = document.getElementById("btn-finish");
     const btnContinue = document.getElementById("btn-continue");
-    const btnChange = document.querySelector(".btn-change");
+    const btnChange = document.getElementById("btn-cambiar-destino");
+    const btnOtraRuta = document.getElementById("btn-otra-ruta");
 
     const btnSendFeedback = document.getElementById("btn-send-feedback");
     const btnSkipFeedback = document.getElementById("btn-skip-feedback");
@@ -430,8 +431,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Cual de las rutas posibles al destino se esta viendo (0 = la mas corta). Vuelve a 0 con otro destino.
+    let indiceRuta = 0;
+    let destinoDeIndice = null;
+
     // Dibuja la ruta hacia l: por los andadores si hay red de caminos, o en línea recta aproximada si no
     async function trazarRuta(l) {
+        if (destinoDeIndice !== l) { indiceRuta = 0; destinoDeIndice = l; }
         capaSel.clearLayers();
         crearPin(l, true).addTo(capaSel);
         metrosRuta = null;
@@ -443,11 +449,22 @@ document.addEventListener("DOMContentLoaded", () => {
         crearPin(l, true).addTo(capaSel);
 
         const soloAccesible = soloAccesibleEfectivo();
-        let ruta = R ? R.calcular(grafo, origen, l, { soloAccesible }) : null;
+        let lista = R ? R.alternativas(grafo, origen, l, { soloAccesible }, 3) : [];
         let aviso = "";
-        if (!ruta && soloAccesible && R) {
-            ruta = R.calcular(grafo, origen, l, { soloAccesible: false });
-            if (ruta) aviso = " No encontramos un camino 100% accesible: esta ruta puede incluir escaleras.";
+        if (!lista.length && soloAccesible && R) {
+            lista = R.alternativas(grafo, origen, l, { soloAccesible: false }, 3);
+            if (lista.length) aviso = " No encontramos un camino 100% accesible: esta ruta puede incluir escaleras.";
+        }
+        if (indiceRuta >= lista.length) indiceRuta = 0;
+        let ruta = lista[indiceRuta] || null;
+        const extra = ruta && lista.length > 1 && indiceRuta > 0 ? ` Es ${Math.max(10, Math.round((ruta.metros - lista[0].metros) / 10) * 10)} m más larga que la ruta 1.` : "";
+        if (btnOtraRuta) {
+            btnOtraRuta.hidden = !ruta;
+            btnOtraRuta.disabled = lista.length < 2 || !!inicioNavegacion;
+            btnOtraRuta.textContent = lista.length < 2 ? "NO HAY OTRA RUTA" : `OTRA RUTA (${indiceRuta + 1}/${lista.length})`;
+            btnOtraRuta.setAttribute("aria-label", lista.length < 2
+                ? "No hay otra ruta cercana para llegar a este destino"
+                : `Ver otro camino para llegar al mismo destino. Ahora ves la ruta ${indiceRuta + 1} de ${lista.length}`);
         }
 
         let metros, hint, tiposRuta = [];
@@ -458,7 +475,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const rampas = soloAccesible ? (ruta.rampas || []) : [];
             rampas.forEach((r) => L.circleMarker([r.lat, r.lng], { radius: 9, color: "#ffffff", weight: 2, fillColor: "#2e9e5b", fillOpacity: 1 }).bindTooltip("Rampa ♿").addTo(capaSel));
             const textoRampas = rampas.length ? ` Pasa por ${rampas.length === 1 ? "una rampa" : rampas.length + " rampas"} ♿.` : "";
-            hint = `Ruta por los andadores del campus hacia ${l.nombre}.${soloAccesible && !aviso ? " Camino accesible." : ""}${textoRampas}${aviso}`;
+            const numero = lista.length > 1 ? `Ruta ${indiceRuta + 1} de ${lista.length}. ` : "";
+            // Si da muchisima mas vuelta que la linea recta, casi siempre es que falta un camino en el mapa: se avisa para que no se confie a ciegas
+            const recta = map.distance([origen.lat, origen.lng], [l.lat, l.lng]);
+            const vuelta = ruta.metros > 700 && ruta.metros > recta * 3 ? " Ojo: esta ruta da mucha vuelta; puede que todavía falte un camino en el mapa por esta zona." : "";
+            hint = `${numero}Ruta por los andadores del campus hacia ${l.nombre}.${soloAccesible && !aviso ? " Camino accesible." : ""}${textoRampas}${extra}${aviso}${vuelta}`;
         } else {
             metros = Math.round(map.distance([origen.lat, origen.lng], [l.lat, l.lng]) * FACTOR_CAMINO / 10) * 10;
             L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#ffffff", weight: 9, opacity: 0.95, interactive: false }).addTo(capaSel);
@@ -493,6 +514,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     if (btnChange && searchPanel) btnChange.addEventListener("click", abrirBusqueda);
+    // OTRA RUTA: el mismo destino por otro camino (se va rotando entre las que haya)
+    if (btnOtraRuta) {
+        btnOtraRuta.addEventListener("click", async () => {
+            if (!destino || inicioNavegacion || btnOtraRuta.disabled) return;
+            indiceRuta += 1;
+            await trazarRuta(destino);
+            btnOtraRuta.focus();
+        });
+    }
 
     // Cancelar la ruta (sin terminarla): limpia el mapa y no se vuelve a abrir
     const btnCancelarRuta = document.getElementById("btn-cancelar-ruta");
@@ -551,6 +581,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFinish.style.backgroundColor = "#B3261E";
         btnFinish.style.color = "#ffffff";
         btnFinish.style.cursor = "pointer";
+        if (btnOtraRuta) btnOtraRuta.disabled = true;   // en plena ruta no se cambia el camino
         pintarModos();
     }
     function reiniciarBotones() {
@@ -560,6 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFinish.disabled = true;
         btnFinish.style.backgroundColor = "#d8d8d8";
         btnFinish.style.color = "#777777";
+        if (btnOtraRuta && !btnOtraRuta.hidden) btnOtraRuta.disabled = /NO HAY/.test(btnOtraRuta.textContent);
     }
 
     // BOTÓN EMPEZAR Y FINALIZAR

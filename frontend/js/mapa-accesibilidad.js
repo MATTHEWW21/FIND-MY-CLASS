@@ -3,6 +3,7 @@
 // cerca de su camino. Se quitan al finalizar o al limpiar la ruta. No depende del color: cada tipo tiene forma, letra y texto.
 (function () {
     const CERCA_RUTA_M = 15;      // un elemento cuenta como "de la ruta" si queda a menos de esto del camino
+    const CERCA_TRAMO_M = 12;     // una escalera/rampa cuenta como "la que usa la ruta" si queda a menos de esto del tramo de ese tipo
     const AVISO_M = 20;           // la guía por voz avisa cuando estás a esta distancia
     const NOMBRE = { escalera: 'Escalera', rampa: 'Rampa', estacionamiento: 'Estacionamiento accesible', paso_peatonal: 'Paso peatonal accesible', elevador: 'Elevador' };
     const LETRA = { escalera: 'E', rampa: 'R', estacionamiento: 'P', paso_peatonal: '↔', elevador: 'A' };
@@ -45,14 +46,45 @@
         return pidiendo;
     }
 
+    // Distancia (m) entre un elemento (punto o linea) y un tramo de la ruta
+    function distATramo(puntos, t) {
+        let d = Infinity;
+        puntos.forEach((p) => { d = Math.min(d, aSegmento(p, t.a, t.b)); });
+        for (let i = 0; i + 1 < puntos.length; i++) {
+            d = Math.min(d, aSegmento(t.a, puntos[i], puntos[i + 1]), aSegmento(t.b, puntos[i], puntos[i + 1]));
+        }
+        return d;
+    }
+    const puntosDe = (f) => (f.trazo && f.trazo.length ? f.trazo : [[f.lat, f.lng]]).map((q) => ({ lat: q[0], lng: q[1] }));
+
     async function calcularCercanos() {
         const lista = await cargar();
         if (!ruta) { cercanos = []; return; }
+        const tramos = ruta.tramos || [];
+        const porTipo = (tipo) => tramos.filter((t) => t.tipo === tipo);
+        const escaleras = porTipo('escaleras'), rampas = porTipo('rampa');
+
         cercanos = lista.filter((f) => {
-            // Si el camino elegido es accesible (no pasa por escaleras), no se muestran escaleras: solo confundirían
-            if (ruta.accesible && f.tipo === 'escalera') return false;
-            const puntos = (f.trazo && f.trazo.length ? f.trazo : [[f.lat, f.lng]]).map((q) => ({ lat: q[0], lng: q[1] }));
+            const puntos = puntosDe(f);
+            // Las escaleras solo se muestran si la ruta REALMENTE pasa por escaleras (y ahi). Una escalera que queda junto a la
+            // rampa que sí usa la ruta (o junto a un camino normal) no se marca: solo confundiría.
+            if (f.tipo === 'escalera') return escaleras.some((t) => distATramo(puntos, t) <= CERCA_TRAMO_M);
             return puntos.some((p) => distARuta(p) <= CERCA_RUTA_M);
+        });
+
+        // Tramos de escaleras o rampa que no tienen su propio pin (todavia no se han marcado): se crea uno con el trazo del tramo
+        const nombre = { escalera: 'Escalera', rampa: 'Rampa' };
+        [['escalera', escaleras], ['rampa', rampas]].forEach(([tipo, trs]) => {
+            trs.forEach((t) => {
+                if (cercanos.some((f) => f.tipo === tipo && distATramo(puntosDe(f), t) <= CERCA_TRAMO_M)) return;
+                // Si ya hay un pin real de ese tipo muy cerca (aunque se haya filtrado), no se duplica
+                if (lista.some((f) => f.tipo === tipo && distATramo(puntosDe(f), t) <= CERCA_TRAMO_M)) return;
+                cercanos.push({
+                    id: `tramo-${tipo}-${t.a.lat.toFixed(6)}-${t.a.lng.toFixed(6)}`, tipo, nombre: nombre[tipo],
+                    trazo: [[t.a.lat, t.a.lng], [t.b.lat, t.b.lng]],
+                    lat: (t.a.lat + t.b.lat) / 2, lng: (t.a.lng + t.b.lng) / 2, largo_m: t.metros,
+                });
+            });
         });
     }
 

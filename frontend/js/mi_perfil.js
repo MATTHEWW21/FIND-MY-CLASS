@@ -211,7 +211,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    $('btn-ajustes').addEventListener('click', () => { avisar(''); fondo.classList.remove('hidden'); cargarModeracion(); });
+    // ----- dispositivos con sesión iniciada -----
+    function haceCuanto(iso) {
+        const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+        return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días`;
+    }
+    async function cargarSesiones() {
+        const caja = $('ajustes-sesiones');
+        try {
+            const data = await apiFetch('/auth/sesiones');
+            const ul = $('lista-sesiones');
+            ul.replaceChildren();
+            data.sesiones.forEach((s) => {
+                const li = document.createElement('li');
+                const txt = document.createElement('span');
+                txt.textContent = s.dispositivo;
+                const chica = document.createElement('small');
+                chica.textContent = (s.actual ? 'Este dispositivo · ' : '') + 'activo ' + haceCuanto(s.ultimo_uso);
+                txt.appendChild(chica);
+                li.appendChild(txt);
+                if (!s.actual) {
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.textContent = 'Cerrar';
+                    b.setAttribute('aria-label', 'Cerrar la sesión de ' + s.dispositivo);
+                    b.addEventListener('click', async () => {
+                        b.disabled = true;
+                        try { await apiFetch('/auth/sesiones/' + s.id, { method: 'DELETE' }); avisar('Sesión cerrada'); cargarSesiones(); }
+                        catch (err) { b.disabled = false; avisar(err.message, true); }
+                    });
+                    li.appendChild(b);
+                }
+                ul.appendChild(li);
+            });
+            caja.classList.remove('hidden');
+        } catch (err) {
+            caja.classList.add('hidden');
+        }
+    }
+    $('btn-cerrar-todas').addEventListener('click', async () => {
+        if (!(await FMCAviso.confirmar('¿Cerrar la sesión en todos tus dispositivos, incluido este?', { si: 'Cerrar todas', no: 'Cancelar', peligro: true }))) return;
+        try {
+            await apiFetch('/auth/logout-todas', { method: 'POST' });
+            limpiarSesion();
+            window.location.href = 'index.html';
+        } catch (err) { avisar(err.message, true); }
+    });
+
+    $('btn-ajustes').addEventListener('click', () => { avisar(''); fondo.classList.remove('hidden'); cargarModeracion(); cargarSesiones(); });
     $('ajustes-cerrar').addEventListener('click', () => fondo.classList.add('hidden'));
     fondo.addEventListener('click', (e) => { if (e.target === fondo) fondo.classList.add('hidden'); });
 

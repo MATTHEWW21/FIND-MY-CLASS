@@ -17,7 +17,7 @@
 .forgot-password-btn { background-color: var(--naranja-a11y); }
 
 /* Etiquetas de eventos y avatares con iniciales blancas */
-.event-tag { background-color: var(--naranja-a11y); font-size: 10px; }
+.event-tag { background-color: var(--naranja-a11y); font-size: 12px; padding: 3px 8px; }
 .event-tag.sports { background-color: #1f6f8b; }
 .event-tag.culture { background-color: #557337; }
 .avatar-iniciales { background-color: var(--naranja-a11y); }
@@ -80,3 +80,24 @@ a.enlace-perfil:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px;
 .campana:focus-visible { outline: 3px solid #1a1a1a; outline-offset: 2px; border-radius: 10px; }
 .campana-n { position: absolute; top: 4px; right: 2px; min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 10px; background: #9b2c22; color: #fff; font-size: .72rem; font-weight: 800; line-height: 20px; text-align: center; }
 .campana-n[hidden] { display: none; }
+
+/* Bienvenida: mientras se revisa si ya hay sesion se ve "Cargando" y no la pantalla de elegir perfil */
+#cargando-sesion { display: none; }
+html.comprobando #cargando-sesion { display: flex; }
+html.comprobando #bienvenida { display: none; }
+
+/* Panel de la ruta: se puede minimizar para ver el mapa */
+.panel-asa { display: flex; align-items: center; justify-content: center; width: 100%; height: 44px; margin: -10px 0 0; padding: 0; background: none; border: 0; cursor: grab; touch-action: none; }
+.panel-asa::before { content: ""; width: 44px; height: 5px; border-radius: 3px; background: #a58a6c; }
+.panel-asa:focus-visible { outline: 3px solid #1a1a1a; outline-offset: -3px; border-radius: 12px; }
+#route-panel.minimizado { overflow: hidden; }
+#route-panel { will-change: height; overscroll-behavior: contain; }
+@media (prefers-reduced-motion: reduce) { #route-panel { transition: none !important; } }
+#route-panel.minimizado .route-loc-box { margin-bottom: 0; }
+
+/* Panel de ruta: cambiar destino / otra ruta */
+.cambio-fila { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.cambio-fila .btn-change { margin-bottom: 0; min-height: 44px; padding: 8px 14px; font-size: .78rem; background-color: #A4510F; }
+.cambio-fila .btn-otra-ruta { background-color: #fff; color: #A4510F; border: 2px solid #A4510F; }
+.cambio-fila .btn-otra-ruta:disabled { opacity: .65; cursor: default; }
+.cambio-fila .btn-change[hidden] { display: none; }

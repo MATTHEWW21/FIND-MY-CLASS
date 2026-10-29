@@ -63,9 +63,39 @@ function guardarSesion(token, usuario) {
     }
 }
 
-function cerrarSesion() {
+// Cierra la sesion de verdad: avisa al servidor (para que ese token deje de servir) y limpia este dispositivo
+async function cerrarSesion() {
+    const token = localStorage.getItem('token');
+    if (token && localStorage.getItem('userRole') !== 'visitante') {
+        try {
+            await Promise.race([
+                fetch(API_BASE + '/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
+                new Promise((r) => setTimeout(r, 2500)),    // sin internet no se queda esperando
+            ]);
+        } catch (e) { /* igual se cierra en este dispositivo */ }
+    }
     limpiarSesion();
     window.location.href = 'index.html';
+}
+
+// ---------- Fotos privadas ----------
+// Las fotos de publicaciones y mensajes solo las ve quien tiene permiso, asi que se piden con la sesion
+// (una etiqueta <img> no puede mandar el token) y se muestran desde memoria.
+const _fotosPedidas = new Map();
+function urlFoto(src) {
+    if (!src || !src.startsWith('/api/')) return Promise.resolve(src);
+    if (!_fotosPedidas.has(src)) {
+        const p = fetch(src, { headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` } })
+            .then((r) => { if (!r.ok) throw new Error('foto'); return r.blob(); })
+            .then((b) => URL.createObjectURL(b));
+        p.catch(() => _fotosPedidas.delete(src));
+        _fotosPedidas.set(src, p);
+    }
+    return _fotosPedidas.get(src);
+}
+function cargarFoto(img, src) {
+    urlFoto(src).then((u) => { img.src = u; })
+        .catch(() => { img.alt = (img.alt || 'Foto') + ' (no disponible)'; img.classList.add('foto-error'); });
 }
 
 // Para pantallas que exigen haber iniciado sesión. Úsalo al inicio del script:

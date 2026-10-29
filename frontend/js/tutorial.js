@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const overlay = document.getElementById("tutorial-overlay");
     const tutorialCard = document.getElementById("tutorial-card");
     const tutorialText = document.getElementById("tutorial-text");
@@ -6,6 +6,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const bottomNav = document.querySelector(".bottom-nav");
 
     if (!overlay || !tutorialCard || !tutorialText) return;
+
+    // El tutorial se guarda en la cuenta (no solo en este teléfono). Los visitantes no tienen cuenta: solo cuenta el teléfono.
+    const conCuenta = () => !!localStorage.getItem("token") && localStorage.getItem("userRole") !== "visitante" && typeof apiFetch === "function";
+    async function yaLoVioEnLaCuenta() {
+        if (!conCuenta()) return false;
+        try { const r = await apiFetch("/auth/me"); return !!(r.usuario && r.usuario.tutorial_visto); } catch (e) { return false; }
+    }
+    function marcarVistoEnLaCuenta() {
+        if (!conCuenta()) return;
+        apiFetch("/auth/me/tutorial-visto", { method: "POST" }).catch(() => { /* se reintenta la próxima vez */ });
+    }
 
     // El tutorial sale una sola vez por cuenta (no por teléfono).
     // Para volver a verlo mientras pruebas: agrega ?tutorial=1 a la URL del feed.
@@ -16,6 +27,13 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.classList.add("hidden");
         return;
     }
+
+    // En este teléfono no lo has visto, pero quizá ya lo viste con tu cuenta en otro dispositivo (o con otro link): se pregunta al servidor
+    if (!forzar && await yaLoVioEnLaCuenta()) {
+        localStorage.setItem(claveVisto, "true");
+        return;
+    }
+    overlay.classList.remove("hidden");     // viene oculto desde el HTML para que no parpadee cuando ya lo viste
 
     // Pasos de la vista completa (estudiante y colaborador con feed)
     const completeSteps = [
@@ -222,6 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
         clearHighlights();
         overlay.classList.add("hidden");
         localStorage.setItem(claveVisto, "true");
+        marcarVistoEnLaCuenta();
     }
 
     function arrancar() {

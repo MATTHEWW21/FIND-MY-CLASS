@@ -21,15 +21,17 @@
             const a = nodos.get(r.origen), b = nodos.get(r.destino);
             if (!a || !b || a === b) return;
             const m = r.metros > 0 ? r.metros : distancia(a, b);
-            a.vecinos.push({ a: b, m, tipo: r.tipo });
-            b.vecinos.push({ a, m, tipo: r.tipo });
+            const k = [r.origen, r.destino].sort().join('|');
+            a.vecinos.push({ a: b, m, tipo: r.tipo, k });
+            b.vecinos.push({ a, m, tipo: r.tipo, k });
         });
         return nodos;
     }
 
     // Dijkstra desde un nodo: devuelve distancia y nodo anterior para todos los alcanzables.
     // (la red tiene decenas de nodos, asi que un recorrido simple es suficiente)
-    function dijkstra(nodos, inicio) {
+    // penalizar (opcional): conjunto de tramos ya usados; cuestan mas, para que salga un camino distinto
+    function dijkstra(nodos, inicio, penalizar) {
         const dist = new Map(), prev = new Map(), hecho = new Set();
         nodos.forEach((n) => dist.set(n.id, Infinity));
         dist.set(inicio.id, 0);
@@ -38,12 +40,15 @@
             dist.forEach((d, id) => { if (!hecho.has(id) && d < mejor) { mejor = d; u = id; } });
             if (u === null) break;
             hecho.add(u);
-            nodos.get(u).vecinos.forEach(({ a, m }) => {
-                if (mejor + m < dist.get(a.id)) { dist.set(a.id, mejor + m); prev.set(a.id, u); }
+            nodos.get(u).vecinos.forEach(({ a, m, k }) => {
+                const c = penalizar && penalizar.has(k) ? m * FACTOR_REPETIDO : m;
+                if (mejor + c < dist.get(a.id)) { dist.set(a.id, mejor + c); prev.set(a.id, u); }
             });
         }
         return { dist, prev };
     }
+
+    const FACTOR_REPETIDO = 3;   // un tramo ya usado por otra ruta "cuesta" el triple al buscar una alternativa
 
     // Los puntos de la red mas cercanos a un lugar. Solo cuentan los que estan a menos de 100 m
     // (si ninguno, el mas cercano), para que la ruta no "salte" en linea recta por encima de edificios.
@@ -65,17 +70,26 @@
         const ini = cercanos(nodos, origen, 3), fin = cercanos(nodos, destino, 3);
         let mejor = null;
         ini.forEach((i) => {
-            const { dist, prev } = dijkstra(nodos, i.n);
+            const { dist, prev } = dijkstra(nodos, i.n, opciones && opciones.penalizar);
             fin.forEach((f) => {
                 const d = dist.get(f.n.id);
                 if (d === Infinity) return;
                 const costo = (i.d + f.d) * PESO_TRAMO_LIBRE + d;
-                if (!mejor || costo < mejor.costo) mejor = { costo, metros: i.d + d + f.d, i, f, prev };
+                if (!mejor || costo < mejor.costo) mejor = { costo, i, f, prev };
             });
         });
         if (!mejor) return null;
         const ids = [mejor.f.n.id];
         while (mejor.prev.has(ids[0])) ids.unshift(mejor.prev.get(ids[0]));
+        // Metros reales del camino (sin los recargos de las alternativas)
+        let porRed = 0;
+        const claves = [];
+        for (let k = 0; k + 1 < ids.length; k++) {
+            const v = nodos.get(ids[k]).vecinos.find((x) => x.a.id === ids[k + 1]);
+            porRed += v ? v.m : 0;
+            if (v) claves.push({ k: v.k, m: v.m });
+        }
+        mejor.metros = mejor.i.d + porRed + mejor.f.d;
         const camino = [{ lat: origen.lat, lng: origen.lng }]
             .concat(ids.map((id) => ({ lat: nodos.get(id).lat, lng: nodos.get(id).lng })))
             .concat([{ lat: destino.lat, lng: destino.lng }]);
@@ -98,10 +112,37 @@
             }
             tramos.push({ a, b, metros, tipo });
         }
-        return { metros: mejor.metros, camino, rampas, tramos };
+        return { metros: mejor.metros, camino, rampas, tramos, claves };
     }
 
-    const api = { distancia, construir, calcular };
+    // Hasta `max` caminos distintos de origen a destino, del mas corto al mas largo. El primero es el mismo que da calcular().
+    // Una alternativa solo cuenta si de verdad va por otro lado (comparte menos del 70% con otra) y no es una locura de larga.
+    function alternativas(grafo, origen, destino, opciones, max) {
+        const tope = max || 3;
+        const primera = calcular(grafo, origen, destino, opciones);
+        if (!primera) return [];
+        const lista = [primera];
+        const usados = new Set(primera.claves.map((c) => c.k));
+        const compartido = (x, y) => {
+            const ky = new Set(y.claves.map((c) => c.k));
+            const m = x.claves.reduce((s, c) => s + (ky.has(c.k) ? c.m : 0), 0);
+            return x.metros > 0 ? m / x.metros : 1;
+        };
+        for (let intento = 0; intento < 8 && lista.length < tope; intento++) {
+            const alt = calcular(grafo, origen, destino, Object.assign({}, opciones, { penalizar: usados }));
+            if (!alt) break;
+            const nuevo = alt.claves.filter((c) => !usados.has(c.k));
+            alt.claves.forEach((c) => usados.add(c.k));
+            if (!nuevo.length) break;                                          // ya no hay por donde variar
+            if (lista.some((r) => compartido(alt, r) > 0.7)) continue;         // casi igual a una que ya hay
+            if (alt.metros > primera.metros * 1.6 + 60) continue;              // da demasiada vuelta
+            lista.push(alt);
+        }
+        // la primera (la de siempre) se queda de primera; las demas van de la mas corta a la mas larga
+        return [primera].concat(lista.slice(1).sort((x, y) => x.metros - y.metros));
+    }
+
+    const api = { distancia, construir, calcular, alternativas };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     else root.FMCRutas = api;
 })(typeof window !== 'undefined' ? window : globalThis);

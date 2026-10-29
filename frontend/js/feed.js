@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const fotos = el("div", `pub-fotos n${p.fotos.length}`);
             p.fotos.forEach((src) => {
                 const img = el("img");
-                img.src = src; img.alt = "Foto de la publicación"; img.loading = "lazy";
+                img.alt = "Foto de la publicación"; cargarFoto(img, src);
                 img.addEventListener("click", () => verFoto(src));
                 fotos.appendChild(img);
             });
@@ -351,7 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function verFoto(src) {
         const fondo = el("div", "pub-fondo");
         fondo.style.alignItems = "center";
-        const img = el("img"); img.src = src; img.alt = "Foto";
+        const img = el("img"); img.alt = "Foto"; cargarFoto(img, src);
         img.style.cssText = "max-width:96%;max-height:90vh;border-radius:10px;";
         fondo.appendChild(img);
         fondo.addEventListener("click", () => fondo.remove());

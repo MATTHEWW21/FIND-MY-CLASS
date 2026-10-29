@@ -46,10 +46,8 @@ app.use(express.json());
 // Servir los archivos estáticos del frontend para abrirlos desde el cel o navegador
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
-// Fotos de las publicaciones (se guardan en backend/uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
-    setHeaders: (res) => res.setHeader('X-Content-Type-Options', 'nosniff'),
-}));
+// Las fotos (publicaciones y mensajes) ya NO se sirven como archivos publicos: se piden con sesion en
+// /api/publicaciones/foto/:archivo y /api/mensajes/foto/:archivo, y solo las ve quien tiene permiso.
 
 // Montar rutas de la API
 app.use('/api/auth', authRoutes);

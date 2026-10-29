@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt'); // si falla en Docker, cambia a require('bcryptjs') (misma API)
+const { DIAS_MAXIMO } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const pool = require('../config/db');
@@ -9,10 +10,6 @@ const PASSWORD_MENSAJE =
     'La contraseña debe tener mínimo 8 caracteres, una mayúscula, un número y un carácter especial';
 const CODIGO_MINUTOS = 15;
 const MAX_INTENTOS = 5;
-const ESPERA_CODIGO_SEG = 60;   // entre un codigo y el siguiente para la misma cuenta (evita llenarle el correo a alguien)
-
-// Hash de relleno: si el correo no existe se compara contra este, para que login tarde igual y no revele quien tiene cuenta
-const HASH_FALSO = bcrypt.hashSync('relleno-Aa1!-no-es-una-contraseña', 12);
 
 // Dominio institucional permitido para registrarse (ej. edu.uag.mx).
 // Si la variable está vacía, no se valida el dominio.
@@ -24,8 +21,38 @@ const normalizar = (correo) => String(correo || '').trim().toLowerCase();
 const hashCodigo = (codigo) => crypto.createHash('sha256').update(String(codigo)).digest('hex');
 const generarCodigo = () => crypto.randomInt(100000, 1000000).toString();
 
-const firmarToken = (payload, expiresIn = process.env.JWT_EXPIRES_IN || '7d') =>
-    jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+const firmarToken = (payload, expiresIn) => jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+
+const MAX_SESIONES = 10;          // sesiones abiertas a la vez por persona (la mas vieja se cierra)
+const COOLDOWN_CODIGO_SEG = 60;   // entre un correo con codigo y el siguiente para la misma cuenta
+
+// Nombre corto del dispositivo, a partir del navegador (solo para que la persona reconozca sus sesiones)
+function nombreDispositivo(ua) {
+  const s = String(ua || '');
+  const so = /iPhone|iPad/.test(s) ? 'iPhone/iPad' : /Android/.test(s) ? 'Android' : /Windows/.test(s) ? 'Windows'
+    : /Mac OS X|Macintosh/.test(s) ? 'Mac' : /Linux/.test(s) ? 'Linux' : 'Dispositivo';
+  const nav = /Edg\//.test(s) ? 'Edge' : /OPR\/|Opera/.test(s) ? 'Opera' : /Firefox/.test(s) ? 'Firefox'
+    : /Chrome|CriOS/.test(s) ? 'Chrome' : /Safari/.test(s) ? 'Safari' : 'navegador';
+  return `${so} · ${nav}`;
+}
+
+// Abre una sesion nueva (queda registrada y se puede cerrar) y devuelve su token
+async function abrirSesion(req, u) {
+  await pool.query(
+    "DELETE FROM sesiones WHERE usuario_id = $1 AND (revocada OR ultimo_uso < NOW() - INTERVAL '7 days' OR creado_en < NOW() - INTERVAL '90 days')",
+    [u.id]);
+  await pool.query(
+    `DELETE FROM sesiones WHERE id IN (SELECT id FROM sesiones WHERE usuario_id = $1 ORDER BY ultimo_uso DESC OFFSET $2)`,
+    [u.id, MAX_SESIONES - 1]);
+  const { rows } = await pool.query(
+    'INSERT INTO sesiones (usuario_id, dispositivo) VALUES ($1, $2) RETURNING id',
+    [u.id, nombreDispositivo(req.headers['user-agent'])]);
+  return firmarToken({ id: u.id, rol: u.rol, sid: rows[0].id }, DIAS_MAXIMO + 'd');
+}
+
+// Cierra todas las sesiones de una persona (menos una, si se indica)
+const cerrarSesiones = (usuarioId, exceptoSid = null) =>
+  pool.query('UPDATE sesiones SET revocada = TRUE WHERE usuario_id = $1 AND NOT revocada AND ($2::uuid IS NULL OR id <> $2::uuid)', [usuarioId, exceptoSid]);
 
 const usuarioPublico = (u) => ({
   id: u.id,
@@ -40,6 +67,7 @@ const usuarioPublico = (u) => ({
   carrera_id: u.carrera_id,
   espacio_trabajo: u.espacio_trabajo,
   estancia_id: u.estancia_id,
+  tutorial_visto: !!u.tutorial_visto,
   contacto_emergencia_nombre: u.contacto_emergencia_nombre || null,
   contacto_emergencia_telefono: u.contacto_emergencia_telefono || null,
 });
@@ -50,16 +78,6 @@ const modoDev = () => process.env.DEV_MOSTRAR_CODIGO === 'true' && process.env.N
 const extraDev = (codigo) => (modoDev() ? { codigo_dev: codigo } : {});
 
 async function crearYEnviarCodigo(usuarioId, correo, tipo) {
-  // En produccion no se manda otro codigo si el ultimo se creo hace menos de ESPERA_CODIGO_SEG segundos
-  // (la respuesta a la persona es la misma, asi que no se revela nada). En desarrollo no aplica, para poder probar rapido.
-  if (!modoDev()) {
-    const reciente = await pool.query(
-        `SELECT 1 FROM codigos_verificacion
-          WHERE usuario_id = $1 AND tipo = $2 AND creado_en > NOW() - ($3 || ' seconds')::interval LIMIT 1`,
-        [usuarioId, tipo, ESPERA_CODIGO_SEG]
-    );
-    if (reciente.rowCount > 0) return null;
-  }
   const codigo = generarCodigo();
 
   // Invalida códigos anteriores del mismo tipo
@@ -78,6 +96,14 @@ async function crearYEnviarCodigo(usuarioId, correo, tipo) {
     console.log(`[DEV] Código ${tipo} para ${correo}: ${codigo}`);
   }
   return codigo;
+}
+
+// Hubo un correo con codigo de verificacion para esta cuenta en el ultimo minuto?
+async function codigoReciente(usuarioId) {
+  const r = await pool.query(
+    "SELECT 1 FROM codigos_verificacion WHERE usuario_id = $1 AND tipo = 'verificacion' AND creado_en > NOW() - ($2 || ' seconds')::interval LIMIT 1",
+    [usuarioId, COOLDOWN_CODIGO_SEG]);
+  return r.rowCount > 0;
 }
 
 // Devuelve el usuario_id si el código es válido; null si no
@@ -139,6 +165,9 @@ async function registro(req, res) {
     }
 
     const idExistente = existente.rows[0] ? existente.rows[0].id : null;
+    if (idExistente && await codigoReciente(idExistente)) {
+      return res.status(429).json({ error: 'Ya te enviamos un código hace un momento. Espera un minuto para pedir otro.' });
+    }
     const duplicado = await pool.query(
         'SELECT 1 FROM usuarios WHERE numero_registro = $1 AND id IS DISTINCT FROM $2',
         [numero_registro, idExistente]
@@ -151,8 +180,9 @@ async function registro(req, res) {
     let usuarioId;
 
     if (idExistente) {
-      // Cuenta que nunca se verificó: se actualizan sus datos y se reenvía el código,
-      // así nadie queda atorado por no haber recibido el primer código.
+      // Cuenta que nunca se verificó: se actualizan sus datos y se reenvía el código, así nadie queda atorado.
+      // Para verificarla hay que dar el código Y la contraseña de este registro, así que quien registre
+      // el correo de otra persona no puede quedarse con la cuenta aunque esa persona use el código.
       await pool.query(
           `UPDATE usuarios
            SET nombre = $1, apellido = $2, numero_registro = $3, password_hash = $4, rol = $5
@@ -186,18 +216,31 @@ async function registro(req, res) {
 async function verificarCuenta(req, res) {
   try {
     const correo = normalizar(req.body.correo);
-    const usuarioId = await consumirCodigo(correo, req.body.codigo, 'verificacion');
-    if (!usuarioId) {
-      return res.status(400).json({ error: 'Código incorrecto o expirado' });
+    const password = String(req.body.password || '');
+    if (!password) return res.status(400).json({ error: 'Escribe también la contraseña con la que te registraste' });
+    const MENSAJE = 'Código o contraseña incorrectos, o el código ya expiró';
+
+    // La contraseña debe ser la del ultimo registro de ese correo; si no coincide cuenta como intento fallido del código
+    const cuenta = await pool.query('SELECT id, password_hash FROM usuarios WHERE LOWER(correo) = $1 AND verificado = FALSE', [correo]);
+    const coincide = cuenta.rows[0] ? await bcrypt.compare(password, cuenta.rows[0].password_hash) : false;
+    if (!coincide) {
+      if (cuenta.rows[0]) {
+        await pool.query(
+          `UPDATE codigos_verificacion SET intentos = intentos + 1
+            WHERE id = (SELECT id FROM codigos_verificacion WHERE usuario_id = $1 AND tipo = 'verificacion' AND NOT usado AND expira_en > NOW() ORDER BY creado_en DESC LIMIT 1)`,
+          [cuenta.rows[0].id]);
+      }
+      return res.status(400).json({ error: MENSAJE });
     }
+
+    const usuarioId = await consumirCodigo(correo, req.body.codigo, 'verificacion');
+    if (!usuarioId) return res.status(400).json({ error: MENSAJE });
 
     const { rows } = await pool.query(
         'UPDATE usuarios SET verificado = TRUE WHERE id = $1 RETURNING *',
         [usuarioId]
     );
-    const u = rows[0];
-    const token = firmarToken({ id: u.id, rol: u.rol });
-    return res.json({ token, usuario: usuarioPublico(u) });
+    return res.json({ mensaje: 'Cuenta verificada', usuario: usuarioPublico(rows[0]) });
   } catch (err) {
     return errorServidor(res, err);
   }
@@ -211,10 +254,10 @@ async function reenviarCodigo(req, res) {
         [correo]
     );
     let extra = {};
-    if (rows[0]) {
+    if (rows[0] && !(await codigoReciente(rows[0].id))) {
       extra = extraDev(await crearYEnviarCodigo(rows[0].id, correo, 'verificacion'));
     }
-    // Misma respuesta exista o no el correo
+    // Misma respuesta exista o no el correo (y tambien si ya se envio uno hace menos de un minuto)
     return res.json({ mensaje: 'Si el correo existe, se envió un nuevo código.', ...extra });
   } catch (err) {
     return errorServidor(res, err);
@@ -225,21 +268,24 @@ async function login(req, res) {
   try {
     const correo = normalizar(req.body.correo);
     const { password } = req.body;
-    if (!correo || !password || typeof password !== 'string') {
+    if (!correo || !password) {
       return res.status(400).json({ error: 'Correo y contraseña requeridos' });
     }
 
     const { rows } = await pool.query('SELECT * FROM usuarios WHERE LOWER(correo) = $1', [correo]);
     const u = rows[0];
-    const coincide = (await bcrypt.compare(password, u ? u.password_hash : HASH_FALSO)) && !!u;
+    const coincide = u ? await bcrypt.compare(password, u.password_hash) : false;
     if (!coincide) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
     if (!u.verificado) {
       return res.status(403).json({ error: 'Cuenta sin verificar', requiereVerificacion: true });
     }
+    if (u.activo === false) {
+      return res.status(403).json({ error: 'Esta cuenta está suspendida. Contacta a quien administra UAGPS.' });
+    }
 
-    const token = firmarToken({ id: u.id, rol: u.rol });
+    const token = await abrirSesion(req, u);
     return res.json({ token, usuario: usuarioPublico(u) });
   } catch (err) {
     return errorServidor(res, err);
@@ -282,6 +328,7 @@ async function restablecerPassword(req, res) {
     }
     const password_hash = await bcrypt.hash(password, 12);
     await pool.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [password_hash, usuarioId]);
+    await cerrarSesiones(usuarioId);     // si alguien tenia la sesion abierta (o se perdio el telefono), se cierra en todos lados
     return res.json({ mensaje: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
   } catch (err) {
     return errorServidor(res, err);
@@ -472,13 +519,63 @@ async function cambiarPassword(req, res) {
     }
     const password_hash = await bcrypt.hash(nueva, 12);
     await pool.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [password_hash, req.usuario.id]);
-    return res.json({ mensaje: 'Contraseña actualizada' });
+    await cerrarSesiones(req.usuario.id, req.usuario.sid);   // las demas sesiones se cierran; esta se queda
+    return res.json({ mensaje: 'Contraseña actualizada. Cerramos tus otras sesiones.' });
   } catch (err) {
     return errorServidor(res, err);
   }
 }
 
+// POST /api/auth/me/tutorial-visto -> el tutorial ya no vuelve a salir con esta cuenta (en ningun dispositivo)
+async function tutorialVisto(req, res) {
+  try {
+    if (req.usuario.id) await pool.query('UPDATE usuarios SET tutorial_visto = TRUE WHERE id = $1', [req.usuario.id]);
+    return res.json({ ok: true });
+  } catch (err) { return errorServidor(res, err); }
+}
+
+// ---------- Sesiones ----------
+// POST /api/auth/logout -> cierra solo esta sesion
+async function logout(req, res) {
+  try {
+    if (req.usuario.sid) await pool.query('UPDATE sesiones SET revocada = TRUE WHERE id = $1 AND usuario_id = $2', [req.usuario.sid, req.usuario.id]);
+    return res.json({ ok: true });
+  } catch (err) { return errorServidor(res, err); }
+}
+
+// POST /api/auth/logout-todas -> cierra todas, incluida esta
+async function logoutTodas(req, res) {
+  try {
+    if (req.usuario.id) await cerrarSesiones(req.usuario.id);
+    return res.json({ ok: true });
+  } catch (err) { return errorServidor(res, err); }
+}
+
+// GET /api/auth/sesiones -> mis sesiones abiertas
+async function listarSesiones(req, res) {
+  try {
+    if (!req.usuario.id) return res.json({ sesiones: [] });
+    const { rows } = await pool.query(
+      `SELECT id, dispositivo, creado_en, ultimo_uso FROM sesiones
+        WHERE usuario_id = $1 AND NOT revocada AND ultimo_uso > NOW() - INTERVAL '7 days' AND creado_en > NOW() - INTERVAL '90 days'
+        ORDER BY ultimo_uso DESC`, [req.usuario.id]);
+    return res.json({ sesiones: rows.map((s) => ({ id: s.id, dispositivo: s.dispositivo || 'Dispositivo', creado_en: s.creado_en, ultimo_uso: s.ultimo_uso, actual: s.id === req.usuario.sid })) });
+  } catch (err) { return errorServidor(res, err); }
+}
+
+// DELETE /api/auth/sesiones/:id -> cierra una sesion mia
+async function cerrarSesionDe(req, res) {
+  try {
+    const id = String(req.params.id || '');
+    if (!/^[0-9a-f-]{36}$/i.test(id)) return res.status(400).json({ error: 'Sesión no válida' });
+    const r = await pool.query('UPDATE sesiones SET revocada = TRUE WHERE id = $1 AND usuario_id = $2 AND NOT revocada', [id, req.usuario.id]);
+    if (!r.rowCount) return res.status(404).json({ error: 'Esa sesión ya no está abierta' });
+    return res.json({ ok: true });
+  } catch (err) { return errorServidor(res, err); }
+}
+
 module.exports = {
+  tutorialVisto, logout, logoutTodas, listarSesiones, cerrarSesionDe,
   registro, verificarCuenta, reenviarCodigo, login, invitado,
   olvidePassword, restablecerPassword, me, actualizarPerfil, actualizarPreferencias, cambiarPassword,
 };
