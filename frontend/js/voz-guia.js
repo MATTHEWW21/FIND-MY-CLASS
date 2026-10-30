@@ -97,43 +97,41 @@
 
         const pasos = grupos.map((g, i) => {
             const prev = grupos[i - 1];
-            const d = prev ? delta(prev.rumboFin, g.rumboIni) : 0;
-            const giro = prev ? textoGiro(d) : null;
-            const dist = metrosHablados(g.metros);
-            let texto;
-            if (g.clase === 'escaleras') {
-                texto = `${giro ? giro + '. ' : ''}Hay escaleras: avanza ${dist} con cuidado.`;
-            } else if (g.clase === 'rampa') {
-                texto = `${giro ? giro + ' y toma' : 'Toma'} la rampa: avanza ${dist}.`;
-            } else if (!prev) {
-                texto = `Camina hacia ${cardinal(g.rumboIni)} unos ${dist}.`;
-            } else if (giro) {
-                texto = `${giro} y avanza ${dist}.`;
-            } else {
-                texto = `Continúa recto ${dist}.`;
-            }
-            return { texto, previo: '', metros: g.metros, tipo: g.clase, fin: g.fin, _rumboFin: g.rumboFin };
+            return { clase: g.clase, primero: !prev, rumboIni: g.rumboIni, rumboPrev: prev ? prev.rumboFin : null, dist: metrosHablados(g.metros),
+                texto: '', previo: '', metros: g.metros, tipo: g.clase, fin: g.fin, sufijo: '', destinoNombre };
         });
-
-        // Avisos previos: lo que viene en el siguiente paso, dicho unos metros antes
         pasos.forEach((p, i) => {
             const sig = pasos[i + 1];
-            if (!sig) { p.previo = `Estás por llegar${destinoNombre ? ' a ' + destinoNombre : ''}.`; return; }
-            const d = delta(p._rumboFin, grupos[i + 1].rumboIni);
-            const giro = textoGiro(d);
-            if (sig.tipo === 'escaleras') p.previo = 'Más adelante hay escaleras. Avanza con cuidado.';
-            else if (sig.tipo === 'rampa') p.previo = 'Más adelante hay una rampa.';
-            else if (giro) p.previo = 'Más adelante, ' + giro.charAt(0).toLowerCase() + giro.slice(1) + '.';
-            else p.previo = 'Sigue recto.';
+            p.sigClase = sig ? sig.clase : null;
+            p.sigRumbo = sig ? sig.rumboIni : null;
+            p.rumboFinPaso = grupos[i].rumboFin;
         });
-        pasos.forEach((p) => { delete p._rumboFin; });
-
-        if (aprox && pasos.length) {
-            pasos[0].texto += ' Ese camino no está trazado en el mapa, así que es una guía aproximada en línea recta.';
-        }
+        if (aprox && pasos.length) pasos[0].sufijo += ' Ese camino no está trazado en el mapa, así que es una guía aproximada en línea recta.';
         const ultimo = pasos[pasos.length - 1];
-        ultimo.texto += destinoNombre ? ` Al final llegarás a ${destinoNombre}.` : '';
+        if (destinoNombre) ultimo.sufijo += ` Al final llegarás a ${destinoNombre}.`;
+        pasos.forEach((p) => { p.texto = textoPaso(p, null); p.previo = textoPrevio(p, null); });
         return pasos;
+    }
+
+    // Texto de un paso. rumboReal (opcional): hacia donde camina la persona de verdad (por el GPS); el giro se dice respecto a eso
+    function textoPaso(p, rumboReal) {
+        const ref = rumboReal != null && !p.primero ? rumboReal : p.rumboPrev;
+        const giro = !p.primero && ref != null ? textoGiro(delta(ref, p.rumboIni)) : null;
+        let texto;
+        if (p.clase === 'escaleras') texto = `${giro ? giro + '. ' : ''}Hay escaleras: avanza ${p.dist} con cuidado.`;
+        else if (p.clase === 'rampa') texto = `${giro ? giro + ' y toma' : 'Toma'} la rampa: avanza ${p.dist}.`;
+        else if (p.primero) texto = `Camina hacia ${cardinal(p.rumboIni)} unos ${p.dist}.`;
+        else if (giro) texto = `${giro} y avanza ${p.dist}.`;
+        else texto = `Continúa recto ${p.dist}.`;
+        return texto + (p.sufijo || '');
+    }
+    function textoPrevio(p, rumboReal) {
+        if (!p.sigClase) return `Estás por llegar${p.destinoNombre ? ' a ' + p.destinoNombre : ''}.`;
+        if (p.sigClase === 'escaleras') return 'Más adelante hay escaleras. Avanza con cuidado.';
+        if (p.sigClase === 'rampa') return 'Más adelante hay una rampa.';
+        const ref = rumboReal != null ? rumboReal : p.rumboFinPaso;
+        const giro = textoGiro(delta(ref, p.sigRumbo));
+        return giro ? 'Más adelante, ' + giro.charAt(0).toLowerCase() + giro.slice(1) + '.' : 'Sigue recto.';
     }
 
     // Resumen que se dice al elegir el destino
@@ -141,7 +139,7 @@
         const aprox = !!(opciones && opciones.aproximada);
         const accesible = !!(opciones && opciones.accesible);
         const min = minutosCaminando(metros, opciones && opciones.velocidad);
-        let t = `Ruta a ${destinoNombre}: ${metrosHablados(metros)}, unos ${min} ${min === 1 ? 'minuto' : 'minutos'} caminando.`;
+        let t = `Ruta a ${destinoNombre}: ${metrosHablados(metros)}, unos ${min} ${min === 1 ? 'minuto' : 'minutos'} ${accesible ? 'de recorrido' : 'caminando'}.`;
         const rampas = (tramos || []).filter((x) => x.tipo === 'rampa').length;
         const escaleras = (tramos || []).filter((x) => x.tipo === 'escaleras').length;
         if (accesible && !escaleras) t += ' Es un camino accesible.';
@@ -154,7 +152,9 @@
     // ---------- Entender lo que dijo la persona ----------
     const NUMEROS = { uno: '1', una: '1', dos: '2', tres: '3', cuatro: '4', cinco: '5', seis: '6', siete: '7', ocho: '8', nueve: '9', diez: '10' };
     // Como el reconocimiento de voz escribe las letras ("edificio be", "edificio ce")
-    const LETRAS = { a: 'a', be: 'b', ve: 'b', ce: 'c', se: 'c', de: 'd', e: 'e', efe: 'f', ge: 'g', hache: 'h', i: 'i', jota: 'j', ka: 'k', ele: 'l', eme: 'm', ene: 'n', o: 'o', pe: 'p', cu: 'q', erre: 'r', ese: 's', te: 't', u: 'u', uve: 'v', equis: 'x', zeta: 'z' };
+    const LETRAS = { a: 'a', ah: 'a', be: 'b', bi: 'b', b: 'b', ve: 'b', v: 'b', ce: 'c', se: 'c', si: 'c', c: 'c', ci: 'c', de: 'd', d: 'd', e: 'e', ee: 'e', efe: 'f', f: 'f', ge: 'g', g: 'g', je: 'g', hache: 'h', ache: 'h', h: 'h', i: 'i', y: 'i', hi: 'i', ii: 'i', ie: 'i', jota: 'j', j: 'j', jotas: 'j', ka: 'k', ele: 'l', eme: 'm', ene: 'n', n: 'n', o: 'o', pe: 'p', cu: 'q', erre: 'r', r: 'r', ere: 'r', ese: 's', te: 't', u: 'u', uve: 'v', equis: 'x', zeta: 'z' };
+    // Edificios que existen (para no confundir "edificio de ..." con la letra D)
+    const COLA_LETRA = new Set(['larga', 'latina', 'griega', 'chica', 'grande', 'mayuscula', 'minuscula']);
 
     // Palabras de relleno que no ayudan a encontrar el lugar
     const RELLENO = new Set(('a al el la los las de del un una unos unas por favor porfa quiero quisiera necesito necesitaria ir ire voy vamos llevame lleva llevarme lleves llevar ' +
@@ -173,6 +173,9 @@
         [/\b(cancha|gimnasio|alberca|deporte|deportes|estadio|entrenar|ejercicio)\b/, 'deportes'],
         [/\b(auditorio|conferencia|evento)\b/, 'auditorio'],
         [/\b(salida|salir|irme|me voy)\b/, 'puerta'],
+        [/\b(emergencia|sismo|temblor|evacuar|evacuacion|incendio|punto de encuentro|punto de reunion)\b/, 'encuentro'],
+        [/\b(descansar|descanso|relajarme|relajar|socializar|sentarme)\b/, 'descanso'],
+        [/\b(silla de ruedas|entrada accesible|entrada para silla)\b/, 'entrada_accesible'],
     ];
 
     function limpiarDicho(texto) {
@@ -193,12 +196,17 @@
     // Convierte "edificio be" en "edificio b" y "puerta dos" en "puerta 2"
     function arreglarTokens(tokens) {
         const out = [];
-        tokens.forEach((tk, i) => {
-            const prev = tokens[i - 1];
-            if (prev === 'edificio' && LETRAS[tk] && tk !== 'de') out.push(LETRAS[tk]);
-            else if (NUMEROS[tk] && (prev === 'puerta' || prev === 'edificio' || prev === 'estacionamiento' || prev === 'piso' || prev === 'numero')) out.push(NUMEROS[tk]);
+        for (let i = 0; i < tokens.length; i++) {
+            const tk = tokens[i], prev = tokens[i - 1];
+            if (prev === 'edificio' && LETRAS[tk] && !(tk === 'de' && tokens.length > i + 1 && tokens[i + 1].length > 2 && !COLA_LETRA.has(tokens[i + 1]))) {
+                const letra = LETRAS[tk];
+                out.push(letra);
+                // "be larga", "i griega", "b de burro", "c de casa": se descartan las palabras que explican la letra
+                if (COLA_LETRA.has(tokens[i + 1])) i += 1;
+                else if (tokens[i + 1] === 'de' && tokens[i + 2] && tokens[i + 2][0] === letra) i += 2;
+            } else if (NUMEROS[tk] && (prev === 'puerta' || prev === 'edificio' || prev === 'estacionamiento' || prev === 'piso' || prev === 'numero')) out.push(NUMEROS[tk]);
             else out.push(tk);
-        });
+        }
         return out;
     }
 
@@ -245,7 +253,7 @@
                 // Si el nombre exacto coincide con uno solo, ese es
                 const exacto = res.filter((l) => l._nombre === tokens.join(' '));
                 if (exacto.length === 1) return { tipo: 'destino', lugar: exacto[0] };
-                if (mismoTipo && origen && ['snacks', 'bebedero', 'estacionamiento', 'puerta', 'alimentos'].includes(res[0].tipo)) {
+                if (mismoTipo && origen && ['snacks', 'bebedero', 'estacionamiento', 'puerta', 'alimentos', 'encuentro', 'descanso', 'entrada_accesible'].includes(res[0].tipo)) {
                     return { tipo: 'destino', lugar: masCercanos(res, origen)[0], motivo: 'cercano' };
                 }
                 return { tipo: 'varios', candidatos: masCercanos(res, origen).slice(0, 3) };
@@ -299,7 +307,7 @@
         return res.length === 1 ? res[0] : null;
     }
 
-    const api = { rumbo, cardinal, delta, textoGiro, metrosHablados, minutosCaminando, generarPasos, resumen, comando, interpretar, elegirEntre, distanciaM, limpiarDicho };
+    const api = { rumbo, cardinal, delta, textoGiro, metrosHablados, minutosCaminando, generarPasos, resumen, comando, interpretar, elegirEntre, distanciaM, limpiarDicho, textoPaso, textoPrevio };
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
     else root.FMCGuia = api;
 })(typeof window !== 'undefined' ? window : globalThis);

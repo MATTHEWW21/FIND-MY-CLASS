@@ -250,6 +250,7 @@
                     continue;
                 }
                 if (res.tipo === 'destino') { await irA(res.lugar, res.motivo); return; }
+                if (/edificio/.test(G.limpiarDicho(r.texto))) { await hablar('Escuché edificio, pero no entendí la letra. Di por ejemplo: edificio be, edificio ce o edificio i.'); continue; }
                 if (intento < 2) await hablar('No encontré ese lugar. Prueba con el nombre de un edificio, un servicio, o algo como “tengo sed”.');
                 else await hablar('No encontré ese lugar. Puedes escribirlo en el buscador.');
             }
@@ -318,7 +319,7 @@
 
     function decirPasoActual() {
         if (!guia || !guia.activa) { if (ruta) hablar(ruta.resumen); return; }
-        hablar(ruta.pasos[guia.idx].texto);
+        hablar(G.textoPaso(ruta.pasos[guia.idx], guia && guia.rumboReal));
     }
 
     function metrosRestantes(pos) {
@@ -372,6 +373,12 @@
             return;
         }
         guia.ultPos = p;
+        // Hacia donde camina de verdad la persona (por los ultimos puntos del GPS): sirve para decir izquierda/derecha bien
+        guia.hist = (guia.hist || []).concat([p]).slice(-8);
+        guia.rumboReal = null;
+        for (let k = 0; k < guia.hist.length - 1; k++) {
+            if (G.distanciaM(guia.hist[k], p) >= 8) { guia.rumboReal = G.rumbo(guia.hist[k], p); break; }
+        }
         if (window.FMCMapa) window.FMCMapa.mostrarPosicion(p.lat, p.lng);
         const avisoAcc = window.FMCAcc ? window.FMCAcc.avisoCerca(p) : null;   // 'Adelante: escalera...' (una vez por elemento)
         if (avisoAcc && debeHablarGuia()) hablar(avisoAcc, { interrumpir: false });
@@ -390,8 +397,9 @@
         const paso = ruta.pasos[guia.idx];
         if (!guia.previoDicho && paso.metros >= 35 && G.distanciaM(p, paso.fin) <= RADIO_PREVIO) {   // en pasos cortos no hace falta avisar antes
             guia.previoDicho = true;
-            if (debeHablarGuia()) hablar(paso.previo, { interrumpir: false });
-            mostrarTexto(paso.previo, '🧭 Guiando');
+            const previo = G.textoPrevio(paso, guia.rumboReal);
+            if (debeHablarGuia()) hablar(previo, { interrumpir: false });
+            mostrarTexto(previo, '🧭 Guiando');
         }
         // ¿Te saliste del camino?
         if (distanciaARuta(p) > FUERA_RUTA) guia.fuera++; else guia.fuera = 0;
@@ -417,7 +425,7 @@
         guia.previoDicho = false;
         if (guia.idx >= ruta.pasos.length) { llegar(); return; }
         pintarPasos();
-        const texto = ruta.pasos[guia.idx].texto;
+        const texto = G.textoPaso(ruta.pasos[guia.idx], guia.rumboReal);
         mostrarTexto(texto, '🧭 Guiando');
         if (debeHablarGuia()) hablar(texto);
         vibrar(150);
@@ -500,6 +508,15 @@
         // Si el destino cambia a mitad de camino (recalculo), no se detiene la guía
         // y el resumen se muestra escrito solo cuando la persona usa la voz (los demás ya ven el panel de ruta)
         if (!(guia && guia.activa) && !ocupado && debeHablarGuia()) mostrarTexto(ruta.resumen, '');
+    });
+    // Cambio de ruta a mitad de camino (boton OTRA RUTA): la guia sigue, pero con las indicaciones nuevas desde el principio
+    document.addEventListener('fmc:rutacambiada', () => {
+        if (!(guia && guia.activa)) return;
+        guia.idx = 0; guia.previoDicho = false; guia.fuera = 0;
+        pintarPasos();
+        const t = ruta.pasos[0].texto;
+        mostrarTexto(t, '🧭 Guiando');
+        if (debeHablarGuia()) hablar('Nueva ruta. ' + t);
     });
     document.addEventListener('fmc:empezar', () => {
         if (ignorarEmpezar || (guia && guia.activa)) return;

@@ -75,6 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let ultimoDestino = null;   // se conserva hasta cerrar la calificación (limpiarRuta borra `destino`)
     let capaBase = L.layerGroup().addTo(map);   // edificios y puertas: siempre visibles
     let capaSel = L.layerGroup().addTo(map);    // destino elegido y línea de ruta
+    let marcaOrigen = null;                     // punto fijo del origen (se quita cuando ya se sigue tu posicion en vivo)
+    let siguiendo = true;                       // el mapa te sigue mientras caminas; si lo mueves o haces zoom, deja de seguirte
+    let btnCentrar = null;
     let marcaPosicion = null;                   // punto azul de "tu posición" mientras te guía la voz
     const capasChip = {};                       // snacks / alimentos / bebedero: se prenden con los chips
 
@@ -82,12 +85,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const t = TIPOS[l.tipo] || { emoji: '📍' };
         const icono = L.divIcon({
             className: 'fmc-pin-wrap',
-            html: `<div class="fmc-pin${seleccionado ? ' sel' : ''}">${t.emoji}</div>`,
+            html: `<div class="fmc-pin${seleccionado ? ' sel' : ''}" aria-hidden="true">${t.emoji}</div>`,
             iconSize: seleccionado ? [40, 40] : [30, 30],
             iconAnchor: seleccionado ? [20, 20] : [15, 15],
         });
         const m = L.marker([l.lat, l.lng], { icon: icono, title: l.nombre });
         m.bindTooltip(l.nombre, { direction: 'top', offset: [0, -14] });
+        m.on('add', () => { const el = m.getElement(); if (el) { el.setAttribute('role', 'button'); el.setAttribute('aria-label', `${l.nombre}. Toca para ir a este lugar`); } });
         m.on('click', () => seleccionarDestino(l));
         return m;
     }
@@ -95,10 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- Visitante: solo ve lo que corresponde a su asunto ----------
     // tipos: categorias que se muestran completas; servicios: nombres sueltos de la categoria "servicio".
     const ASUNTOS = {
-        administrativo: { etiqueta: 'Administrativo', tipos: ['oficina', 'puerta', 'estacionamiento'], servicios: /banco|solutions|recursos humanos|asistencia social|store|protecci/ },
-        medico:         { etiqueta: 'Médico',         tipos: ['salud', 'puerta', 'estacionamiento'] },
-        deportivo:      { etiqueta: 'Deportivo',      tipos: ['deportes', 'bebedero', 'puerta', 'estacionamiento'] },
-        evento:         { etiqueta: 'Evento',         tipos: ['auditorio', 'alimentos', 'puerta', 'estacionamiento'] },
+        administrativo: { etiqueta: 'Administrativo', tipos: ['oficina', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'], servicios: /banco|solutions|recursos humanos|asistencia social|store|protecci/ },
+        medico:         { etiqueta: 'Médico',         tipos: ['salud', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'] },
+        deportivo:      { etiqueta: 'Deportivo',      tipos: ['deportes', 'bebedero', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'] },
+        evento:         { etiqueta: 'Evento',         tipos: ['auditorio', 'alimentos', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'] },
     };
     const asuntoVisita = localStorage.getItem('userRole') === 'visitante' ? ASUNTOS[localStorage.getItem('visitaAsunto')] : null;
 
@@ -286,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function limpiarRuta() {
         capaSel.clearLayers();
         if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; }
+        siguiendo = true; if (btnCentrar) btnCentrar.hidden = true;
         destino = null;
         inicioNavegacion = null;
         metrosRuta = null;
@@ -402,7 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
         corridas.forEach((c) => L.polyline(c.pts, { color: "#ffffff", weight: ESTILO_TRAMO[c.tipo].weight + 5, opacity: 0.95, lineCap: "round", interactive: false }).addTo(capaSel));
         corridas.forEach((c) => {
             const e = ESTILO_TRAMO[c.tipo];
-            L.polyline(c.pts, { color: e.color, weight: e.weight, opacity: 1, dashArray: e.dash, lineCap: e.cap }).addTo(capaSel);
+            L.polyline(c.pts, { color: e.color, weight: e.weight, opacity: 1, dashArray: e.dash, lineCap: e.cap, interactive: false }).addTo(capaSel);
         });
         return Array.from(new Set(corridas.map((c) => c.tipo)));
     }
@@ -460,11 +465,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const extra = ruta && lista.length > 1 && indiceRuta > 0 ? ` Es ${Math.max(10, Math.round((ruta.metros - lista[0].metros) / 10) * 10)} m más larga que la ruta 1.` : "";
         if (btnOtraRuta) {
             btnOtraRuta.hidden = !ruta;
-            btnOtraRuta.disabled = lista.length < 2 || !!inicioNavegacion;
+            btnOtraRuta.disabled = lista.length < 2;
             btnOtraRuta.textContent = lista.length < 2 ? "NO HAY OTRA RUTA" : `OTRA RUTA (${indiceRuta + 1}/${lista.length})`;
             btnOtraRuta.setAttribute("aria-label", lista.length < 2
-                ? "No hay otra ruta cercana para llegar a este destino"
-                : `Ver otro camino para llegar al mismo destino. Ahora ves la ruta ${indiceRuta + 1} de ${lista.length}`);
+                ? "NO HAY OTRA RUTA. No hay otro camino cercano para llegar a este destino"
+                : `OTRA RUTA (${indiceRuta + 1}/${lista.length}). Ver otro camino para llegar al mismo destino`);
         }
 
         let metros, hint, tiposRuta = [];
@@ -472,8 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
             metros = Math.round(ruta.metros / 10) * 10;
             tiposRuta = ruta.tramos && ruta.tramos.length ? dibujarTramos(ruta.tramos) : ["normal"];
             // Las rampas solo se destacan cuando la persona pidio rutas accesibles (para los demas son un tramo normal)
-            const rampas = soloAccesible ? (ruta.rampas || []) : [];
-            rampas.forEach((r) => L.circleMarker([r.lat, r.lng], { radius: 9, color: "#ffffff", weight: 2, fillColor: "#2e9e5b", fillOpacity: 1 }).bindTooltip("Rampa ♿").addTo(capaSel));
+            const rampas = soloAccesible ? (ruta.rampas || []) : [];   // las rampas se dibujan con los pines de mapa-accesibilidad.js
             const textoRampas = rampas.length ? ` Pasa por ${rampas.length === 1 ? "una rampa" : rampas.length + " rampas"} ♿.` : "";
             const numero = lista.length > 1 ? `Ruta ${indiceRuta + 1} de ${lista.length}. ` : "";
             // Si da muchisima mas vuelta que la linea recta, casi siempre es que falta un camino en el mapa: se avisa para que no se confie a ciegas
@@ -483,10 +487,29 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             metros = Math.round(map.distance([origen.lat, origen.lng], [l.lat, l.lng]) * FACTOR_CAMINO / 10) * 10;
             L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#ffffff", weight: 9, opacity: 0.95, interactive: false }).addTo(capaSel);
-            L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#6b5a50", weight: 4, dashArray: "8 8" }).addTo(capaSel);
+            L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#6b5a50", weight: 4, dashArray: "8 8", interactive: false }).addTo(capaSel);
             hint = `Distancia aproximada en línea recta hacia ${l.nombre}: todavía no hay un camino trazado hasta ahí.`;
         }
-        L.circleMarker([origen.lat, origen.lng], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1 }).addTo(capaSel);
+        // Si ya se esta siguiendo tu posicion en vivo, ese punto es el unico (no se dibuja otro fijo en el origen)
+        if (!marcaPosicion) marcaOrigen = L.circleMarker([origen.lat, origen.lng], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1, interactive: false }).addTo(capaSel);
+
+        // Si el destino es un estacionamiento, se muestran SOLO las cajas especiales de ese estacionamiento
+        if (l.tipo === "estacionamiento" && window.FMCAcc && FMCAcc.cajasDe) {
+            let cajas = [];
+            try { cajas = await FMCAcc.cajasDe(l, 140); } catch (e) { cajas = []; }
+            if (destino !== l) return;
+            cajas.forEach((c) => {
+                const ic = L.divIcon({ className: "", iconSize: [34, 34], iconAnchor: [17, 17], html: `<div style="width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid #1d4f91;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.4)" aria-hidden="true">${c.icono}</div>` });
+                const mk = L.marker([c.lat, c.lng], { icon: ic, title: `${c.texto}, a ${c.m} m`, keyboard: false }).bindTooltip(`${c.texto} (${c.m} m)`).addTo(capaSel);
+                const el = mk.getElement(); if (el) { el.setAttribute("role", "img"); el.setAttribute("aria-label", `${c.texto}, a ${c.m} metros`); }
+            });
+            if (cajas.length) {
+                const resumen = {};
+                cajas.forEach((c) => { resumen[c.texto] = (resumen[c.texto] || 0) + 1; });
+                const lista2 = Object.keys(resumen).map((t) => `${resumen[t]} ${t.charAt(0).toLowerCase() + t.slice(1)}`).join(", ");
+                hint += ` Cerca de este estacionamiento hay cajas especiales: ${lista2}.`;
+            }
+        }
 
         // Indicaciones paso a paso (para leerlas en pantalla y para la guia por voz)
         const tramos = ruta && ruta.tramos ? ruta.tramos : [{ a: { lat: origen.lat, lng: origen.lng }, b: { lat: l.lat, lng: l.lng }, metros, tipo: "libre" }];
@@ -501,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const resumenVoz = GUIA ? GUIA.resumen(l.nombre, metros, tramos, { aproximada, accesible: soloAccesible && !aviso }) : "";
         document.dispatchEvent(new CustomEvent("fmc:ruta", {
-            detail: { destino: l, origen, metros, minutos: minutos(metros, MODOS[modo].vel), modo, accesible: soloAccesible && !aviso, tramos, pasos, aproximada, resumen: resumenVoz },
+            detail: { perfilAccesible: soloAccesible, destino: l, origen, metros, minutos: minutos(metros, MODOS[modo].vel), modo, accesible: soloAccesible && !aviso, tramos, pasos, aproximada, resumen: resumenVoz },
         }));
     }
 
@@ -517,9 +540,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // OTRA RUTA: el mismo destino por otro camino (se va rotando entre las que haya)
     if (btnOtraRuta) {
         btnOtraRuta.addEventListener("click", async () => {
-            if (!destino || inicioNavegacion || btnOtraRuta.disabled) return;
+            if (!destino || btnOtraRuta.disabled) return;
             indiceRuta += 1;
-            await trazarRuta(destino);
+            await trazarRuta(destino);   // desde donde estas ahora (si ya vas caminando)
+            if (inicioNavegacion) document.dispatchEvent(new CustomEvent("fmc:rutacambiada"));
             btnOtraRuta.focus();
         });
     }
@@ -581,7 +605,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btnFinish.style.backgroundColor = "#B3261E";
         btnFinish.style.color = "#ffffff";
         btnFinish.style.cursor = "pointer";
-        if (btnOtraRuta) btnOtraRuta.disabled = true;   // en plena ruta no se cambia el camino
         pintarModos();
     }
     function reiniciarBotones() {
@@ -790,6 +813,33 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Si la persona mueve el mapa o hace zoom mientras camina, el mapa deja de seguirla hasta que toque "Centrar"
+    function crearBotonCentrar() {
+        btnCentrar = document.createElement("button");
+        btnCentrar.type = "button";
+        btnCentrar.id = "btn-centrar";
+        btnCentrar.className = "btn-centrar-mapa";
+        btnCentrar.hidden = true;
+        btnCentrar.textContent = "📍";
+        btnCentrar.title = "Centrar el mapa en mi ubicación";
+        btnCentrar.setAttribute("aria-label", "Centrar el mapa en mi ubicación");
+        btnCentrar.addEventListener("click", () => {
+            siguiendo = true;
+            btnCentrar.hidden = true;
+            if (marcaPosicion) map.panTo(marcaPosicion.getLatLng(), { animate: true });
+        });
+        (document.querySelector(".map-container") || document.body).appendChild(btnCentrar);
+    }
+    function dejarDeSeguir() {
+        if (!marcaPosicion) return;
+        siguiendo = false;
+        if (btnCentrar) btnCentrar.hidden = false;
+    }
+    crearBotonCentrar();
+    map.on("dragstart", dejarDeSeguir);
+    map.on("zoomstart", dejarDeSeguir);
+    document.addEventListener("fmc:empezar", () => { siguiendo = true; if (btnCentrar) btnCentrar.hidden = true; });
+
     // ==========================================
     // PUENTE CON LA GUIA POR VOZ (js/voz.js)
     // ==========================================
@@ -815,14 +865,15 @@ document.addEventListener("DOMContentLoaded", () => {
         finalizar: () => { if (btnFinish && !btnFinish.disabled) btnFinish.click(); },
         // Punto azul con la posicion actual (o la simulada en el modo demo)
         mostrarPosicion: (lat, lng) => {
+            if (marcaOrigen) { try { capaSel.removeLayer(marcaOrigen); } catch (e) { /* ya no estaba */ } marcaOrigen = null; }
             if (!marcaPosicion) {
-                marcaPosicion = L.circleMarker([lat, lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1 }).addTo(map);
+                marcaPosicion = L.circleMarker([lat, lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1, interactive: false }).addTo(map);
             } else {
                 marcaPosicion.setLatLng([lat, lng]);
             }
-            map.panTo([lat, lng], { animate: true });
+            if (siguiendo) map.panTo([lat, lng], { animate: true });
         },
-        quitarPosicion: () => { if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; } },
+        quitarPosicion: () => { if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; } siguiendo = true; if (btnCentrar) btnCentrar.hidden = true; },
     };
 
     // Contador de caracteres de la descripción

@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mensaje = $('ajustes-mensaje');
     const chkAcc = $('ajuste-accesible');
     const chkVista = $('ajuste-vista');
+    const chkGrande = $('ajuste-grande');
+    if (chkGrande && window.FMCUIGrande) {
+        chkGrande.checked = FMCUIGrande.activo();
+        chkGrande.addEventListener('change', () => FMCUIGrande.activar(chkGrande.checked));
+    }
     let usuario = null;
 
     function avisar(texto, esError) {
@@ -278,6 +283,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             input.disabled = false;
         }
     }
+    // Si pide rutas accesibles y nunca ha elegido nada sobre los botones, se le ofrecen grandes por defecto
+    chkAcc.addEventListener('change', () => {
+        if (chkAcc.checked && window.FMCUIGrande && !FMCUIGrande.definido()) { FMCUIGrande.activar(true); if (chkGrande) chkGrande.checked = true; }
+    });
     chkAcc.addEventListener('change', () =>
         guardarAjuste({ necesita_rutas_accesibles: chkAcc.checked }, chkAcc, !chkAcc.checked));
     chkVista.addEventListener('change', () =>

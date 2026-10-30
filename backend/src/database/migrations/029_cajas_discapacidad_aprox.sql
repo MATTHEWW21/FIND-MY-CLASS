@@ -1,0 +1,6 @@
+-- 029: cajas de discapacidad de los Estacionamientos 3, 6 y 9, de forma APROXIMADA (en el centro del estacionamiento) mientras se marcan las coordenadas reales. Se puede correr de nuevo.
+BEGIN;
+INSERT INTO accesibilidad (tipo, nombre, trazo, latitud, longitud, largo_m) SELECT 'estacionamiento', 'Estacionamiento para personas con discapacidad (ubicación aproximada, Estacionamiento 3)', '[[20.6927855,-103.4223211]]'::jsonb, 20.6927855, -103.4223211, 0.0 WHERE NOT EXISTS (SELECT 1 FROM accesibilidad WHERE nombre LIKE '%Estacionamiento 3)');
+INSERT INTO accesibilidad (tipo, nombre, trazo, latitud, longitud, largo_m) SELECT 'estacionamiento', 'Estacionamiento para personas con discapacidad (ubicación aproximada, Estacionamiento 6)', '[[20.6956961,-103.4194779]]'::jsonb, 20.6956961, -103.4194779, 0.0 WHERE NOT EXISTS (SELECT 1 FROM accesibilidad WHERE nombre LIKE '%Estacionamiento 6)');
+INSERT INTO accesibilidad (tipo, nombre, trazo, latitud, longitud, largo_m) SELECT 'estacionamiento', 'Estacionamiento para personas con discapacidad (ubicación aproximada, Estacionamiento 9)', '[[20.6951391,-103.4228307]]'::jsonb, 20.6951391, -103.4228307, 0.0 WHERE NOT EXISTS (SELECT 1 FROM accesibilidad WHERE nombre LIKE '%Estacionamiento 9)');
+COMMIT;

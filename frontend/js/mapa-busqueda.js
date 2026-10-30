@@ -14,6 +14,9 @@
         estacionamiento: { emoji: '🅿️', etiqueta: 'Estacionamientos',   sing: 'Estacionamiento', sinonimos: 'parking auto coche' },
         snacks:          { emoji: '🍿', etiqueta: 'Máquinas de snacks', sing: 'Máquina de snacks', sinonimos: 'snack maquina botana frituras' },
         bebedero:        { emoji: '💧', etiqueta: 'Bebederos',          sing: 'Bebedero',     sinonimos: 'agua bebedero tomar sed' },
+        encuentro:       { emoji: '🆘', etiqueta: 'Puntos de encuentro', sing: 'Punto de encuentro', sinonimos: 'emergencia sismo temblor evacuacion reunion seguridad' },
+        descanso:        { emoji: '🌳', etiqueta: 'Descanso',           sing: 'Descanso',     sinonimos: 'socializar relajarme descansar sentarme sillas areas verdes aire libre' },
+        entrada_accesible: { emoji: '♿', etiqueta: 'Entradas accesibles', sing: 'Entrada accesible', sinonimos: 'silla de ruedas rampa discapacidad accesibilidad entrada' },
     };
     const ORDEN_TIPOS = Object.keys(TIPOS);
 

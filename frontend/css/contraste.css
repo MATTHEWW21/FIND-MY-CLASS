@@ -101,3 +101,9 @@ html.comprobando #bienvenida { display: none; }
 .cambio-fila .btn-otra-ruta { background-color: #fff; color: #A4510F; border: 2px solid #A4510F; }
 .cambio-fila .btn-otra-ruta:disabled { opacity: .65; cursor: default; }
 .cambio-fila .btn-change[hidden] { display: none; }
+
+/* Boton para volver a centrar el mapa en mi ubicacion (aparece si muevo el mapa mientras camino) */
+.btn-centrar-mapa { position: fixed; left: 12px; top: 150px; z-index: 1200; min-height: 44px; padding: 0 16px; border-radius: 22px; border: 2px solid #B04E0E; background: #fff7ee; color: #7a3408; font-weight: 800; font-size: .95rem; box-shadow: 0 2px 8px rgba(0,0,0,.3); cursor: pointer; }
+.btn-centrar-mapa[hidden] { display: none; }
+.btn-centrar-mapa { left: auto; right: 14px; top: 318px; width: 52px; height: 52px; min-height: 52px; padding: 0; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
+.btn-centrar-mapa[hidden] { display: none; }

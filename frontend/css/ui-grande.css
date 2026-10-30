@@ -1,0 +1,17 @@
+/* Modo "Botones grandes": objetivos tactiles de al menos 56 px y letra mas grande en lo que se toca */
+html.ui-grande button, html.ui-grande [role="button"], html.ui-grande .chip, html.ui-grande a.btn,
+html.ui-grande input[type="checkbox"] + span, html.ui-grande .nav-item, html.ui-grande select { min-height: 56px; font-size: 1.1rem; }
+html.ui-grande .chip { padding: 0 18px; min-height: 48px; font-size: 1rem; }
+html.ui-grande .map-search-bar { font-size: 1.1rem; }
+html.ui-grande .search-mic, html.ui-grande #btn-voz-busqueda { min-width: 48px; min-height: 48px; }
+html.ui-grande .btn-start, html.ui-grande .btn-finish { min-height: 64px; font-size: 1.25rem; }
+html.ui-grande .btn-change { min-height: 60px; font-size: 1.05rem; }
+html.ui-grande .btn-cancelar-ruta { min-height: 56px; font-size: 1.1rem; }
+html.ui-grande .panel-asa { min-height: 44px; }
+html.ui-grande .metrics-row > * { min-height: 76px; }
+html.ui-grande .leaflet-control-zoom a { width: 52px !important; height: 52px !important; line-height: 52px !important; font-size: 26px !important; }
+html.ui-grande .btn-centrar-mapa { min-height: 56px; font-size: 1.1rem; }
+html.ui-grande nav a, html.ui-grande .bottom-nav a, html.ui-grande .bottom-nav button { min-height: 64px; font-size: 1rem; }
+html.ui-grande input[type="text"], html.ui-grande input[type="search"], html.ui-grande input[type="tel"], html.ui-grande input[type="password"], html.ui-grande input[type="email"] { min-height: 52px; font-size: 1.1rem; }
+html.ui-grande .ajustes-fila { min-height: 60px; }
+html.ui-grande .ajustes-fila input[type="checkbox"] { width: 28px; height: 28px; }
