@@ -7,9 +7,9 @@
     border: 2px solid #fff; box-shadow: 0 0 0 1px #000, 0 1px 4px rgba(0,0,0,.35);
     color: #000;
 }
-.acc-escalera { background: #D55E00; border-radius: 4px; }                     /* cuadrado */
-.acc-rampa { background: #0072B2; color: #fff; border-radius: 50% 50% 4px 4px; } /* arco */
-.acc-estacionamiento { background: #56B4E9; border-radius: 50%; }                /* círculo */
-.acc-paso_peatonal { background: #009E73; border-radius: 50% 4px; }              /* hoja */
+.acc-escalera { background: #D55E00; border-radius: 4px; }
+.acc-rampa { background: #0072B2; color: #fff; border-radius: 50% 50% 4px 4px; }
+.acc-estacionamiento { background: #56B4E9; border-radius: 50%; }
+.acc-paso_peatonal { background: #009E73; border-radius: 50% 4px; }
 .acc-elevador { background: #F0E442; border-radius: 4px; transform: rotate(45deg); }
 .leaflet-marker-icon.acc-pin-wrap:focus-visible .acc-pin { outline: 3px solid #1d4ed8; outline-offset: 3px; }

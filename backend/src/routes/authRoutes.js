@@ -5,15 +5,11 @@ const { verificarToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Frena fuerza bruta. Cada grupo lleva su propio contador por IP, para que unos no gasten los intentos de otros.
 const mensajeLimite = { error: 'Demasiados intentos, intenta más tarde' };
 const base = { windowMs: 15 * 60 * 1000, standardHeaders: true, legacyHeaders: false, message: mensajeLimite };
 
-// Iniciar sesion: 10 fallos cada 15 min (los inicios de sesion correctos no cuentan)
 const limitadorLogin = rateLimit({ ...base, max: 10, skipSuccessfulRequests: true });
-// Registro, codigos y contraseñas: 20 cada 15 min
 const limitador = rateLimit({ ...base, max: 20 });
-// Entrar como invitado: antes no tenia limite
 const limitadorInvitado = rateLimit({ ...base, max: 60 });
 
 router.post('/registro', limitador, ctrl.registro);

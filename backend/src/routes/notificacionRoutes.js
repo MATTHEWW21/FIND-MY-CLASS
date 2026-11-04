@@ -11,7 +11,6 @@ router.use(verificarToken, requerirRol('estudiante', 'colaborador'), soloVistaCo
 const limite = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false, message: { error: 'Demasiadas consultas, espera un momento' } });
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
-// GET /api/notificaciones -> los ultimos 30 avisos y cuantos no se han leido
 router.get('/', limite, async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -31,7 +30,6 @@ router.get('/', limite, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/notificaciones/leidas -> marca todo como leido
 router.post('/leidas', limite, async (req, res) => {
   try {
     await pool.query('UPDATE notificaciones SET leida = TRUE WHERE usuario_id = $1 AND leida = FALSE', [req.usuario.id]);

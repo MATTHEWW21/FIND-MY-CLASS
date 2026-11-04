@@ -11,29 +11,24 @@
 <body>
 
 <main class="welcome-container scrollable">
-    <!-- Título Principal -->
     <header class="header-text center-align margin-top-10">
         <h1 class="preferences-title">Preferencias</h1>
     </header>
 
     <section class="preferences-form">
-        <!-- Sección Rutas Accesibles (todos los perfiles) -->
         <div class="accessibility-section">
             <span class="section-title-pill">¿Necesitas rutas accesibles?</span>
 
-            <!-- Tarjeta Naranja Informativa -->
             <div class="info-card">
                 Evita escaleras y rutas adaptadas para silla de ruedas
             </div>
 
-            <!-- Botones Sí / No (Sin selección por defecto) -->
             <div class="toggle-buttons">
                 <button type="button" class="btn-option" id="btn-accessible-yes">Si, la necesito</button>
                 <button type="button" class="btn-option" id="btn-accessible-no">No, gracias</button>
             </div>
         </div>
 
-        <!-- ESTUDIANTE: las opciones las carga preferences.js desde la base de datos -->
         <div class="dropdown-group" id="student-fields">
             <div class="custom-select-container">
                 <div class="select-field" id="select-building-trigger">
@@ -71,7 +66,6 @@
                 </select>
             </div>
 
-            <!-- Solo aparece si el espacio no es "No aplica"; sus opciones dependen del espacio elegido -->
             <div class="custom-select-container" id="stay-group" style="display: none;">
                 <div class="select-field" id="select-stay-trigger">
                     <span class="select-label">• Seleccione su estancia</span>
@@ -96,7 +90,6 @@
         </div>
     </section>
 
-    <!-- Botón de Continuar -->
     <footer class="footer-action margin-top-auto">
         <button type="button" id="btn-save" class="btn-primary-submit">Guardar y Continuar</button>
     </footer>

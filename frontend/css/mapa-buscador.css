@@ -1,7 +1,6 @@
 /* mapa-buscador.css - pines del mapa, chips activos y panel del buscador.
    Va DESPUÉS de mapa.css:  <link rel="stylesheet" href="css/mapa-buscador.css"> */
 
-/* Pines */
 .fmc-pin-wrap { background: transparent; border: 0; }
 .fmc-pin {
     width: 30px; height: 30px; border-radius: 50%;
@@ -16,13 +15,10 @@
     box-shadow: 0 0 0 3px rgba(208, 127, 76, .45), 0 3px 8px rgba(0, 0, 0, .4);
 }
 
-/* Aviso del asunto del visitante (es un enlace con forma de chip) */
 .filter-chips .chip-asunto { text-decoration: none; color: #5a4636; white-space: nowrap; display: inline-flex; align-items: center; background: #fff3e6; }
 
-/* Chips de filtros: cuando están prendidos */
 .filter-chips .chip.active { background: #d07f4c; color: #fff; border-color: #d07f4c; }
 
-/* Panel del buscador (pantalla completa, del ancho de la app) */
 .search-panel {
     position: fixed; top: 0; bottom: 0; left: 50%; transform: translateX(-50%);
     width: 100%; max-width: 430px; z-index: 3000;
@@ -32,7 +28,7 @@
 .search-top { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid #eee; }
 .search-close { border: 0; background: #f1f1f1; border-radius: 50%; width: 38px; height: 38px; font-size: 18px; cursor: pointer; }
 .search-top input {
-    flex: 1; min-width: 0; padding: 10px 14px; font-size: 16px; /* 16px evita el zoom en iPhone */
+    flex: 1; min-width: 0; padding: 10px 14px; font-size: 16px;
     border: 2px solid #d07f4c; border-radius: 22px; outline: none;
 }
 .search-cats { display: flex; gap: 8px; padding: 10px 12px; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #eee; }
@@ -52,7 +48,6 @@
 .search-item-text small { color: #888; font-size: 12px; }
 .search-empty { text-align: center; color: #888; margin-top: 32px; }
 
-/* --- Evita que la pagina se ensanche (scroll horizontal) y la barra inferior "se mueva" --- */
 html, body { overflow-x: hidden; max-width: 100%; }
 .map-screen-container { overflow-x: hidden; }
 .bottom-nav {
@@ -60,6 +55,5 @@ html, body { overflow-x: hidden; max-width: 100%; }
     width: 100%; max-width: 430px; box-sizing: border-box;
 }
 
-/* Opcion "Solo ruta accesible" del panel de ruta */
 .toggle-accesible { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #5a4636; margin: 8px 0 4px; }
 .toggle-accesible input { width: 18px; height: 18px; accent-color: #d07f4c; }

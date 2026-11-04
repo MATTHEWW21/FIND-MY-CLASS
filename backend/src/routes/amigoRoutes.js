@@ -14,7 +14,6 @@ const limiteSolicitar = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, standardH
 const idDe = (v) => { const n = Number(v); return Number.isInteger(n) && n > 0 ? n : null; };
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
-// GET /api/amigos -> amigos, solicitudes recibidas y enviadas
 router.get('/', async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -36,7 +35,6 @@ router.get('/', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// GET /api/amigos/buscar?q=nombre -> personas que se pueden agregar (solo nombre, nunca el correo)
 router.get('/buscar', limiteBuscar, async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -64,7 +62,6 @@ router.get('/buscar', limiteBuscar, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// GET /api/amigos/perfil/:id -> perfil publico (solo nombre, rol y conteos; nunca correo, telefono ni registro)
 router.get('/perfil/:id', async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -100,7 +97,6 @@ router.get('/perfil/:id', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/amigos/solicitar { usuario_id }
 router.post('/solicitar', limiteSolicitar, async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -124,7 +120,6 @@ router.post('/solicitar', limiteSolicitar, async (req, res) => {
       const p = previa.rows[0];
       if (p.estado === 'aceptada') return res.status(409).json({ error: 'Ya son amigos' });
       if (p.solicitante_id === otro) {
-        // Esa persona ya te habia enviado solicitud: se aceptan mutuamente
         await pool.query("UPDATE amistades SET estado = 'aceptada' WHERE id = $1", [p.id]);
         return res.json({ estado: 'aceptada' });
       }
@@ -138,7 +133,6 @@ router.post('/solicitar', limiteSolicitar, async (req, res) => {
   }
 });
 
-// POST /api/amigos/:id/aceptar  (solo quien recibio la solicitud)
 router.post('/:id/aceptar', async (req, res) => {
   try {
     const id = idDe(req.params.id);
@@ -152,7 +146,6 @@ router.post('/:id/aceptar', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// DELETE /api/amigos/:id  (rechazar, cancelar o quitar amigo; cualquiera de los dos)
 router.delete('/:id', async (req, res) => {
   try {
     const id = idDe(req.params.id);

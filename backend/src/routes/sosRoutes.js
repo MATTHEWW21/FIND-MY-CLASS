@@ -4,23 +4,19 @@ const pool = require('../config/db');
 const { verificarToken } = require('../middleware/auth');
 
 const router = express.Router();
-// Cualquier persona con sesion (incluidos los visitantes) puede pedir ayuda: es una funcion de seguridad
 router.use(verificarToken);
 
 const TIPOS = ['lesion', 'mareo', 'desorientacion', 'medica', 'seguridad', 'vehicular', 'ansiedad'];
-// Campus CU (un poco de margen): fuera de esto la ubicacion se guarda como desconocida
 const LAT = [20.680, 20.706];
 const LNG = [-103.432, -103.404];
 
 const limiteSos = rateLimit({ windowMs: 10 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: 'Ya enviaste varias alertas seguidas. Si es una emergencia, llama directamente a seguridad.' } });
 
-// GET /api/sos/config -> numero de seguridad del campus (se define en el .env)
 router.get('/config', (req, res) => {
   const tel = (process.env.SEGURIDAD_UAG_TELEFONO || '').replace(/[^\d+]/g, '');
   res.json({ telefono: tel.length >= 8 ? tel : null });
 });
 
-// POST /api/sos { tipo, lat?, lng? } -> deja registrada la alerta (para que seguridad la pueda consultar)
 router.post('/', limiteSos, async (req, res) => {
   try {
     const b = req.body || {};

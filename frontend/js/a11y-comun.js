@@ -1,12 +1,9 @@
-// Accesibilidad común para feed, mensajes, nueva publicación, registro y preferencias.
-// No cambia lo que se ve: agrega roles, nombres, estados y manejo del foco a lo que ya existe, para teclado y lector de pantalla (TalkBack).
 (function () {
     const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     const $ = (id) => document.getElementById(id);
     const visible = (el) => !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
     const texto = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
 
-    // ---------- 1) Controles que solo respondían al toque: ahora son botones de verdad ----------
     function comoBoton(el, nombre) {
         if (!el.getAttribute('role')) el.setAttribute('role', 'button');
         if (el.tabIndex < 0) el.tabIndex = 0;
@@ -19,7 +16,6 @@
         }
     }
 
-    // Opciones de una lista (tipo de actividad): grupo de opciones con una elegida
     function comoOpciones(lista, nombreGrupo) {
         lista.setAttribute('role', 'radiogroup');
         lista.setAttribute('aria-label', nombreGrupo);
@@ -45,7 +41,6 @@
         });
     }
 
-    // Botones que se "prenden": cuál está elegido se dice con aria-pressed, no solo con el color
     function conEstado(btn, claseActiva) {
         const poner = () => btn.setAttribute('aria-pressed', btn.classList.contains(claseActiva) ? 'true' : 'false');
         poner();
@@ -56,12 +51,9 @@
     }
 
     function mejorar() {
-        // Carrusel de amigos y "Nuevo chat" (mensajes)
         const nuevo = $('nuevo-chat');
         if (nuevo) comoBoton(nuevo, 'Nuevo chat: buscar personas y ver solicitudes de amistad');
         document.querySelectorAll('.story-item[data-id]').forEach((it) => {
-            // El nombre sale del texto visible ("Ana Pérez"); las iniciales y el globito de la cuenta no se leen como nombre.
-            // Los mensajes sin leer se dicen aparte, como descripción.
             const ini = it.querySelector('.avatar-iniciales'); if (ini) ini.setAttribute('aria-hidden', 'true');
             const globo = it.querySelector('.story-badge'); if (globo) globo.setAttribute('aria-hidden', 'true');
             const sin = texto(globo);
@@ -69,11 +61,8 @@
             comoBoton(it, null);
             if (it.classList.contains('active')) it.setAttribute('aria-current', 'true'); else it.removeAttribute('aria-current');
         });
-        // Filas de ubicación y privacidad (nueva publicación)
         document.querySelectorAll('.details-item.tocable').forEach((f) => comoBoton(f));
-        // Lista de actividades (nueva publicación)
         document.querySelectorAll('.activity-options-list').forEach((l) => comoOpciones(l, 'Tipo de actividad'));
-        // Sí / No de rutas accesibles (preferencias), SOS y selector de actividad (registro)
         document.querySelectorAll('.btn-option').forEach((b) => conEstado(b, 'active'));
         document.querySelectorAll('.sos-chip').forEach((b) => conEstado(b, 'active'));
         document.querySelectorAll('.selector-btn').forEach((b) => {
@@ -82,8 +71,7 @@
         });
     }
 
-    // ---------- 2) Ventanas emergentes: nombre, foco adentro, Tab que no se escapa, Escape y regreso del foco ----------
-    const CIERRAN_CON_ESC = ['amigos-fondo', 'activity-modal'];   // el resto (SOS, resumen) se cierra solo con sus botones, a propósito
+    const CIERRAN_CON_ESC = ['amigos-fondo', 'activity-modal'];
     const NOMBRES = { 'activity-modal': 'Seleccionar actividad', 'sos-overlay': 'SOS activado', 'medical-overlay': 'Ruta al consultorio médico', 'resumen-overlay': 'Resumen de tu recorrido' };
     const abiertas = new Map();   // fondo -> { opener, quitar }
     let contador = 0;
@@ -134,12 +122,10 @@
         est.quitar();
         abiertas.delete(fondo);
         bloquearFondo(fondo, false);
-        // Si queda otra ventana abierta debajo (p. ej. el editor tras cerrar el selector de amigos), esa pasa a ser la activa
         if (abiertas.size) { const ultima = Array.from(abiertas.keys()).pop(); bloquearFondo(ultima, true); }
         if (est.opener && document.contains(est.opener) && typeof est.opener.focus === 'function') est.opener.focus({ preventScroll: true });
     }
 
-    // Ventanas que ya están en la página y se muestran quitando la clase "hidden"
     ['amigos-fondo', 'activity-modal', 'sos-overlay', 'medical-overlay', 'resumen-overlay'].forEach((id) => {
         const fondo = $(id);
         if (!fondo) return;
@@ -149,7 +135,6 @@
         if (!fondo.classList.contains('hidden')) revisar();
     });
 
-    // Hojas inferiores que se crean y se quitan con JavaScript (comentarios, menú, reportar, ubicación)
     function alCambiarBody(muts) {
         muts.forEach((m) => {
             m.addedNodes.forEach((n) => {
@@ -160,7 +145,6 @@
     }
     new MutationObserver(alCambiarBody).observe(document.body, { childList: true });
 
-    // ---------- 3) Mensajes nuevos en el chat abierto: se avisan sin leer todo el historial ----------
     const chat = $('chat-messages');
     if (chat) {
         const aviso = document.createElement('div');
@@ -182,7 +166,6 @@
         }).observe(chat, { childList: true });
     }
 
-    // Lo dinámico (carrusel, listas) se vuelve a revisar cuando cambia; se agrupa para no repetir trabajo
     mejorar();
     let pendiente = null;
     new MutationObserver(() => { if (pendiente) return; pendiente = setTimeout(() => { pendiente = null; mejorar(); }, 120); })

@@ -34,7 +34,6 @@
     letter-spacing: 1.5px;
 }
 
-/* Avatar de perfil */
 .my-profile-avatar-wrapper {
     margin-top: 14px;
     margin-bottom: 10px;
@@ -72,7 +71,6 @@
     text-transform: uppercase;
 }
 
-/* Actividades Recientes */
 .activity-history-item {
     display: flex;
     justify-content: space-between;
@@ -109,7 +107,6 @@
     margin-top: 2px;
 }
 
-/* Layout Split: Racha y Amigos */
 .profile-section-split {
     display: flex;
     justify-content: space-between;
@@ -174,7 +171,6 @@
     border: 1px solid #d0c2b0;
 }
 
-/* Récords y Premios (Milestones) */
 .milestones-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -213,9 +209,8 @@
 .badge-green { background-color: #8da971; }
 .badge-red { background-color: #a84646; }
 
-/* Tarjeta Verde de Motivación */
 .motivation-card {
-    background-color: #bdc7ad; /* Verde suave del mockup */
+    background-color: #bdc7ad;
     border-radius: 12px;
     padding: 12px 14px;
     margin-top: 14px;
@@ -243,7 +238,6 @@
     margin-bottom: 3px;
 }
 
-/* Bottom Nav Fijo */
 .bottom-nav {
     position: fixed;
     bottom: 0;

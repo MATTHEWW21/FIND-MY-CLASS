@@ -18,7 +18,6 @@
 
 <main class="registro-container">
 
-    <!-- Header Principal -->
     <header class="registro-header">
         <h1>UAGPS</h1>
         <button type="button" class="btn-ajustes" id="btn-ajustes" aria-label="Ajustes">
@@ -26,7 +25,6 @@
         </button>
     </header>
 
-    <!-- Avatar del Usuario -->
     <div class="my-profile-avatar-wrapper">
         <div class="my-profile-avatar" aria-hidden="true">
             <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 24 24" fill="currentColor">
@@ -38,21 +36,17 @@
 
     <div class="my-profile-content">
 
-        <!-- Sección: Actividades Recientes -->
         <section class="profile-section">
             <h2 class="section-title-bold">ACTIVIDADES RECIENTES</h2>
 
             <div id="lista-actividades"><p class="perfil-vacio">Cargando…</p></div>
 
-            <!-- Botón 3 puntos ver más -->
             <button type="button" class="btn-more-activities hidden" id="btn-mas-actividades" aria-label="Ver más actividades">
                 <span aria-hidden="true">⋮</span>
             </button>
         </section>
 
-        <!-- Sección: Racha Semanal & Amigos / Contactos -->
         <section class="profile-section-split">
-            <!-- Izquierda: Racha -->
             <div class="streak-box">
                 <h2 class="section-title-bold">RACHA SEMANAL</h2>
                 <div class="streak-data-row">
@@ -64,7 +58,6 @@
                 </div>
             </div>
 
-            <!-- Derecha: Amigos / Contactos -->
             <a class="friends-column" href="mensajes.html" id="amigos-perfil">
                 <div class="friends-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
@@ -76,14 +69,12 @@
             </a>
         </section>
 
-        <!-- Sección: Récords y Premios -->
         <section class="profile-section">
             <h2 class="section-title-bold">RÉCORDS Y PREMIOS</h2>
 
             <div class="milestones-grid" id="premios-grid"></div>
         </section>
 
-        <!-- Tarjeta Verde de Motivación -->
         <section class="motivation-card">
             <h3 class="motivation-title">¡TÚ PUEDES!</h3>
             <ul class="motivation-list" id="motivacion-lista"></ul>
@@ -91,7 +82,6 @@
 
     </div>
 
-    <!-- Navegación Inferior -->
     <nav class="bottom-nav" aria-label="Navegación principal">
         <a href="feed.html" id="nav-inicio" class="nav-item">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -113,7 +103,6 @@
 
 </main>
 
-<!-- Ajustes (se abre con la tuerca) -->
 <div class="ajustes-fondo hidden" id="ajustes-fondo">
     <div class="ajustes-hoja" role="dialog" aria-modal="true" aria-label="Ajustes">
         <div class="ajustes-cabecera">

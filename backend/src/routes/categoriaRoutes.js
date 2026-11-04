@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 
-// GET /api/categorias -> Obtener todas las categorias
 router.get('/', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM categorias ORDER BY id ASC');

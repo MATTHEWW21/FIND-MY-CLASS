@@ -14,7 +14,6 @@
 }
 .finish-btn:active { background: #b3382c; color: #fff; }
 
-/* Resumen al terminar */
 .resumen-overlay {
     position: fixed; inset: 0; background: rgba(0, 0, 0, .6); z-index: 9998;
     display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -40,12 +39,10 @@
 .resumen-btn.principal { background: #d97736; color: #fff; }
 .resumen-btn:disabled { opacity: .6; cursor: default; }
 
-/* SOS */
 .sos-aviso { margin: 0 0 10px; font-size: .72rem; font-weight: 700; color: #b8601f; text-align: center; line-height: 1.35; }
 .sos-aviso a { color: #b8601f; }
 .btn-sos-call:disabled, .btn-sos-contact:disabled { opacity: .6; cursor: default; }
 
-/* Mapa real de ayuda cercana */
 .medical-map-view { min-height: 0; }
 .medical-map { position: absolute; inset: 0; }
 .medical-nota { margin: 0 0 10px; font-size: .72rem; font-weight: 600; color: #666; line-height: 1.35; }

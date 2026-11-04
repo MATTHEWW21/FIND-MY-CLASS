@@ -42,7 +42,6 @@
 .ajustes-mensaje { margin: 0; min-height: 1.1em; font-size: .85rem; font-weight: 600; text-align: center; color: #2e8b46; }
 .ajustes-mensaje.error { color: #b3382c; }
 
-/* ---- Perfil con datos reales ---- */
 .perfil-vacio { margin: 4px 0 8px; font-size: .75rem; font-weight: 700; color: #8c8275; }
 .activity-icon-type .act-circulo {
     width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex: none;
@@ -59,13 +58,11 @@
 .milestone-progreso { font-size: .58rem; font-weight: 800; color: #8c8275; margin-top: 4px; }
 .milestones-grid { row-gap: 14px; }
 
-/* contacto de emergencia en Ajustes */
 .ajustes-contacto { display: flex; flex-direction: column; gap: 8px; background: #fff; border: 1px solid #e2d7c5; border-radius: 12px; padding: 12px 14px; }
 .ajustes-contacto strong { font-size: .9rem; color: #3b2f25; }
 .ajustes-contacto small { font-size: .72rem; color: #7a6a5a; }
 .ajustes-contacto input { padding: 11px 14px; border-radius: 12px; border: 1px solid #e2d7c5; background: #faf7f2; font-size: .9rem; }
 
-/* Personas bloqueadas y silenciadas */
 .ajustes-moderacion { display: flex; flex-direction: column; gap: 6px; margin: 10px 0; }
 .ajustes-moderacion.hidden, .ajustes-vacio.hidden { display: none; }
 .ajustes-lista { list-style: none; margin: 0; padding: 0; }

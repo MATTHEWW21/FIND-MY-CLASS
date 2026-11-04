@@ -17,10 +17,8 @@ const MAX_BYTES_FOTO = 1.5 * 1024 * 1024;
 const MAX_TEXTO = 1000;
 
 const limiteEnviar = rateLimit({ windowMs: 5 * 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false, message: { error: 'Estás enviando muchos mensajes seguidos, espera un momento' } });
-// La pantalla consulta cada pocos segundos: se deja un limite holgado solo para frenar abusos
 const limiteLeer = rateLimit({ windowMs: 60 * 1000, max: 120, standardHeaders: true, legacyHeaders: false, message: { error: 'Demasiadas consultas, espera un momento' } });
 
-// GET /api/mensajes/foto/:archivo -> solo la ve quien la envio o quien la recibio (y sin bloqueo entre ambos)
 router.get('/foto/:archivo', async (req, res) => {
   const archivo = String(req.params.archivo || '');
   if (!NOMBRE_VALIDO.test(archivo)) return res.status(404).json({ error: 'No encontramos esa foto' });
@@ -37,7 +35,6 @@ router.get('/foto/:archivo', async (req, res) => {
 const idDe = (v) => { const n = Number(v); return Number.isInteger(n) && n > 0 ? n : null; };
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
-// ---------- Fotos (misma validacion que las publicaciones) ----------
 function decodificarFoto(dataUrl) {
   const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(typeof dataUrl === 'string' ? dataUrl : '');
   if (!m) return null;
@@ -69,7 +66,6 @@ const aMensaje = (m, yo) => ({
   id: m.id, mio: m.de_id === yo, texto: m.texto, foto: m.foto, creado_en: m.creado_en, leido: !!m.leido_en,
 });
 
-// GET /api/mensajes/conversaciones -> amigos con su ultimo mensaje y los no leidos
 router.get('/conversaciones', limiteLeer, async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -100,8 +96,6 @@ router.get('/conversaciones', limiteLeer, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// GET /api/mensajes/con/:amigoId?despues=<id>
-//   sin "despues": los ultimos 50. Con "despues": solo los nuevos (asi se consulta cada pocos segundos).
 router.get('/con/:amigoId', limiteLeer, async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -114,12 +108,10 @@ router.get('/con/:amigoId', limiteLeer, async (req, res) => {
       ? await pool.query(`SELECT m.* FROM mensajes m WHERE ${par} AND m.id > $3 ORDER BY m.id ASC LIMIT 100`, [yo, amigo, despues])
       : await pool.query(`SELECT * FROM (SELECT m.* FROM mensajes m WHERE ${par} ORDER BY m.id DESC LIMIT 50) x ORDER BY id ASC`, [yo, amigo]);
 
-    // Lo que me mandaron queda como leido
     await pool.query(
       'UPDATE mensajes SET leido_en = NOW() WHERE de_id = $1 AND para_id = $2 AND leido_en IS NULL',
       [amigo, yo]
     );
-    // Hasta que mensaje mio ya leyo la otra persona (para las palomitas dobles)
     const leidos = await pool.query(
       'SELECT COALESCE(MAX(id), 0)::int AS hasta FROM mensajes WHERE de_id = $1 AND para_id = $2 AND leido_en IS NOT NULL',
       [yo, amigo]
@@ -128,7 +120,6 @@ router.get('/con/:amigoId', limiteLeer, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/mensajes/con/:amigoId { texto?, foto? }
 router.post('/con/:amigoId', limiteEnviar, async (req, res) => {
   let archivo = null;
   try {

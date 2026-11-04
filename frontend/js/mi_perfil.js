@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const $ = (id) => document.getElementById(id);
     const rol = localStorage.getItem('userRole');
 
-    // El visitante no tiene perfil
     if (rol !== 'estudiante' && rol !== 'colaborador') {
         window.location.href = 'mapa.html';
         return;
@@ -39,10 +38,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('contacto-telefono').value = u.contacto_emergencia_telefono || '';
     }
 
-    // La vista simplificada solo existe para colaboradores
     if (rol !== 'colaborador') $('fila-vista').classList.add('hidden');
 
-    // =================== datos reales del perfil ===================
     const MESES = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
     const fmtDist = (m) => (m < 1000 ? `${m} M` : `${(m / 1000).toFixed(2)} KM`);
     function fmtDia(dia, hoy, ayer) {
@@ -162,7 +159,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (err) { console.error('No se pudieron cargar los amigos:', err); }
     }
 
-    // =================== usuario, ajustes ===================
     try {
         const data = await apiFetch('/auth/me');
         guardarSesion(localStorage.getItem('token'), data.usuario);
@@ -174,8 +170,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (rol === 'estudiante' || usuario && usuario.vista_preferida !== 'simplificada') cargarAmigos();
     else $('amigos-perfil').classList.add('hidden');
 
-    // ----- abrir / cerrar -----
-    // ----- personas bloqueadas y silenciadas (para poder deshacerlo) -----
     async function cargarModeracion() {
         const caja = $('ajustes-moderacion');
         try {
@@ -212,11 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             caja.classList.remove('hidden');
         } catch (err) {
-            caja.classList.add('hidden');    // vista sin amigos/feed: no aplica
+            caja.classList.add('hidden');
         }
     }
 
-    // ----- dispositivos con sesión iniciada -----
     function haceCuanto(iso) {
         const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
         return d <= 0 ? 'hoy' : d === 1 ? 'ayer' : `hace ${d} días`;
@@ -267,7 +260,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     $('ajustes-cerrar').addEventListener('click', () => fondo.classList.add('hidden'));
     fondo.addEventListener('click', (e) => { if (e.target === fondo) fondo.classList.add('hidden'); });
 
-    // ----- rutas accesibles y vista: se guardan al instante -----
     async function guardarAjuste(cambio, input, anterior) {
         avisar('');
         input.disabled = true;
@@ -283,7 +275,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             input.disabled = false;
         }
     }
-    // Si pide rutas accesibles y nunca ha elegido nada sobre los botones, se le ofrecen grandes por defecto
     chkAcc.addEventListener('change', () => {
         if (chkAcc.checked && window.FMCUIGrande && !FMCUIGrande.definido()) { FMCUIGrande.activar(true); if (chkGrande) chkGrande.checked = true; }
     });
@@ -292,7 +283,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     chkVista.addEventListener('change', () =>
         guardarAjuste({ vista_preferida: chkVista.checked ? 'simplificada' : 'completa' }, chkVista, !chkVista.checked));
 
-    // ----- contacto de emergencia (botón SOS) -----
     $('btn-guardar-contacto').addEventListener('click', async () => {
         avisar('');
         const btn = $('btn-guardar-contacto');
@@ -307,7 +297,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         finally { btn.disabled = false; }
     });
 
-    // ----- cambiar contraseña -----
     const form = $('form-password');
     $('btn-abrir-password').addEventListener('click', () => { form.classList.toggle('hidden'); avisar(''); });
 
@@ -330,7 +319,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // ----- cerrar sesión -----
     $('btn-cerrar-sesion').addEventListener('click', async () => {
         if (await FMCAviso.confirmar('¿Cerrar sesión?', { si: 'Cerrar sesión', no: 'Quedarme' })) cerrarSesion();
     });

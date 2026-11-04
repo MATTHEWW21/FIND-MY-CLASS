@@ -1,10 +1,8 @@
-// Panel de estadísticas (solo administrador). Pide /api/estadisticas con la llave en x-admin-key.
 (function () {
     const $ = (id) => document.getElementById(id);
     const CLAVE = 'statsKey';
     let temporizador = null;
 
-    // sessionStorage puede fallar (ventana privada): se usa una variable de respaldo
     let respaldo = '';
     const leerLlave = () => { try { return sessionStorage.getItem(CLAVE) || respaldo; } catch (e) { return respaldo; } };
     const guardarLlave = (v) => { respaldo = v; try { v ? sessionStorage.setItem(CLAVE, v) : sessionStorage.removeItem(CLAVE); } catch (e) { /* sin almacenamiento */ } };
@@ -41,7 +39,6 @@
         });
     }
 
-    // Gráfica de columnas de 30 días en SVG (sin librerías)
     function serie(contenedor, datos) {
         contenedor.textContent = '';
         const total = datos.reduce((s, d) => s + d.n, 0);

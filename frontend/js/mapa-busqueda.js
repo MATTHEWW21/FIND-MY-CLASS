@@ -1,7 +1,6 @@
 // mapa-busqueda.js - lógica pura del buscador del mapa (sin Leaflet ni DOM, para poder probarla sola).
 // Se carga ANTES de mapa.js:  <script src="js/mapa-busqueda.js"></script>
 (function (root) {
-    // Tipos de lugar: emoji del pin, nombre para mostrar y palabras con las que la gente los busca.
     const TIPOS = {
         edificio:        { emoji: '🏢', etiqueta: 'Edificios',          sing: 'Edificio',     sinonimos: 'edificio salon clase' },
         puerta:          { emoji: '🚪', etiqueta: 'Puertas',            sing: 'Puerta',       sinonimos: 'entrada salida acceso' },
@@ -20,18 +19,14 @@
     };
     const ORDEN_TIPOS = Object.keys(TIPOS);
 
-    // Minúsculas y sin acentos: "Protección" y "proteccion" son lo mismo
     function normalizar(s) {
         return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
     }
 
-    // Una palabra de búsqueda coincide si es el inicio de alguna palabra del lugar.
-    // Las de 1 letra ("a" en "edificio a") deben ser la palabra completa, para no coincidir con todo.
     function coincide(palabras, token) {
         return palabras.some((p) => (token.length === 1 ? p === token : p.startsWith(token)));
     }
 
-    // Agrega a cada lugar el texto ya normalizado sobre el que se busca
     function preparar(lugares) {
         return lugares.map((l) => {
             const nombre = normalizar(l.nombre);
@@ -41,7 +36,6 @@
         });
     }
 
-    // Busca: todas las palabras escritas deben coincidir. Primero los que empiezan con lo escrito.
     function buscar(lugares, consulta, tipo) {
         const tokens = normalizar(consulta).split(/\s+/).filter(Boolean);
         const lista = lugares.filter((l) => (!tipo || l.tipo === tipo) && tokens.every((t) => coincide(l._palabras, t)));
@@ -54,7 +48,6 @@
             .map((x) => x.l);
     }
 
-    // Para la lista sin búsqueda: agrupa por tipo en el orden de ORDEN_TIPOS
     function agrupar(lugares) {
         return ORDEN_TIPOS
             .map((tipo) => ({ tipo, items: lugares.filter((l) => l.tipo === tipo) }))

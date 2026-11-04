@@ -33,7 +33,6 @@
     letter-spacing: 1.5px;
 }
 
-/* Sub-header de Mensajes */
 .chat-subheader {
     width: 100%;
     background: #ffffff;
@@ -72,7 +71,6 @@
     padding: 0;
 }
 
-/* Buscador */
 .search-bar-wrapper {
     display: flex;
     align-items: center;
@@ -97,7 +95,6 @@
     outline: none;
 }
 
-/* Carrusel de Contactos (Historias) */
 .stories-carousel {
     display: flex;
     gap: 12px;
@@ -171,7 +168,6 @@
     max-width: 55px;
 }
 
-/* Header de Chat Activo */
 .active-chat-header {
     width: 100%;
     background: #f0e7d8;
@@ -222,7 +218,6 @@
     cursor: pointer;
 }
 
-/* Área de Mensajes */
 .chat-messages-area {
     flex: 1;
     width: 100%;
@@ -232,7 +227,7 @@
     flex-direction: column;
     gap: 8px;
     box-sizing: border-box;
-    margin-bottom: 120px; /* Espacio para barra de entrada y bottom nav */
+    margin-bottom: 120px;
 }
 
 .message-bubble {
@@ -268,12 +263,11 @@
 
 .message-bubble.sent {
     align-self: flex-end;
-    background-color: #d97736; /* Terracota UAG */
+    background-color: #d97736;
     color: #ffffff;
     border-bottom-right-radius: 2px;
 }
 
-/* Caja de Texto Inferior */
 .chat-input-bar {
     position: absolute;
     bottom: 60px;
@@ -322,7 +316,6 @@
     box-shadow: 0 2px 6px rgba(217, 119, 54, 0.3);
 }
 
-/* Bottom Nav Fijo */
 .bottom-nav {
     position: absolute;
     bottom: 0;

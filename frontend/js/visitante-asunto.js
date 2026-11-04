@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Solo los visitantes pasan por aquí
     if (!requerirSesion()) return;
     if (localStorage.getItem('userRole') !== 'visitante') {
         window.location.href = rutaHome();
@@ -23,7 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
             FMCAviso.aviso('Selecciona el asunto de tu visita.', 'error');
             return;
         }
-        // El mapa usa este valor para mostrar solo los lugares de ese asunto
         localStorage.setItem('visitaAsunto', asunto);
         window.location.href = 'preferences.html';
     });

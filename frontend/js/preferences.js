@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const rol = localStorage.getItem('userRole');
 
-    // El visitante solo responde si necesita rutas accesibles (no se guarda en ninguna cuenta)
     if (rol === 'visitante') {
         ['student-fields', 'worker-fields'].forEach((id) => { document.getElementById(id).style.display = 'none'; });
         let acc = null;
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const esEstudiante = rol === 'estudiante';
 
-    // Cada perfil ve sus propias preguntas
     document.getElementById('student-fields').style.display = esEstudiante ? '' : 'none';
     document.getElementById('worker-fields').style.display = esEstudiante ? 'none' : '';
 
@@ -33,9 +31,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const btnSave = document.getElementById('btn-save');
     const stayGroup = document.getElementById('stay-group');
 
-    let needsAccessibility = null; // Inicia sin selección
+    let needsAccessibility = null;
 
-    // 1. Botones Sí / No
     btnYes.addEventListener('click', () => {
         needsAccessibility = true;
         btnYes.classList.add('active');
@@ -47,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnYes.classList.remove('active');
     });
 
-    // 2. Desplegables: al elegir, el texto visible se actualiza
     function crearDropdown(selectId, triggerId, prefijo) {
         const select = document.getElementById(selectId);
         const label = document.getElementById(triggerId).querySelector('.select-label');
@@ -58,7 +54,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         return {
             select,
-            // Quita las opciones cargadas (deja el texto de ejemplo) y vuelve a la etiqueta inicial
             vaciar() {
                 while (select.options.length > 1) select.remove(1);
                 select.value = '';
@@ -81,7 +76,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const ddEstancia = crearDropdown('select-stay', 'select-stay-trigger', '• Seleccione su estancia');
     const ddVista = crearDropdown('select-view', 'select-view-trigger', '• Detalle de la interfaz de usuario');
 
-    // 3a. Estudiante: edificios y carreras salen de la base de datos
     if (esEstudiante) {
         try {
             const [edificios, carreras] = await Promise.all([
@@ -95,7 +89,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // 3b. Colaborador: las estancias dependen del espacio de trabajo elegido
     let cargaActual = 0;
     ddEspacio.select.addEventListener('change', async () => {
         const tipo = ddEspacio.select.value;
@@ -110,14 +103,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             const estancias = await apiFetch('/catalogos/estancias?tipo=' + encodeURIComponent(tipo));
-            if (miCarga !== cargaActual) return; // eligió otro espacio mientras cargaba
+            if (miCarga !== cargaActual) return;
             ddEstancia.llenar(estancias, 'etiqueta');
         } catch (err) {
             FMCAviso.aviso('No se pudieron cargar las estancias: ' + err.message, 'error');
         }
     });
 
-    // 4. Guardar y continuar
     btnSave.addEventListener('click', async () => {
         if (needsAccessibility === null) {
             FMCAviso.aviso('Indica si necesitas rutas accesibles.', 'error');
@@ -159,7 +151,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         btnSave.disabled = true;
         try {
             const data = await apiFetch('/auth/me/preferencias', { method: 'PUT', body });
-            // Se conservan las claves que ya usaba el resto de la app
             localStorage.setItem('accessibleRoutes', String(data.usuario.necesita_rutas_accesibles));
             localStorage.setItem('userVista', data.usuario.vista_preferida);
             window.location.href = 'loading.html';

@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt'); // si falla en Docker, cambia a require('bcryptjs') (misma API)
+const bcrypt = require('bcrypt');
 const { DIAS_MAXIMO } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
@@ -11,11 +11,7 @@ const PASSWORD_MENSAJE =
 const CODIGO_MINUTOS = 15;
 const MAX_INTENTOS = 5;
 
-// Dominio institucional permitido para registrarse (ej. edu.uag.mx).
-// Si la variable está vacía, no se valida el dominio.
 const DOMINIO_INSTITUCIONAL = (process.env.DOMINIO_INSTITUCIONAL || '').trim().toLowerCase();
-
-/* ---------- helpers ---------- */
 
 const normalizar = (correo) => String(correo || '').trim().toLowerCase();
 const hashCodigo = (codigo) => crypto.createHash('sha256').update(String(codigo)).digest('hex');
@@ -23,10 +19,9 @@ const generarCodigo = () => crypto.randomInt(100000, 1000000).toString();
 
 const firmarToken = (payload, expiresIn) => jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
-const MAX_SESIONES = 10;          // sesiones abiertas a la vez por persona (la mas vieja se cierra)
-const COOLDOWN_CODIGO_SEG = 60;   // entre un correo con codigo y el siguiente para la misma cuenta
+const MAX_SESIONES = 10;
+const COOLDOWN_CODIGO_SEG = 60;
 
-// Nombre corto del dispositivo, a partir del navegador (solo para que la persona reconozca sus sesiones)
 function nombreDispositivo(ua) {
   const s = String(ua || '');
   const so = /iPhone|iPad/.test(s) ? 'iPhone/iPad' : /Android/.test(s) ? 'Android' : /Windows/.test(s) ? 'Windows'
@@ -36,7 +31,6 @@ function nombreDispositivo(ua) {
   return `${so} · ${nav}`;
 }
 
-// Abre una sesion nueva (queda registrada y se puede cerrar) y devuelve su token
 async function abrirSesion(req, u) {
   await pool.query(
     "DELETE FROM sesiones WHERE usuario_id = $1 AND (revocada OR ultimo_uso < NOW() - INTERVAL '7 days' OR creado_en < NOW() - INTERVAL '90 days')",
@@ -50,7 +44,6 @@ async function abrirSesion(req, u) {
   return firmarToken({ id: u.id, rol: u.rol, sid: rows[0].id }, DIAS_MAXIMO + 'd');
 }
 
-// Cierra todas las sesiones de una persona (menos una, si se indica)
 const cerrarSesiones = (usuarioId, exceptoSid = null) =>
   pool.query('UPDATE sesiones SET revocada = TRUE WHERE usuario_id = $1 AND NOT revocada AND ($2::uuid IS NULL OR id <> $2::uuid)', [usuarioId, exceptoSid]);
 
@@ -72,15 +65,12 @@ const usuarioPublico = (u) => ({
   contacto_emergencia_telefono: u.contacto_emergencia_telefono || null,
 });
 
-// SOLO para desarrollo: con DEV_MOSTRAR_CODIGO=true la API devuelve el código en la
-// respuesta (para probar desde el celular sin correo). En producción debe estar apagado.
 const modoDev = () => process.env.DEV_MOSTRAR_CODIGO === 'true' && process.env.NODE_ENV !== 'production';
 const extraDev = (codigo) => (modoDev() ? { codigo_dev: codigo } : {});
 
 async function crearYEnviarCodigo(usuarioId, correo, tipo) {
   const codigo = generarCodigo();
 
-  // Invalida códigos anteriores del mismo tipo
   await pool.query(
       'UPDATE codigos_verificacion SET usado = TRUE WHERE usuario_id = $1 AND tipo = $2 AND usado = FALSE',
       [usuarioId, tipo]
@@ -91,14 +81,12 @@ async function crearYEnviarCodigo(usuarioId, correo, tipo) {
       [usuarioId, tipo, hashCodigo(codigo), CODIGO_MINUTOS]
   );
 
-  // TODO: reemplazar por nodemailer / servicio de correo.
   if (modoDev()) {
     console.log(`[DEV] Código ${tipo} para ${correo}: ${codigo}`);
   }
   return codigo;
 }
 
-// Hubo un correo con codigo de verificacion para esta cuenta en el ultimo minuto?
 async function codigoReciente(usuarioId) {
   const r = await pool.query(
     "SELECT 1 FROM codigos_verificacion WHERE usuario_id = $1 AND tipo = 'verificacion' AND creado_en > NOW() - ($2 || ' seconds')::interval LIMIT 1",
@@ -106,7 +94,6 @@ async function codigoReciente(usuarioId) {
   return r.rowCount > 0;
 }
 
-// Devuelve el usuario_id si el código es válido; null si no
 async function consumirCodigo(correo, codigo, tipo) {
   const { rows } = await pool.query(
       `SELECT c.id, c.codigo_hash, c.intentos, c.usuario_id
@@ -132,8 +119,6 @@ const errorServidor = (res, err) => {
   console.error(err);
   return res.status(500).json({ error: 'Error interno del servidor' });
 };
-
-/* ---------- controladores ---------- */
 
 async function registro(req, res) {
   try {
@@ -180,9 +165,6 @@ async function registro(req, res) {
     let usuarioId;
 
     if (idExistente) {
-      // Cuenta que nunca se verificó: se actualizan sus datos y se reenvía el código, así nadie queda atorado.
-      // Para verificarla hay que dar el código Y la contraseña de este registro, así que quien registre
-      // el correo de otra persona no puede quedarse con la cuenta aunque esa persona use el código.
       await pool.query(
           `UPDATE usuarios
            SET nombre = $1, apellido = $2, numero_registro = $3, password_hash = $4, rol = $5
@@ -206,7 +188,6 @@ async function registro(req, res) {
     });
   } catch (err) {
     if (err.code === '23505') {
-      // Choque con los índices únicos (correo o número de registro) en una carrera
       return res.status(409).json({ error: 'Ese correo o número de registro ya está registrado' });
     }
     return errorServidor(res, err);
@@ -220,7 +201,6 @@ async function verificarCuenta(req, res) {
     if (!password) return res.status(400).json({ error: 'Escribe también la contraseña con la que te registraste' });
     const MENSAJE = 'Código o contraseña incorrectos, o el código ya expiró';
 
-    // La contraseña debe ser la del ultimo registro de ese correo; si no coincide cuenta como intento fallido del código
     const cuenta = await pool.query('SELECT id, password_hash FROM usuarios WHERE LOWER(correo) = $1 AND verificado = FALSE', [correo]);
     const coincide = cuenta.rows[0] ? await bcrypt.compare(password, cuenta.rows[0].password_hash) : false;
     if (!coincide) {
@@ -257,7 +237,6 @@ async function reenviarCodigo(req, res) {
     if (rows[0] && !(await codigoReciente(rows[0].id))) {
       extra = extraDev(await crearYEnviarCodigo(rows[0].id, correo, 'verificacion'));
     }
-    // Misma respuesta exista o no el correo (y tambien si ya se envio uno hace menos de un minuto)
     return res.json({ mensaje: 'Si el correo existe, se envió un nuevo código.', ...extra });
   } catch (err) {
     return errorServidor(res, err);
@@ -292,7 +271,6 @@ async function login(req, res) {
   }
 }
 
-// Visitante: entra sin cuenta, solo mapa y rutas
 function invitado(req, res) {
   const token = firmarToken({ id: null, rol: 'visitante', invitado: true }, '12h');
   return res.json({ token, usuario: { rol: 'visitante', invitado: true } });
@@ -328,7 +306,7 @@ async function restablecerPassword(req, res) {
     }
     const password_hash = await bcrypt.hash(password, 12);
     await pool.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [password_hash, usuarioId]);
-    await cerrarSesiones(usuarioId);     // si alguien tenia la sesion abierta (o se perdio el telefono), se cierra en todos lados
+    await cerrarSesiones(usuarioId);
     return res.json({ mensaje: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
   } catch (err) {
     return errorServidor(res, err);
@@ -397,15 +375,10 @@ async function actualizarPerfil(req, res) {
   }
 }
 
-// Convierte a entero o devuelve null si no es un entero válido
 const aEntero = (v) => (v !== null && v !== '' && v !== undefined && Number.isInteger(Number(v)) ? Number(v) : null);
 
 const TIPOS_ESPACIO = ['sala_maestro', 'cubiculo_oficina'];
 
-// Pantalla "Preferencias". Cada rol guarda cosas distintas:
-//  - estudiante: rutas accesibles, edificio habitual y carrera
-//  - colaborador: rutas accesibles, espacio de trabajo, estancia y vista (completa/simplificada)
-// Al guardarlas se marca el onboarding como completado.
 async function actualizarPreferencias(req, res) {
   try {
     if (req.usuario.invitado) {
@@ -453,7 +426,6 @@ async function actualizarPreferencias(req, res) {
 
       if (espacio !== 'no_aplica') {
         const estanciaId = aEntero(body.estancia_id);
-        // La estancia debe existir y ser del mismo tipo que el espacio elegido
         const estancia = estanciaId === null
             ? { rowCount: 0 }
             : await pool.query('SELECT 1 FROM aulas WHERE id = $1 AND tipo = $2', [estanciaId, espacio]);
@@ -497,7 +469,6 @@ async function actualizarPreferencias(req, res) {
   }
 }
 
-// Cambiar contraseña desde Ajustes: pide la actual y la nueva debe cumplir las mismas reglas del registro
 async function cambiarPassword(req, res) {
   try {
     if (req.usuario.invitado) {
@@ -526,7 +497,6 @@ async function cambiarPassword(req, res) {
   }
 }
 
-// POST /api/auth/me/tutorial-visto -> el tutorial ya no vuelve a salir con esta cuenta (en ningun dispositivo)
 async function tutorialVisto(req, res) {
   try {
     if (req.usuario.id) await pool.query('UPDATE usuarios SET tutorial_visto = TRUE WHERE id = $1', [req.usuario.id]);
@@ -534,8 +504,6 @@ async function tutorialVisto(req, res) {
   } catch (err) { return errorServidor(res, err); }
 }
 
-// ---------- Sesiones ----------
-// POST /api/auth/logout -> cierra solo esta sesion
 async function logout(req, res) {
   try {
     if (req.usuario.sid) await pool.query('UPDATE sesiones SET revocada = TRUE WHERE id = $1 AND usuario_id = $2', [req.usuario.sid, req.usuario.id]);
@@ -543,7 +511,6 @@ async function logout(req, res) {
   } catch (err) { return errorServidor(res, err); }
 }
 
-// POST /api/auth/logout-todas -> cierra todas, incluida esta
 async function logoutTodas(req, res) {
   try {
     if (req.usuario.id) await cerrarSesiones(req.usuario.id);
@@ -551,7 +518,6 @@ async function logoutTodas(req, res) {
   } catch (err) { return errorServidor(res, err); }
 }
 
-// GET /api/auth/sesiones -> mis sesiones abiertas
 async function listarSesiones(req, res) {
   try {
     if (!req.usuario.id) return res.json({ sesiones: [] });
@@ -563,7 +529,6 @@ async function listarSesiones(req, res) {
   } catch (err) { return errorServidor(res, err); }
 }
 
-// DELETE /api/auth/sesiones/:id -> cierra una sesion mia
 async function cerrarSesionDe(req, res) {
   try {
     const id = String(req.params.id || '');

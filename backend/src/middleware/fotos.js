@@ -2,7 +2,6 @@ const path = require('path');
 
 const NOMBRE_VALIDO = /^[a-f0-9]{32}\.(jpg|png|webp)$/;
 
-// Envia una foto guardada en disco. Solo se llama despues de comprobar que la persona tiene permiso de verla.
 function enviarFoto(res, carpeta, archivo) {
   res.sendFile(archivo, {
     root: carpeta,

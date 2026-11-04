@@ -1,7 +1,4 @@
-// mapa-rutas.js - calculo del camino mas corto sobre la red de puntos y tramos (sin Leaflet ni DOM, para poder probarlo solo).
-// Se carga ANTES de mapa.js:  <script src="js/mapa-rutas.js"></script>
 (function (root) {
-    // Distancia en metros entre dos coordenadas (haversine)
     function distancia(a, b) {
         const R = 6371000, rad = Math.PI / 180;
         const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
@@ -9,7 +6,6 @@
         return 2 * R * Math.asin(Math.sqrt(x));
     }
 
-    // grafo = { puntos:[{id,lat,lng,es_accesible}], rutas:[{origen,destino,metros,es_accesible}] }  ->  lista de vecinos
     function construir(grafo, soloAccesible) {
         const nodos = new Map();
         (grafo.puntos || []).forEach((p) => {
@@ -28,9 +24,6 @@
         return nodos;
     }
 
-    // Dijkstra desde un nodo: devuelve distancia y nodo anterior para todos los alcanzables.
-    // (la red tiene decenas de nodos, asi que un recorrido simple es suficiente)
-    // penalizar (opcional): conjunto de tramos ya usados; cuestan mas, para que salga un camino distinto
     function dijkstra(nodos, inicio, penalizar) {
         const dist = new Map(), prev = new Map(), hecho = new Set();
         nodos.forEach((n) => dist.set(n.id, Infinity));
@@ -48,10 +41,8 @@
         return { dist, prev };
     }
 
-    const FACTOR_REPETIDO = 3;   // un tramo ya usado por otra ruta "cuesta" el triple al buscar una alternativa
+    const FACTOR_REPETIDO = 3;
 
-    // Los puntos de la red mas cercanos a un lugar. Solo cuentan los que estan a menos de 100 m
-    // (si ninguno, el mas cercano), para que la ruta no "salte" en linea recta por encima de edificios.
     function cercanos(nodos, punto, cuantos) {
         const todos = Array.from(nodos.values())
             .map((n) => ({ n, d: distancia(punto, n) }))
@@ -60,10 +51,8 @@
         return cerca.length ? cerca : todos.slice(0, 1);
     }
 
-    const PESO_TRAMO_LIBRE = 1.5; // caminar en linea recta fuera de la red "cuesta" mas que ir por los andadores
+    const PESO_TRAMO_LIBRE = 1.5;
 
-    // Ruta de origen a destino ({lat,lng} los dos). Prueba los 3 puntos mas cercanos de cada lado y se queda con el total mas corto.
-    // Devuelve { metros, camino:[{lat,lng}...] } o null si la red no llega hasta ahi.
     function calcular(grafo, origen, destino, opciones) {
         const nodos = construir(grafo, !!(opciones && opciones.soloAccesible));
         if (!nodos.size) return null;
@@ -81,7 +70,6 @@
         if (!mejor) return null;
         const ids = [mejor.f.n.id];
         while (mejor.prev.has(ids[0])) ids.unshift(mejor.prev.get(ids[0]));
-        // Metros reales del camino (sin los recargos de las alternativas)
         let porRed = 0;
         const claves = [];
         for (let k = 0; k + 1 < ids.length; k++) {
@@ -93,14 +81,11 @@
         const camino = [{ lat: origen.lat, lng: origen.lng }]
             .concat(ids.map((id) => ({ lat: nodos.get(id).lat, lng: nodos.get(id).lng })))
             .concat([{ lat: destino.lat, lng: destino.lng }]);
-        // Cuantos tramos del camino son rampas (para avisarlo y marcarlos en el mapa)
         const rampas = [];
         for (let k = 0; k + 1 < ids.length; k++) {
             const v = nodos.get(ids[k]).vecinos.find((x) => x.a.id === ids[k + 1] && x.tipo === 'rampa');
             if (v) rampas.push({ lat: (nodos.get(ids[k]).lat + nodos.get(ids[k + 1]).lat) / 2, lng: (nodos.get(ids[k]).lng + nodos.get(ids[k + 1]).lng) / 2 });
         }
-        // Tramo por tramo (con su tipo y metros): es lo que usa la guia por voz para decir "gira a la derecha", "hay escaleras"...
-        // El primero (origen -> red) y el ultimo (red -> destino) van en linea recta, por eso su tipo es 'libre'.
         const tramos = [];
         for (let k = 0; k + 1 < camino.length; k++) {
             const a = camino[k], b = camino[k + 1];
@@ -115,8 +100,6 @@
         return { metros: mejor.metros, camino, rampas, tramos, claves };
     }
 
-    // Hasta `max` caminos distintos de origen a destino, del mas corto al mas largo. El primero es el mismo que da calcular().
-    // Una alternativa solo cuenta si de verdad va por otro lado (comparte menos del 70% con otra) y no es una locura de larga.
     function alternativas(grafo, origen, destino, opciones, max) {
         const tope = max || 3;
         const primera = calcular(grafo, origen, destino, opciones);
@@ -133,12 +116,11 @@
             if (!alt) break;
             const nuevo = alt.claves.filter((c) => !usados.has(c.k));
             alt.claves.forEach((c) => usados.add(c.k));
-            if (!nuevo.length) break;                                          // ya no hay por donde variar
-            if (lista.some((r) => compartido(alt, r) > 0.7)) continue;         // casi igual a una que ya hay
-            if (alt.metros > primera.metros * 1.6 + 60) continue;              // da demasiada vuelta
+            if (!nuevo.length) break;
+            if (lista.some((r) => compartido(alt, r) > 0.7)) continue;
+            if (alt.metros > primera.metros * 1.6 + 60) continue;
             lista.push(alt);
         }
-        // la primera (la de siempre) se queda de primera; las demas van de la mas corta a la mas larga
         return [primera].concat(lista.slice(1).sort((x, y) => x.metros - y.metros));
     }
 

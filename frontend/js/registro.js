@@ -1,4 +1,3 @@
-// registro.js - INICIAR RUTA: tracker con GPS real, guardado en la cuenta y SOS.
 document.addEventListener('DOMContentLoaded', () => {
     if (!requerirSesion()) return;
 
@@ -7,33 +6,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const puedeGuardar = rol === 'estudiante' || rol === 'colaborador';
     const ACT = FMCActividades.ACTIVIDADES;
 
-    // ---------- constantes ----------
-    const PESO_KG = 70;                                                      // el mismo peso de referencia que usa el servidor
+    const PESO_KG = 70;
     const MET = { caminata: 3.5, carrera: 9, ciclismo: 6.8, inclusivo: 3, scooter: 4 };
-    const VEL_EST = { caminata: 1.25, carrera: 2.8, ciclismo: 4.5, inclusivo: 1.1, scooter: 3.5 };   // m/s, solo si no hay GPS
-    const VEL_MAX = { caminata: 4, carrera: 9, ciclismo: 20, inclusivo: 5, scooter: 12 };            // m/s: mas rapido que esto es un salto del GPS
-    const PRECISION_MAX = 40;        // metros: lecturas peores que esto se ignoran
-    const ESPERA_GPS_MS = 12000;     // si no hay señal en este tiempo, se estima la distancia por tiempo
-    const MIN_GUARDAR_S = 30;        // menos de esto no se guarda
+    const VEL_EST = { caminata: 1.25, carrera: 2.8, ciclismo: 4.5, inclusivo: 1.1, scooter: 3.5 };
+    const VEL_MAX = { caminata: 4, carrera: 9, ciclismo: 20, inclusivo: 5, scooter: 12 };
+    const PRECISION_MAX = 40;
+    const ESPERA_GPS_MS = 12000;
+    const MIN_GUARDAR_S = 30;
     const CLAVE = 'trackerActivo';
 
-    // ---------- estado ----------
     const e = {
         tipo: 'caminata', iniciado: false, corriendo: false,
         acumuladoMs: 0, inicioTramo: 0, distanciaM: 0,
-        modo: 'esperando',           // esperando | gps | estimado
+        modo: 'esperando',
     };
     let ticker = null, ultimoTick = 0, vigilante = null, esperaGps = null, ultimaPos = null, saltos = 0, bloqueoPantalla = null;
     let ultimoResumen = null;
 
-    // ---------- utilidades ----------
     const ms = () => e.acumuladoMs + (e.corriendo ? Date.now() - e.inicioTramo : 0);
     const calorias = () => Math.round(MET[e.tipo] * PESO_KG * (ms() / 3600000));
     function hms(seg) {
         const h = Math.floor(seg / 3600), m = Math.floor((seg % 3600) / 60), s = Math.floor(seg % 60);
         return [h, m, s].map((n) => String(n).padStart(2, '0')).join(':');
     }
-    function metros(a, b) {   // distancia entre dos coordenadas (haversine)
+    function metros(a, b) {
         const R = 6371000, rad = Math.PI / 180;
         const dLat = (b.latitude - a.latitude) * rad, dLng = (b.longitude - a.longitude) * rad;
         const x = Math.sin(dLat / 2) ** 2 + Math.cos(a.latitude * rad) * Math.cos(b.latitude * rad) * Math.sin(dLng / 2) ** 2;
@@ -45,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         el.className = 'gps-estado' + (clase ? ' ' + clase : '');
     }
 
-    // ---------- selector de actividad ----------
     const selector = $('selector');
     Object.keys(ACT).forEach((clave) => {
         const b = document.createElement('button');
@@ -74,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pintarSelector();
     });
 
-    // ---------- pantalla ----------
     function pintar() {
         const seg = ms() / 1000;
         $('timer').textContent = hms(seg);
@@ -97,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {}
     }
 
-    // ---------- GPS ----------
     function pasarAEstimado(texto) {
         if (e.modo === 'gps') return;
         e.modo = 'estimado';
@@ -120,18 +113,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const d = metros(ultimaPos, c);
         const dt = (t - ultimaPos.t) / 1000;
         if (dt <= 0) return;
-        if (d / dt > VEL_MAX[e.tipo]) {                      // salto raro del GPS: se ignora (tras 3 seguidos se acepta el nuevo punto)
+        if (d / dt > VEL_MAX[e.tipo]) {
             if (++saltos >= 3) { ultimaPos = { latitude: c.latitude, longitude: c.longitude, t }; saltos = 0; }
             return;
         }
         saltos = 0;
-        if (d < Math.max(2, c.accuracy * 0.4)) return;       // ruido del GPS estando quieto
+        if (d < Math.max(2, c.accuracy * 0.4)) return;
         e.distanciaM += d;
         ultimaPos = { latitude: c.latitude, longitude: c.longitude, t };
         pintar();
     }
     function alErrorGps(err) {
-        if (e.modo === 'gps') return;                        // un fallo suelto con GPS ya activo no importa
+        if (e.modo === 'gps') return;
         const motivo = err && err.code === 1 ? 'Sin permiso de ubicación' : 'Sin señal GPS';
         pasarAEstimado(`${motivo}: la distancia se estima por tiempo.`);
     }
@@ -161,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     document.addEventListener('visibilitychange', () => { if (!document.hidden && e.corriendo) pedirPantalla(); });
 
-    // ---------- comenzar / pausar / reanudar ----------
     function tick() {
         const ahora = Date.now();
         if (e.modo === 'estimado') e.distanciaM += ((ahora - ultimoTick) / 1000) * VEL_EST[e.tipo];
@@ -190,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     $('btn-comenzar').addEventListener('click', () => (e.corriendo ? pausar() : arrancar()));
 
-    // ---------- terminar ----------
     function reiniciar() {
         clearInterval(ticker); detenerGps(); soltarPantalla();
         Object.assign(e, { iniciado: false, corriendo: false, acumuladoMs: 0, inicioTramo: 0, distanciaM: 0, modo: 'esperando' });
@@ -382,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sosInterval = setInterval(() => {
             sosRestante--;
             sosTimerNum.textContent = '0:' + String(Math.max(0, sosRestante)).padStart(2, '0');
-            if (sosRestante <= 0) { clearInterval(sosInterval); llamarSeguridad(); }   // sin respuesta: llamada automática
+            if (sosRestante <= 0) { clearInterval(sosInterval); llamarSeguridad(); }
         }, 1000);
         sosPos = null;
         leerPosicion().then((p) => { sosPos = p; });
@@ -393,7 +384,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnLlamar.addEventListener('click', llamarSeguridad);
     btnContacto.addEventListener('click', avisarContacto);
 
-    // ---------- ayuda cercana: consultorio más cercano con ruta real ----------
     let mapaMedico = null, capaMedica = null, lugaresSalud = null, grafoMedico = null;
 
     async function abrirAyudaCercana(sinContacto) {

@@ -1,7 +1,5 @@
 const pool = require('../config/db');
 
-// Amigos y mensajes son solo para estudiantes y colaboradores en vista completa
-// (igual que el feed). Se revisa en la base por si la vista cambio despues de iniciar sesion.
 async function soloVistaCompleta(req, res, next) {
     try {
         const { rows } = await pool.query(

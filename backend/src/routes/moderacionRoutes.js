@@ -14,7 +14,6 @@ const limiteReportar = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, standardHe
 const idDe = (v) => { const n = Number(v); return Number.isInteger(n) && n > 0 ? n : null; };
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
-// Al bloquear desaparecen las etiquetas y avisos que hubiera entre las dos personas
 async function limpiarEntre(cliente, a, b) {
   await cliente.query(
     `DELETE FROM publicacion_etiquetas e USING publicaciones p
@@ -22,7 +21,6 @@ async function limpiarEntre(cliente, a, b) {
   await cliente.query('DELETE FROM notificaciones WHERE (usuario_id = $1 AND actor_id = $2) OR (usuario_id = $2 AND actor_id = $1)', [a, b]);
 }
 
-// La persona existe y no me bloqueo (si me bloqueo se responde igual que si no existiera, para no revelarlo)
 async function existeVisible(yo, otro) {
   const r = await pool.query(
     `SELECT 1 FROM usuarios u
@@ -33,7 +31,6 @@ async function existeVisible(yo, otro) {
   return r.rowCount > 0;
 }
 
-// GET /api/moderacion/lista -> a quien bloquee y a quien silencie (para poder deshacerlo desde Ajustes)
 router.get('/lista', async (req, res) => {
   try {
     const yo = req.usuario.id;
@@ -47,7 +44,6 @@ router.get('/lista', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/moderacion/bloquear/:id  (quita la amistad y el silencio, si los habia)
 router.post('/bloquear/:id', limiteAcciones, async (req, res) => {
   const yo = req.usuario.id;
   const otro = idDe(req.params.id);
@@ -69,7 +65,6 @@ router.post('/bloquear/:id', limiteAcciones, async (req, res) => {
   } finally { cliente.release(); }
 });
 
-// DELETE /api/moderacion/bloquear/:id  (desbloquear; la amistad NO se restaura, hay que volver a agregarse)
 router.delete('/bloquear/:id', limiteAcciones, async (req, res) => {
   const otro = idDe(req.params.id);
   if (!otro) return res.status(400).json({ error: 'Persona no válida' });
@@ -79,7 +74,6 @@ router.delete('/bloquear/:id', limiteAcciones, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/moderacion/silenciar/:id
 router.post('/silenciar/:id', limiteAcciones, async (req, res) => {
   const yo = req.usuario.id;
   const otro = idDe(req.params.id);
@@ -91,7 +85,6 @@ router.post('/silenciar/:id', limiteAcciones, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// DELETE /api/moderacion/silenciar/:id
 router.delete('/silenciar/:id', limiteAcciones, async (req, res) => {
   const otro = idDe(req.params.id);
   if (!otro) return res.status(400).json({ error: 'Persona no válida' });
@@ -101,7 +94,6 @@ router.delete('/silenciar/:id', limiteAcciones, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// POST /api/moderacion/reportar/:id { motivo, comentario?, bloquear? }
 router.post('/reportar/:id', limiteReportar, async (req, res) => {
   const yo = req.usuario.id;
   const otro = idDe(req.params.id);

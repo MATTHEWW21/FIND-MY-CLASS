@@ -3,9 +3,6 @@ const pool = require('../config/db');
 
 const router = express.Router();
 
-// GET /api/mapa/lugares
-// Todo lo que se puede mostrar en el mapa y buscar: edificios + lugares/servicios que ya tienen coordenadas.
-// El buscador del frontend filtra esta lista (son ~100 elementos, así que es rápido y no necesita un endpoint por búsqueda).
 router.get('/lugares', async (req, res) => {
   try {
     const edificios = await pool.query(
@@ -50,8 +47,6 @@ router.get('/lugares', async (req, res) => {
   }
 });
 
-// GET /api/mapa/grafo
-// La red de caminos: puntos (nodos) y rutas (tramos entre dos puntos). Con esto el frontend calcula el camino mas corto.
 router.get('/grafo', async (req, res) => {
   try {
     const puntos = await pool.query(
@@ -86,9 +81,6 @@ router.get('/grafo', async (req, res) => {
   }
 });
 
-// GET /api/mapa/accesibilidad
-// Escaleras, rampas, estacionamientos y pasos accesibles. El frontend los muestra como pines SOLO cuando la persona inicia una ruta.
-// Si la tabla todavia no existe (falta correr la migracion 017), responde una lista vacia para no romper el mapa.
 router.get('/accesibilidad', async (req, res) => {
   try {
     const r = await pool.query(

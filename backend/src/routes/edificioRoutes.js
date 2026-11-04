@@ -3,9 +3,6 @@ const crypto = require('crypto');
 const router = express.Router();
 const pool = require('../config/db');
 
-// Solo quien tenga la llave de administrador (ADMIN_API_KEY en el .env) puede crear edificios.
-// Se manda en el encabezado:  x-admin-key: <la llave>
-// Si ADMIN_API_KEY no está definida, crear edificios queda desactivado.
 function requerirAdmin(req, res, next) {
     const esperada = process.env.ADMIN_API_KEY || '';
     const recibida = String(req.headers['x-admin-key'] || '');
@@ -18,7 +15,6 @@ function requerirAdmin(req, res, next) {
     next();
 }
 
-// GET /api/edificios -> Obtener todos los edificios
 router.get('/', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM edificios ORDER BY id ASC');
@@ -32,7 +28,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET /api/edificios/:id -> Obtener un edificio especifico con sus servicios
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -42,7 +37,6 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ status: 'fail', message: 'Edificio no encontrado' });
         }
 
-        // Obtener los servicios asociados a este edificio
         const serviciosResult = await pool.query('SELECT * FROM servicios WHERE edificio_id = $1', [id]);
 
         const edificio = edificioResult.rows[0];
@@ -58,7 +52,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/edificios -> Crear un edificio (solo administrador)
 router.post('/', requerirAdmin, async (req, res) => {
     const { nombre, codigo, categoria_id, latitud, longitud, imagen_url } = req.body;
 

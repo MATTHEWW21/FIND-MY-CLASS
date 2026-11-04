@@ -3,8 +3,6 @@ const pool = require('../config/db');
 
 const router = express.Router();
 
-// Listas para los desplegables (solo lectura, sin datos sensibles).
-
 router.get('/edificios', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT id, codigo, nombre FROM edificios ORDER BY codigo, nombre');
@@ -25,7 +23,6 @@ router.get('/carreras', async (req, res) => {
   }
 });
 
-// Estancias del colaborador según su espacio de trabajo: ?tipo=sala_maestro | cubiculo_oficina
 const TIPOS_ESPACIO = ['sala_maestro', 'cubiculo_oficina'];
 
 router.get('/estancias', async (req, res) => {

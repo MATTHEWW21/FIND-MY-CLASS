@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
             : 'Ingresa tu correo institucional y te enviaremos un código para redefinir tu clave de acceso.';
     }
 
-    // Pide el código al backend. Devuelve true si la petición se hizo.
     async function pedirCodigo() {
         const data = await apiFetch('/auth/olvide-password', {
             method: 'POST',
@@ -53,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Paso 1: correo -> se envía el código
     formEmail.addEventListener('submit', async (e) => {
         e.preventDefault();
         correo = inputEmail.value.trim();
@@ -69,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Paso 2: código + nueva contraseña
     formReset.addEventListener('submit', async (e) => {
         e.preventDefault();
 

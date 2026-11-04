@@ -1,4 +1,3 @@
-// mensajes.js - chat uno a uno con amigos. Se actualiza solo cada pocos segundos (sin sockets).
 document.addEventListener('DOMContentLoaded', () => {
     if (!requerirSesion()) return;
 
@@ -6,17 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const rol = localStorage.getItem('userRole');
     if (rol !== 'estudiante' && rol !== 'colaborador') { window.location.href = 'mapa.html'; return; }
 
-    const INTERVALO_MS = 4000;     // cada cuanto se pregunta si hay mensajes nuevos
-    const LADO_MAX = 1080;         // las fotos se reducen antes de enviarlas
+    const INTERVALO_MS = 4000;
+    const LADO_MAX = 1080;
 
-    let amigos = [];               // [{ id, nombre, apellido, sin_leer, ultimo }]
-    let actual = null;             // amigo con el chat abierto
-    let ultimoId = 0;              // id del ultimo mensaje pintado
-    let fotoPendiente = null;      // data URL de la foto por enviar
+    let amigos = [];
+    let actual = null;
+    let ultimoId = 0;
+    let fotoPendiente = null;
     let enviando = false;
-    let cargandoChat = 0;          // evita mezclar respuestas si se cambia rapido de chat
+    let cargandoChat = 0;
 
-    // ---------- utilidades ----------
     const iniciales = (a) => ((a.nombre || '?')[0] + ((a.apellido || '')[0] || '')).toUpperCase();
     const nombreCorto = (a) => [a.nombre, (a.apellido || '').split(' ')[0]].filter(Boolean).join(' ');
     const nombreCompleto = (a) => [a.nombre, a.apellido].filter(Boolean).join(' ');
@@ -38,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return f.toDateString() === hoy.toDateString() ? hm : `${f.getDate()}/${f.getMonth() + 1} ${hm}`;
     }
 
-    // ---------- carrusel de amigos ----------
     function pintarCarrusel() {
         const filtro = $('buscar-amigos').value.trim().toLowerCase();
         const cont = $('carrusel');
@@ -74,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
             b.classList.toggle('hidden', !data.solicitudes_pendientes);
             if (actual) {
                 const a = amigos.find((x) => x.id === actual.id);
-                if (a) a.sin_leer = 0; // el chat abierto ya se esta leyendo
-                else cerrarChat();     // dejaron de ser amigos
+                if (a) a.sin_leer = 0;
+                else cerrarChat();
             }
             pintarCarrusel();
             const vacio = $('chat-vacio');
@@ -89,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ---------- chat abierto ----------
     function burbuja(m) {
         const b = document.createElement('div');
         b.className = 'message-bubble ' + (m.mio ? 'sent' : 'received');
@@ -192,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ---------- enviar ----------
     function reducir(archivo) {
         return new Promise((resolve, reject) => {
             const lector = new FileReader();
@@ -264,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     $('buscar-amigos').addEventListener('input', pintarCarrusel);
 
-    // ---------- hoja de amigos ----------
     const fondo = $('amigos-fondo');
     let temporizadorBusqueda = null;
 
@@ -387,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
         temporizadorBusqueda = setTimeout(buscarPersonas, 350);
     });
 
-    // ---------- arranque y actualizacion periodica ----------
     (async () => {
         await refrescarLista();
         const con = Number(new URLSearchParams(location.search).get('con'));

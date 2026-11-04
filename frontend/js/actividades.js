@@ -1,5 +1,3 @@
-// actividades.js - nombre, color e ícono de cada actividad (los mismos del selector de "Nueva publicación").
-// Lo usan el selector, la publicación y el feed, para que el ícono siempre coincida con la actividad elegida.
 (function (root) {
     const TRAZOS = {
         caminata:  '<circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/>',
@@ -16,7 +14,6 @@
         scooter:   { nombre: 'Scooter',             color: '#6b6b6b' },
     };
 
-    // Devuelve el SVG de la actividad (blanco por defecto), del tamaño pedido en px
     function icono(clave, tam, color) {
         const t = TRAZOS[clave] || TRAZOS.caminata;
         return `<svg xmlns="http://www.w3.org/2000/svg" width="${tam}" height="${tam}" viewBox="0 0 24 24" fill="none" stroke="${color || '#fff'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${t}</svg>`;

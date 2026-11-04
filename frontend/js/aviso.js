@@ -1,14 +1,8 @@
-// Avisos dentro de la app, en lugar de alert() / confirm() del navegador.
-//   FMCAviso.aviso('Texto', 'ok' | 'error' | 'info')   -> aviso que aparece arriba y se quita solo (no bloquea)
-//   await FMCAviso.alerta('Texto', 'ok' | 'error')     -> ventana con botón "Entendido"; espera a que se cierre (para avisar antes de cambiar de página)
-//   await FMCAviso.confirmar('¿Seguro?', { si: 'Eliminar', no: 'Cancelar', peligro: true })  -> true / false
-// Accesibilidad: los errores se anuncian al momento (role="alert") y el resto con calma (role="status"); cada aviso lleva ícono Y texto;
-// no desaparecen mientras los tocas o los tienes enfocados; las ventanas llevan el foco, atrapan Tab, se cierran con Escape y devuelven el foco.
 (function () {
     if (window.FMCAviso) return;
 
     const ICONOS = { ok: '✓', error: '!', info: 'i' };
-    const ROTULOS = { ok: 'Listo', error: 'Error', info: 'Aviso' };   // lo que dice el lector de pantalla antes del mensaje
+    const ROTULOS = { ok: 'Listo', error: 'Error', info: 'Aviso' };
     const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
     const css = `
@@ -45,7 +39,6 @@
         document.head.appendChild(st);
         pila = document.createElement('div');
         pila.className = 'aviso-pila';
-        // Las zonas "vivas" existen desde el principio: así los lectores de pantalla sí anuncian lo que se agrega después
         grupoEstado = document.createElement('div');
         grupoEstado.className = 'aviso-grupo';
         grupoEstado.setAttribute('role', 'status');
@@ -86,7 +79,6 @@
         if (document.body) dentro(); else document.addEventListener('DOMContentLoaded', dentro);
     }
 
-    // ---------- ventanas (alerta y confirmación), de una en una ----------
     let cola = Promise.resolve();
     function ventana(mensaje, opciones) {
         const o = opciones || {};
@@ -139,7 +131,6 @@
             document.addEventListener('keydown', teclas, true);
             Array.from(document.body.children).forEach((n) => { if (n !== fondo && n !== pila && !/^(SCRIPT|LINK|STYLE)$/.test(n.tagName) && !n.hasAttribute('inert')) { n.setAttribute('inert', ''); n.dataset.avisoInert = '1'; } });
             document.body.appendChild(fondo);
-            // En una pregunta peligrosa el foco empieza en "Cancelar" para no borrar algo por pulsar Enter sin querer
             (o.confirmar && o.peligro ? btnNo : btnSi).focus();
         });
         cola = cola.then(una, una);

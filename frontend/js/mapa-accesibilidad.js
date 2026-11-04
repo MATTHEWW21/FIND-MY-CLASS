@@ -1,24 +1,20 @@
-// Pines de accesibilidad (escaleras, rampas, estacionamientos y pasos peatonales).
-// Reglas: NO se ven al abrir el mapa. Aparecen cuando la persona inicia la ruta (EMPEZAR) y solo los que quedan
-// cerca de su camino. Se quitan al finalizar o al limpiar la ruta. No depende del color: cada tipo tiene forma, letra y texto.
 (function () {
-    const CERCA_RAMPA_M = 7;      // una rampa solo cuenta si la ruta pasa casi encima (si no, solo estorba)
-    const CERCA_RUTA_M = 15;      // un elemento cuenta como "de la ruta" si queda a menos de esto del camino
-    const CERCA_TRAMO_M = 12;     // una escalera/rampa cuenta como "la que usa la ruta" si queda a menos de esto del tramo de ese tipo
-    const AVISO_M = 20;           // la guía por voz avisa cuando estás a esta distancia
+    const CERCA_RAMPA_M = 7;
+    const CERCA_RUTA_M = 15;
+    const CERCA_TRAMO_M = 12;
+    const AVISO_M = 20;
     const NOMBRE = { escalera: 'Escalera', rampa: 'Rampa', estacionamiento: 'Estacionamiento accesible', paso_peatonal: 'Paso peatonal accesible', elevador: 'Elevador' };
     const LETRA = { escalera: 'E', rampa: 'R', estacionamiento: 'P', paso_peatonal: '↔', elevador: 'A' };
 
-    let todos = null;             // lista completa (se pide una sola vez)
+    let todos = null;
     let pidiendo = null;
-    let ruta = null;              // último detalle de 'fmc:ruta'
-    let cercanos = [];            // elementos cerca de la ruta actual
+    let ruta = null;
+    let cercanos = [];
     let navegando = false;
     let capa = null;
     const avisados = new Set();
 
     const rad = Math.PI / 180;
-    // Metros entre dos puntos {lat,lng} (aproximación plana, suficiente en un campus)
     function dist(a, b) {
         const k = Math.cos(a.lat * rad);
         return Math.hypot((a.lat - b.lat) * 111320, (a.lng - b.lng) * 111320 * k);
@@ -47,7 +43,6 @@
         return pidiendo;
     }
 
-    // Distancia (m) entre un elemento (punto o linea) y un tramo de la ruta
     function distATramo(puntos, t) {
         let d = Infinity;
         puntos.forEach((p) => { d = Math.min(d, aSegmento(p, t.a, t.b)); });
@@ -60,7 +55,6 @@
 
     async function calcularCercanos() {
         const lista = await cargar();
-        // Quien no pidio rutas accesibles no necesita ver rampas ni escaleras: solo estorban
         if (!ruta || !ruta.perfilAccesible) { cercanos = []; return; }
         const tramos = ruta.tramos || [];
         const porTipo = (tipo) => tramos.filter((t) => t.tipo === tipo);
@@ -68,20 +62,15 @@
 
         cercanos = lista.filter((f) => {
             const puntos = puntosDe(f);
-            // Las escaleras solo se muestran si la ruta REALMENTE pasa por escaleras (y ahi). Una escalera que queda junto a la
-            // rampa que sí usa la ruta (o junto a un camino normal) no se marca: solo confundiría.
             if (f.tipo === 'escalera') return escaleras.some((t) => distATramo(puntos, t) <= CERCA_TRAMO_M);
-            // Rampas dibujadas a mano con trazos muy largos (mas de 40 m) son poco exactas: no se muestran, para no inventar rampas
             if (f.tipo === 'rampa') return largoTrazo(f.trazo) <= MAX_LINEA_M && puntos.some((p) => distARuta(p) <= CERCA_RAMPA_M);
             return puntos.some((p) => distARuta(p) <= CERCA_RUTA_M);
         });
 
-        // Tramos de escaleras o rampa que no tienen su propio pin (todavia no se han marcado): se crea uno con el trazo del tramo
         const nombre = { escalera: 'Escalera', rampa: 'Rampa' };
         [['escalera', escaleras], ['rampa', rampas]].forEach(([tipo, trs]) => {
             trs.forEach((t) => {
                 if (cercanos.some((f) => f.tipo === tipo && distATramo(puntosDe(f), t) <= CERCA_TRAMO_M)) return;
-                // Si ya hay un pin real de ese tipo muy cerca (aunque se haya filtrado), no se duplica
                 if (lista.some((f) => f.tipo === tipo && distATramo(puntosDe(f), t) <= CERCA_TRAMO_M)) return;
                 cercanos.push({
                     id: `tramo-${tipo}-${t.a.lat.toFixed(6)}-${t.a.lng.toFixed(6)}`, tipo, nombre: nombre[tipo],
@@ -125,7 +114,6 @@
             let lat = f.lat, lng = f.lng;
             const largo = f.largo_m || largoTrazo(f.trazo);
             if (f.trazo && f.trazo.length > 1 && largo > MAX_LINEA_M) {
-                // Rampa/escalera muy larga: una linea recta cruzaria edificios. Solo se marca el punto mas cercano a tu camino
                 let mejor = Infinity;
                 f.trazo.forEach((q) => { const d = distARuta({ lat: q[0], lng: q[1] }); if (d < mejor) { mejor = d; lat = q[0]; lng = q[1]; } });
             } else if (f.trazo && f.trazo.length > 1) {
@@ -149,7 +137,6 @@
         if (!partes.length) return '';
         return `Cerca de tu camino hay ${partes.join(' y ')}.`;
     }
-    // Para la guía por voz: avisa una sola vez por elemento cuando te acercas
     function avisoCerca(pos) {
         if (!navegando || !ruta || !ruta.perfilAccesible) return null;
         for (const f of cercanos) {
@@ -167,7 +154,7 @@
         ruta = e.detail;
         avisados.clear();
         await calcularCercanos();
-        dibujar();        // vista previa (perfil accesible) o recalculo a mitad de camino
+        dibujar();
     });
     document.addEventListener('fmc:empezar', async () => {
         navegando = true;
@@ -178,7 +165,6 @@
     document.addEventListener('fmc:finalizar', terminar);
     document.addEventListener('fmc:limpiar', () => { ruta = null; cercanos = []; avisados.clear(); terminar(); });
 
-    // Cajas de estacionamiento (discapacidad, embarazadas, motos, electricos, Solutions) cercanas a un estacionamiento elegido
     function categoriaCaja(nombre) {
         const n = String(nombre || '').toLowerCase();
         if (n.includes('embarazada')) return { icono: '🤰', texto: 'Para mujeres embarazadas' };

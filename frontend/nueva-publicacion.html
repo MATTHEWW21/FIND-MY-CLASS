@@ -17,25 +17,20 @@
 
 <main class="mobile-container">
 
-    <!-- Header Find My Class -->
     <header class="app-title-header">
         <h1>UAGPS</h1>
     </header>
 
-    <!-- ================= PASO 1: SELECCIÓN DE FOTO ================= -->
     <div id="step-photo-select">
-        <!-- Sub-header de Publicación -->
         <div class="sub-header">
             <button class="btn-icon close-btn" id="btn-close" aria-label="Cerrar">✕</button>
             <span class="sub-header-title">NUEVA PUBLICACIÓN</span>
             <button class="btn-text next-btn" id="btn-next">NEXT</button>
         </div>
 
-        <!-- Preview Principal -->
         <section class="media-preview-container">
             <img src="" alt="Foto principal" class="main-preview-img hidden" id="main-preview-img">
 
-            <!-- Si todavía no hay fotos -->
             <div class="pub-sin-foto" id="sin-foto">
                 <span>Comparte tu recorrido por el campus</span>
                 <button type="button" id="btn-agregar-foto-grande">📷 Agregar fotos</button>
@@ -64,14 +59,11 @@
             </div>
         </section>
 
-        <!-- Fotos elegidas (hasta 3) -->
         <section class="pub-miniaturas" id="miniaturas"></section>
         <input type="file" id="input-fotos" accept="image/*" multiple hidden>
     </div>
 
-    <!-- ================= PASO 2: FINALIZAR PUBLICACIÓN ================= -->
     <div id="step-publish-details" class="hidden">
-        <!-- Sub-header de Finalizar -->
         <div class="sub-header">
             <button class="btn-icon back-btn" id="btn-back-step">←</button>
             <span class="sub-header-title">FINALIZAR PUBLICACIÓN</span>
@@ -79,14 +71,11 @@
         </div>
 
         <div class="publish-details-container">
-            <!-- Preview Cuadrado de la Foto Elegida -->
             <div class="publish-card-preview">
                 <img src="" alt="Foto a publicar" class="selected-publish-img hidden" id="selected-publish-img">
 
-                <!-- Badge Circular de Actividad -->
                 <div class="publish-badge-icon" id="publish-badge">🚶</div>
 
-                <!-- Overlay de Métricas -->
                 <div class="publish-overlay-stats hidden" id="overlay-stats">
                     <div class="stat-item">
                         <strong id="ov-dist">—</strong>
@@ -103,12 +92,10 @@
                 </div>
             </div>
 
-            <!-- Campo de Texto / Pie de foto -->
             <div class="caption-input-box">
                 <textarea id="pie-foto" placeholder="Escribe un comentario o pie de foto..." maxlength="250"></textarea>
             </div>
 
-            <!-- Sección Añadir Detalles -->
             <div class="details-list-section">
                 <h4 class="details-section-title">AÑADIR DETALLES</h4>
 
@@ -162,7 +149,6 @@
         </div>
     </div>
 
-    <!-- Navegación Inferior -->
     <nav class="bottom-nav">
         <a href="feed.html" id="nav-inicio" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -182,7 +168,6 @@
         </a>
     </nav>
 
-    <!-- Modal Desplegable (Pop-over) -->
     <div class="modal-overlay hidden" id="activity-modal">
         <div class="activity-popover">
             <div class="popover-arrow"></div>

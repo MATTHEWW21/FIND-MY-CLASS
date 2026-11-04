@@ -1,7 +1,3 @@
-// voz.js - asistente de voz del mapa: escucha el destino, lo entiende y guia hablando (pensado para personas con discapacidad visual).
-// Usa lo que ya trae el navegador (reconocimiento de voz + voz sintetica), asi que no necesita claves ni servicios de pago.
-// Se carga DESPUES de mapa.js:  <script src="js/voz-guia.js"></script> <script src="js/voz.js"></script>
-// Modo demo para pruebas en laptop (sin GPS): abre mapa.html?demo=1  (el recorrido se simula; ?demo=1&vel=6 cambia la velocidad en m/s)
 (function () {
     const G = window.FMCGuia;
     const B = window.FMCBusqueda;
@@ -13,20 +9,19 @@
     const DEMO = params.get('demo') === '1';
     const VEL_DEMO = Math.max(1, Math.min(15, Number(params.get('vel')) || 4));
 
-    const RADIO_FIN = 9;          // m: se considera terminado el paso
-    const RADIO_PREVIO = 20;      // m: se avisa lo que viene
-    const RADIO_LLEGADA = 12;     // m: se considera que llegaste
-    const FUERA_RUTA = 40;        // m: a esta distancia de la ruta se recalcula
-    const GPS_MAX_ERROR = 60;     // m: lecturas peores que esto se ignoran
+    const RADIO_FIN = 9;
+    const RADIO_PREVIO = 20;
+    const RADIO_LLEGADA = 12;
+    const FUERA_RUTA = 40;
+    const GPS_MAX_ERROR = 60;
 
-    let ruta = null;              // ultimo detalle de 'fmc:ruta'
-    let ocupado = false;          // hay un dialogo de voz en curso
-    let modoVoz = false;          // el destino se eligio por voz: la guia habla sola
+    let ruta = null;
+    let ocupado = false;
+    let modoVoz = false;
     let ignorarEmpezar = false;
-    let guia = null;              // estado de la guia activa
+    let guia = null;
     let reconocimiento = null;
 
-    // Preferencia: que la guia hable aunque el destino no se haya pedido por voz
     function prefVoz() { try { return localStorage.getItem('fmcVozGuia') === '1'; } catch (e) { return false; } }
     function guardarPrefVoz(v) { try { localStorage.setItem('fmcVozGuia', v ? '1' : '0'); } catch (e) {} }
     const debeHablarGuia = () => modoVoz || prefVoz();
@@ -35,7 +30,6 @@
     const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
     const vibrar = (patron) => { try { if (navigator.vibrate) navigator.vibrate(patron); } catch (e) {} };
 
-    // ---------- Voz que habla ----------
     let vozES = null;
     function elegirVoz() {
         if (!synth) return;
@@ -44,8 +38,7 @@
     }
     if (synth) { elegirVoz(); synth.addEventListener && synth.addEventListener('voiceschanged', elegirVoz); }
 
-    let _utt = null;   // se guarda para que el navegador no la borre antes de terminar de hablar
-    // Habla y devuelve una promesa que se cumple al terminar. Tambien lo muestra escrito (personas sordas o con ruido alrededor).
+    let _utt = null;
     function hablar(texto, opciones) {
         const o = opciones || {};
         mostrarTexto(texto);
@@ -68,17 +61,14 @@
     }
     function callar() { try { if (synth) synth.cancel(); } catch (e) {} }
 
-    // ---------- Panel de texto y botones ----------
     let panel, lblEstado, lblTexto, filaCtl, btnFab, btnMute;
 
     function crearUI() {
-        // Boton grande de micrófono, siempre a la mano
         btnFab = el('button', 'voz-fab');
         btnFab.type = 'button'; btnFab.id = 'btn-voz';
         btnFab.setAttribute('aria-label', 'Hablar con el asistente de voz. Puedes decir, por ejemplo: llévame al consultorio');
         btnFab.textContent = '🎙️';
         btnFab.addEventListener('click', alTocarMicrofono);
-        // Dentro del marco del celular (la app es una columna de 430 px centrada), no pegado al borde de la ventana
         const host = document.querySelector('.map-screen-container') || document.body;
         host.appendChild(btnFab);
 
@@ -100,11 +90,9 @@
         pintarMute();
         panel.hidden = true;
 
-        // Micrófono de la barra de búsqueda (el que ya traía el diseño)
         const micBarra = document.getElementById('btn-voz-busqueda');
         if (micBarra) micBarra.addEventListener('click', (e) => { e.stopPropagation(); alTocarMicrofono(); });
 
-        // Botones dentro del panel de ruta + lista de pasos escritos
         const cont = document.querySelector('#route-panel .instructions-text');
         if (cont && !document.getElementById('route-steps')) {
             const acciones = el('div', 'voz-acciones-ruta');
@@ -161,8 +149,6 @@
         });
     }
 
-    // ---------- Micrófono ----------
-    // Devuelve { texto, alternativas } o { error }
     function escuchar(ms) {
         return new Promise((resolve) => {
             if (!SR) return resolve({ error: 'no-soportado' });
@@ -206,7 +192,6 @@
     }
     const errorGrave = (err) => ['no-soportado', 'sin-https', 'not-allowed', 'service-not-allowed', 'audio-capture'].includes(err);
 
-    // ---------- Dialogo: ¿a dónde quieres ir? ----------
     function alTocarMicrofono() {
         if (reconocimiento) { try { reconocimiento.stop(); } catch (e) {} return; }
         if (ocupado) { callar(); return; }
@@ -240,7 +225,7 @@
                 const origen = await origenP;
                 const lugares = M.lugares();
                 let res = { tipo: 'nada' };
-                for (const alt of r.alternativas || [r.texto]) {   // prueba lo que el micrófono cree haber oído, de más a menos probable
+                for (const alt of r.alternativas || [r.texto]) {
                     res = G.interpretar(alt, lugares, origen);
                     if (res.tipo === 'destino' || res.tipo === 'varios') break;
                 }
@@ -274,7 +259,6 @@
         return null;
     }
 
-    // Elige el destino, calcula la ruta y pregunta si empezamos
     async function irA(lugar, motivo) {
         modoVoz = true; pintarMute();
         const intro = motivo === 'cercano' ? 'El más cercano es ' + lugar.nombre + '.' : motivo === 'necesidad' ? 'Te llevo a ' + lugar.nombre + '.' : 'Muy bien, ' + lugar.nombre + '.';
@@ -303,9 +287,7 @@
         hablar(todo);
     }
 
-    // ---------- Guia durante el recorrido ----------
     function puntoASegmentoM(p, a, b) {
-        // distancia aproximada (plano local) de un punto a un segmento, en metros
         const k = Math.cos(p.lat * Math.PI / 180) * 111320, kl = 110540;
         const px = (p.lng - a.lng) * k, py = (p.lat - a.lat) * kl;
         const bx = (b.lng - a.lng) * k, by = (b.lat - a.lat) * kl;
@@ -334,12 +316,10 @@
         if (!ruta || !ruta.pasos.length) { await hablar('Primero elige un destino.'); return; }
         detenerGuia(null, true);
         guia = { activa: true, idx: 0, previoDicho: false, watchId: null, simId: null, manual: false, fuera: 0, ultRecalculo: 0, ultPos: null, avisoGPS: false, hablando: Promise.resolve() };
-        // Marca "EMPEZAR" en el panel de ruta (sin que ese clic vuelva a iniciar la guía)
         if (window.FMCMapa && !window.FMCMapa.enNavegacion()) { ignorarEmpezar = true; window.FMCMapa.empezar(); ignorarEmpezar = false; }
         pintarPasos(); pintarMute();
         mostrarTexto(ruta.pasos[0].texto, '🧭 Guiando');
         if (debeHablarGuia()) await hablar('Empezamos. ' + ruta.pasos[0].texto);
-        // Escaleras y rampas cerca del camino (pines de accesibilidad)
         const accTxt = window.FMCAcc ? window.FMCAcc.resumen() : '';
         if (accTxt && debeHablarGuia()) hablar(accTxt, { interrumpir: false });
         vibrar(120);
@@ -367,13 +347,11 @@
             if (!guia.avisoGPS) { guia.avisoGPS = true; if (debeHablarGuia()) hablar('La señal de ubicación es débil. Si puedes, avanza a un lugar abierto.', { interrumpir: false }); }
             return;
         }
-        // Fuera del campus: no tiene sentido seguirte con el GPS
         if (!DEMO && guia.ultPos === null && window.FMCMapa && !window.FMCMapa.dentroDelCampus(p.lat, p.lng)) {
             pasarAManual('No detecto tu ubicación dentro del campus.');
             return;
         }
         guia.ultPos = p;
-        // Hacia donde camina de verdad la persona (por los ultimos puntos del GPS): sirve para decir izquierda/derecha bien
         guia.hist = (guia.hist || []).concat([p]).slice(-8);
         guia.rumboReal = null;
         for (let k = 0; k < guia.hist.length - 1; k++) {
@@ -387,7 +365,6 @@
         const final = ruta.pasos[ult].fin;
         if (G.distanciaM(p, final) <= RADIO_LLEGADA) { llegar(); return; }
 
-        // ¿Ya llegaste al final de este paso o de uno de los dos siguientes?
         for (let k = guia.idx; k <= Math.min(ult, guia.idx + 2); k++) {
             if (G.distanciaM(p, ruta.pasos[k].fin) <= RADIO_FIN) {
                 if (k === ult) { llegar(); return; }
@@ -401,7 +378,6 @@
             if (debeHablarGuia()) hablar(previo, { interrumpir: false });
             mostrarTexto(previo, '🧭 Guiando');
         }
-        // ¿Te saliste del camino?
         if (distanciaARuta(p) > FUERA_RUTA) guia.fuera++; else guia.fuera = 0;
         if (guia.fuera >= 3 && Date.now() - guia.ultRecalculo > 25000) recalcular(p);
     }
@@ -418,7 +394,6 @@
         if (debeHablarGuia()) await hablar(ruta.pasos[0].texto);
     }
 
-    // Pasa al siguiente paso. manual = true cuando lo pidió la persona (botón o voz)
     function avanzar(manual) {
         if (!guia || !guia.activa) return;
         guia.idx++;
@@ -438,7 +413,6 @@
         const aviso = 'Has llegado a ' + nombre + '.';
         detenerGuia(null, true);
         mostrarTexto(aviso, '✅ Llegaste');
-        // Habla siempre al llegar si la guía era por voz
         const dicho = (modoVoz || prefVoz()) ? hablar(aviso) : Promise.resolve();
         dicho.then(() => { if (window.FMCMapa) window.FMCMapa.finalizar(); });
     }
@@ -477,7 +451,6 @@
         } finally { ocupado = false; setEstado(''); }
     }
 
-    // ---------- Modo demo: recorre la ruta solo, para probar sin salir a caminar ----------
     function simular() {
         const puntos = [ruta.tramos[0].a].concat(ruta.tramos.map((t) => t.b));
         let seg = 0, recorrido = 0;     // seg: tramo actual, recorrido: metros dentro del tramo
@@ -501,15 +474,11 @@
         }, 400);
     }
 
-    // ---------- Eventos del mapa ----------
     document.addEventListener('fmc:ruta', (e) => {
         ruta = e.detail;
         pintarPasos();
-        // Si el destino cambia a mitad de camino (recalculo), no se detiene la guía
-        // y el resumen se muestra escrito solo cuando la persona usa la voz (los demás ya ven el panel de ruta)
         if (!(guia && guia.activa) && !ocupado && debeHablarGuia()) mostrarTexto(ruta.resumen, '');
     });
-    // Cambio de ruta a mitad de camino (boton OTRA RUTA): la guia sigue, pero con las indicaciones nuevas desde el principio
     document.addEventListener('fmc:rutacambiada', () => {
         if (!(guia && guia.activa)) return;
         guia.idx = 0; guia.previoDicho = false; guia.fuera = 0;
@@ -530,7 +499,6 @@
         if (panel && !ocupado) panel.hidden = true;
     });
 
-    // Atajo de teclado en computadora: la tecla "v" abre el micrófono (si no se está escribiendo)
     document.addEventListener('keydown', (e) => {
         if ((e.key === 'v' || e.key === 'V') && !e.ctrlKey && !e.metaKey && !e.altKey && !/input|textarea|select/i.test((e.target.tagName || ''))) {
             alTocarMicrofono();
@@ -540,6 +508,5 @@
     crearUI();
     pintarPasos();
 
-    // Para pruebas desde la consola / las pruebas automáticas
     window.FMCVoz = { hablar, escuchar, iniciarGuia, detenerGuia, alRecibirPosicion, avanzar, _estado: () => ({ ruta, guia, modoVoz }) };
 })();

@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
 
-// GET /api/servicios -> Obtener todos los servicios (con opcion de filtrar por es_accesible)
 router.get('/', async (req, res) => {
     const { solo_accesibles } = req.query;
     try {

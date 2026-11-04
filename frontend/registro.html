@@ -18,25 +18,21 @@
 
 <main class="registro-container">
 
-    <!-- Encabezado -->
     <header class="registro-header">
         <h1>UAGPS</h1>
     </header>
 
-    <!-- Ícono Principal Superior -->
     <div class="activity-icon-main" id="activity-main-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="5" r="2.5"/><path d="m9 20 3-6 3 6"/><path d="m6 9 6 1 6-1"/><path d="M12 10v4"/>
         </svg>
     </div>
 
-    <!-- Timer / Cronómetro -->
     <div class="timer-section">
         <div class="timer-display" id="timer">00:00:00</div>
         <div class="timer-label">TIEMPO TRANSCURRIDO</div>
     </div>
 
-    <!-- Grid de Métricas -->
     <div class="metrics-grid">
         <div class="metric-item">
             <span class="metric-value"><span id="distancia">0.00</span></span>
@@ -53,23 +49,19 @@
     </div>
     <p class="gps-estado" id="gps-estado">Elige tu actividad y pulsa COMENZAR</p>
 
-    <!-- Botón SOS -->
     <div class="sos-wrapper">
         <button class="sos-btn" id="btn-sos">SOS</button>
     </div>
 
     <hr class="divider">
 
-    <!-- Ruta en curso en el mapa (la llena registro.js si hay una) -->
     <div class="ruta-mapa-aviso hidden" id="ruta-mapa-aviso" role="status">
         <span id="ruta-mapa-texto"></span>
         <a href="mapa.html" class="ruta-mapa-link">Volver al mapa</a>
     </div>
 
-    <!-- Selector de actividades (lo llena registro.js con las mismas actividades y colores de "Nueva publicación") -->
     <div class="activity-selector" id="selector"></div>
 
-    <!-- Botón Comenzar -->
     <div class="start-action-wrapper">
         <button class="start-btn" id="btn-comenzar">
             <div class="start-btn-content">
@@ -81,7 +73,6 @@
         <button class="finish-btn hidden" id="btn-terminar">TERMINAR Y GUARDAR</button>
     </div>
 
-    <!-- Navegación Inferior -->
     <nav class="bottom-nav">
         <a href="feed.html" id="nav-inicio" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -101,9 +92,6 @@
         </a>
     </nav>
 
-    <!-- ==========================================
-         MODAL / PANEL SOS ACTIVADO
-         ========================================== -->
     <div class="sos-overlay hidden" id="sos-overlay">
         <div class="sos-modal">
 
@@ -114,7 +102,6 @@
             <div class="sos-body">
                 <p class="sos-question">¿Qué tipo de problema tienes?</p>
 
-                <!-- Grid de 7 Opciones con SVGs Vectoriales -->
                 <div class="sos-grid">
                     <button class="sos-chip active" data-type="lesion">
                         <div class="sos-svg-icon">
@@ -183,7 +170,6 @@
                     </button>
                 </div>
 
-                <!-- Sección Acciones -->
                 <div class="sos-action-section">
                     <span class="sos-section-title">SOLICITAR AYUDA A LA UAG</span>
 
@@ -211,9 +197,6 @@
         </div>
     </div>
 
-    <!-- ==========================================
-         MODAL / VISTA DE ASISTENCIA MÉDICA EN CAMINO
-         ========================================== -->
     <div class="medical-overlay hidden" id="medical-overlay">
         <div class="medical-screen-container">
 
@@ -245,7 +228,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                     <span>MENSAJES</span>
                 </a>
-                <!-- En la barra inferior (bottom-nav) -->
                 <a href="mi_perfil.html" class="nav-item">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     <span>PERFIL</span>
@@ -255,7 +237,6 @@
         </div>
     </div>
 
-    <!-- Resumen al terminar la actividad -->
     <div class="resumen-overlay hidden" id="resumen-overlay">
         <div class="resumen-card">
             <div class="resumen-icono" id="resumen-icono"></div>

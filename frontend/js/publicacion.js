@@ -1,12 +1,10 @@
-// publicacion.js - pantalla "Nueva publicación": fotos (hasta 3), actividad, estadísticas de tu última ruta,
-// ubicación, privacidad y envío al servidor. Requiere api.js (y mapa-busqueda.js para elegir ubicación).
 document.addEventListener("DOMContentLoaded", () => {
     if (typeof requerirSesion === "function" && !requerirSesion()) return;
 
     const $ = (id) => document.getElementById(id);
     const MAX_FOTOS = 3;
-    const LADO_MAX = 1080;           // las fotos se reducen a 1080 px de lado mayor antes de subirlas
-    const PESO_KG = 70;              // peso de referencia para estimar calorías (aproximado)
+    const LADO_MAX = 1080;
+    const PESO_KG = 70;
     const MET = { caminata: 3.5, carrera: 9, ciclismo: 6.8, inclusivo: 3, scooter: 4 };
     const ACT = {
         caminata:  { emoji: "🚶", nombre: "CAMINATA" },
@@ -18,17 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const estado = { actividad: "caminata", fotos: [], ubicacion: null, privacidad: "todos", ruta: null, etiquetas: [] };
 
-    // Última ruta terminada en el mapa (solo si es de las últimas 12 horas)
     try {
         const r = JSON.parse(localStorage.getItem("ultimaRuta") || "null");
         if (r && Date.now() - r.ts < 12 * 3600 * 1000 && r.distancia_m > 0 && r.duracion_s > 0) {
             estado.ruta = r;
             estado.ubicacion = r.destino || null;
-            if (r.actividad && MET[r.actividad]) estado.actividad = r.actividad;   // la que se registró en INICIAR RUTA
+            if (r.actividad && MET[r.actividad]) estado.actividad = r.actividad;
         }
     } catch (e) {}
 
-    // ---------- utilidades ----------
     const fmtDistancia = (m) => (m < 1000 ? `${m} M` : `${(m / 1000).toFixed(2)} KM`);
     const fmtDuracion = (s) => {
         const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
@@ -43,11 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => t.remove(), 2600);
     }
 
-    // ---------- pintar pantalla ----------
     function pintar() {
         const act = ACT[estado.actividad];
         $("display-activity-name").textContent = act.nombre;
-        // El ícono y el color de los dos círculos siguen a la actividad elegida
         const A = window.FMCActividades;
         const info = A.ACTIVIDADES[estado.actividad];
         const botonIcono = $("open-activity-modal");
@@ -65,13 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
         $("ov-dur").textContent = $("display-dur").textContent;
         $("ov-cal").textContent = $("display-cal").textContent;
 
-        // Interruptor de estadísticas: solo si hay una ruta terminada
         $("chk-stats").disabled = !tieneStats;
         if (!tieneStats) $("chk-stats").checked = false;
         $("txt-stats-ayuda").textContent = tieneStats ? "Calorías aproximadas" : "Termina una ruta en el mapa para incluirlas";
         $("overlay-stats").classList.toggle("hidden", !(tieneStats && $("chk-stats").checked));
 
-        // Fotos
         const hay = estado.fotos.length > 0;
         const principal = $("main-preview-img"), cuadro = $("selected-publish-img");
         principal.classList.toggle("hidden", !hay); cuadro.classList.toggle("hidden", !hay);
@@ -102,7 +94,6 @@ document.addEventListener("DOMContentLoaded", () => {
             : estado.etiquetas.length ? estado.etiquetas.map((x) => x.nombre).join(", ") : "Nadie";
     }
 
-    // ---------- fotos: se leen, se reducen y se guardan como JPEG (data URL) ----------
     function reducir(archivo) {
         return new Promise((resolve, reject) => {
             const lector = new FileReader();
@@ -136,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     $("btn-agregar-foto-grande").addEventListener("click", () => $("input-fotos").click());
 
-    // ---------- navegación entre pasos ----------
     const paso1 = $("step-photo-select"), paso2 = $("step-publish-details");
     $("btn-close").addEventListener("click", async () => {
         const hayCambios = estado.fotos.length || $("pie-foto").value.trim();
@@ -147,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
     $("btn-back-step").addEventListener("click", () => { paso2.classList.add("hidden"); paso1.classList.remove("hidden"); });
     $("chk-stats").addEventListener("change", pintar);
 
-    // ---------- actividad (pop-over) ----------
     const modal = $("activity-modal");
     let actividadElegida = estado.actividad;
     $("open-activity-modal").addEventListener("click", () => {
@@ -165,23 +154,20 @@ document.addEventListener("DOMContentLoaded", () => {
     $("btn-accept-activity").addEventListener("click", () => { estado.actividad = actividadElegida; modal.classList.add("hidden"); pintar(); });
     modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.add("hidden"); });
 
-    // ---------- privacidad ----------
     $("fila-privacidad").addEventListener("click", async () => {
         const nueva = await PubSel.privacidad(estado.privacidad);
         if (!nueva) return;
         estado.privacidad = nueva;
-        if (nueva === "solo_yo") estado.etiquetas = [];     // una publicacion privada no etiqueta a nadie
+        if (nueva === "solo_yo") estado.etiquetas = [];
         pintar();
     });
 
-    // ---------- etiquetar amigos ----------
     $("fila-etiquetas").addEventListener("click", async () => {
         if (estado.privacidad === "solo_yo") { aviso("Cambia la privacidad para poder etiquetar"); return; }
         const lista = await PubSel.etiquetas(estado.etiquetas);
         if (lista) { estado.etiquetas = lista; pintar(); }
     });
 
-    // ---------- ubicación: lista de lugares del campus ----------
     let lugares = null;
     async function elegirUbicacion() {
         const caja = document.createElement("div");
@@ -225,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     $("fila-ubicacion").addEventListener("click", elegirUbicacion);
 
-    // ---------- publicar ----------
     $("btn-publish").addEventListener("click", async () => {
         const pie = $("pie-foto").value.trim();
         if (!pie && !estado.fotos.length) { aviso("Escribe algo o agrega una foto"); return; }
@@ -247,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     calorias: calorias(),
                 },
             });
-            try { localStorage.removeItem("ultimaRuta"); } catch (e) {}   // una ruta se publica una sola vez
+            try { localStorage.removeItem("ultimaRuta"); } catch (e) {}
             window.location.href = "feed.html";
         } catch (e) {
             aviso(e.message);

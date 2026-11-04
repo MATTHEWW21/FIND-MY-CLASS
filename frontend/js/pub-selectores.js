@@ -1,6 +1,3 @@
-// pub-selectores.js - hojas para elegir amigos a etiquetar y la privacidad de una publicación.
-// Las usan nueva-publicacion.html (al publicar) y feed.html (al editar). Requiere api.js.
-// Cada función devuelve una promesa: el valor elegido, o null si la persona cerró la hoja sin confirmar.
 (function () {
     const MAX_ETIQUETAS = 10;
     const PRIVACIDADES = [
@@ -16,7 +13,6 @@
         return n;
     };
 
-    // Abre una hoja inferior; resolver(valor) la cierra. Tocar fuera o Escape = null.
     function hoja(contenido, resolver) {
         const fondo = el("div", "pub-fondo");
         const h = el("div", "pub-hoja");
@@ -50,7 +46,6 @@
         });
     }
 
-    // actuales: [{id, nombre}] -> resuelve con la lista nueva [{id, nombre}]
     function etiquetas(actuales) {
         return new Promise((resolver) => {
             const caja = el("div");

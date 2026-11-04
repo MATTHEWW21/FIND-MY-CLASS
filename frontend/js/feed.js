@@ -1,5 +1,3 @@
-// feed.js - feed de la comunidad: lista publicaciones reales, me gusta, comentarios, menú ⋮ (eliminar / reportar).
-// Requiere api.js cargado antes. Todo el texto de usuarios se inserta con textContent (nunca innerHTML).
 document.addEventListener("DOMContentLoaded", () => {
     const cont = document.getElementById("feed-posts");
     if (!cont) return;
@@ -14,7 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const MOTIVOS = [["ofensivo", "Contenido ofensivo"], ["spam", "Spam o publicidad"], ["falso", "Información falsa"], ["otro", "Otro motivo"]];
 
-    // ---------- utilidades ----------
     function el(tag, clase, texto) {
         const e = document.createElement(tag);
         if (clase) e.className = clase;
@@ -75,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const ICONO_COMENT = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
     const ICONO_MAS = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
 
-    // ---------- hojas inferiores (comentarios, menú) ----------
     function abrirHoja(contenido) {
         const fondo = el("div", "pub-fondo");
         const hoja = el("div", "pub-hoja");
@@ -86,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return fondo;
     }
 
-    // ---------- tarjeta de publicación ----------
     function textoLikes(p) {
         if (p.yo_di_like) return p.likes <= 1 ? "Te gusta a ti" : `Te gusta a ti y a ${p.likes - 1} más`;
         if (p.likes === 0) return "Sé la primera persona en dar me gusta";
@@ -192,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return card;
     }
 
-    // ---------- comentarios ----------
     async function abrirComentarios(p, alCambiar) {
         const caja = el("div");
         caja.appendChild(el("h2", "", "Comentarios"));
@@ -248,7 +242,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cargar();
     }
 
-    // ---------- menú ⋮ ----------
     function abrirMenu(p, card) {
         const caja = el("div", "pub-menu");
         let fondo;
@@ -295,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
         fondo = abrirHoja(caja);
     }
 
-    // ---------- editar mi publicación (texto, ubicación, privacidad y etiquetas) ----------
     function abrirEditor(p, card) {
         const nuevo = { privacidad: p.privacidad, etiquetas: (p.etiquetas || []).map((x) => ({ id: x.id, nombre: x.nombre })) };
         const caja = el("div", "pub-menu ed-caja");
@@ -347,7 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---------- foto a pantalla completa ----------
     function verFoto(src) {
         const fondo = el("div", "pub-fondo");
         fondo.style.alignItems = "center";
@@ -358,7 +349,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(fondo);
     }
 
-    // ---------- carga del feed ----------
     let ultimoId = null;
     let botonMas = null;
 
@@ -384,7 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- avisos (por ahora: "te etiquetaron") ----------
     const btnAvisos = document.getElementById("btn-avisos");
     const insignia = document.getElementById("avisos-n");
     function pintarInsignia(n) {
@@ -420,7 +409,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) { lista.appendChild(el("p", "pub-error", e.message)); }
     });
 
-    // Si llegas desde un aviso (feed.html?pub=ID), esa publicacion se muestra primero
     let destacadoId = null;
     async function mostrarDestacada() {
         const id = Number(new URLSearchParams(location.search).get("pub"));

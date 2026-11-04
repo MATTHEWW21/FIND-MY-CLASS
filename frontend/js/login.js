@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
             guardarSesion(data.token, data.usuario);
             window.location.href = rutaInicio(data.usuario);
         } catch (err) {
-            // Cuenta creada pero sin verificar: mandarlo a verificar
             if (err.data && err.data.requiereVerificacion) {
                 localStorage.setItem('pendingEmail', correo);
                 await FMCAviso.alerta('Tu cuenta aún no está verificada. Ingresa el código que te enviamos.', 'info');

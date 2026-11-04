@@ -1,4 +1,3 @@
-// perfil.js - perfil de otra persona (perfil_usuario.html?id=N). Datos reales desde /api/amigos/perfil/:id
 document.addEventListener("DOMContentLoaded", async () => {
     if (typeof requerirSesion === "function" && !requerirSesion()) return;
     const $ = (id) => document.getElementById(id);
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const menuBtn = $("profile-menu-btn"), menu = $("profile-dropdown-menu"), btn = $("btn-add-friend");
     let persona = null;
 
-    // Menu desplegable
     menuBtn.setAttribute("aria-haspopup", "true");
     menuBtn.setAttribute("aria-expanded", "false");
     function cerrarMenu() { menu.classList.add("hidden"); menuBtn.setAttribute("aria-expanded", "false"); }
@@ -104,7 +102,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (e) { FMCAviso.aviso(e.message, "error"); }
     });
 
-    // ---------- Reportar: hoja con motivo, comentario opcional y la opcion de bloquear tambien ----------
     const MOTIVOS = [
         ["acoso", "Acoso o conducta ofensiva"], ["spam", "Spam o publicidad"], ["suplantacion", "Se hace pasar por otra persona"],
         ["inapropiado", "Contenido inapropiado"], ["otro", "Otro motivo"],

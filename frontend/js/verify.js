@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const correo = localStorage.getItem('pendingEmail');
 
-    // Sin correo pendiente no hay nada que verificar
     if (!correo) {
         FMCAviso.alerta('No hay un registro pendiente de verificar. Inicia sesión o regístrate.', 'error').then(() => { window.location.href = 'index.html'; });
         return;

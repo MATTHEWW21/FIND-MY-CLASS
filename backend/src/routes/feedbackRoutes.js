@@ -5,7 +5,6 @@ const { verificarToken } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Frena el spam: 30 envios cada 15 min por IP
 const limitador = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 30,
@@ -15,10 +14,8 @@ const limitador = rateLimit({
 });
 
 const CATEGORIAS = ['camino', 'bache', 'escalera', 'iluminacion', 'mobiliario', 'limpieza', 'otro'];
-// Misma zona que el mapa (Campus CU)
 const LIM = { latMin: 20.685, latMax: 20.701, lngMin: -103.426, lngMax: -103.409 };
 
-// Los visitantes (invitados) tambien pueden enviar, pero sin usuario asociado
 function idUsuario(req) {
   const u = req.usuario || {};
   return !u.invitado && Number.isInteger(u.id) ? u.id : null;
@@ -26,7 +23,6 @@ function idUsuario(req) {
 
 const texto = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
-// POST /api/feedback/calificaciones  { estrellas, comentario?, destino_clave?, destino_nombre? }
 router.post('/calificaciones', limitador, verificarToken, async (req, res) => {
   const estrellas = Number(req.body.estrellas);
   if (!Number.isInteger(estrellas) || estrellas < 1 || estrellas > 5) {
@@ -51,7 +47,6 @@ router.post('/calificaciones', limitador, verificarToken, async (req, res) => {
   }
 });
 
-// POST /api/feedback/incidencias  { categoria, descripcion?, latitud, longitud }
 router.post('/incidencias', limitador, verificarToken, async (req, res) => {
   const categoria = texto(req.body.categoria, 20);
   const lat = Number(req.body.latitud);

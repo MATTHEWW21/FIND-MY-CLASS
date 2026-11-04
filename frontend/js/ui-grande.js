@@ -1,5 +1,3 @@
-// ui-grande.js - modo "Botones grandes": agranda botones, chips y controles para quien usa lector de pantalla (TalkBack) o toca con dificultad.
-// Una pagina web no puede saber si TalkBack esta prendido, asi que es un ajuste que la persona activa (Perfil > Ajustes).
 (function () {
     const CLAVE = 'fmc_ui_grande';
     function leer() { try { return localStorage.getItem(CLAVE); } catch (e) { return null; } }

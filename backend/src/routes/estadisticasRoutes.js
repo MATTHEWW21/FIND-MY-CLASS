@@ -5,9 +5,6 @@ const pool = require('../config/db');
 
 const router = express.Router();
 
-// Solo cifras agregadas (conteos y sumas): no devuelve nombres, correos ni mensajes de nadie.
-// Se protege con la misma llave de administrador del .env (ADMIN_API_KEY), enviada en el encabezado x-admin-key.
-// Si ADMIN_API_KEY no está definida, el panel queda desactivado.
 function requerirAdmin(req, res, next) {
     const esperada = process.env.ADMIN_API_KEY || '';
     const recibida = String(req.headers['x-admin-key'] || '');
@@ -18,7 +15,6 @@ function requerirAdmin(req, res, next) {
     next();
 }
 
-// Frena a quien intente adivinar la llave: 30 intentos cada 15 min por IP
 const limitador = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 30,
@@ -27,7 +23,6 @@ const limitador = rateLimit({
     message: { status: 'fail', message: 'Demasiados intentos, espera unos minutos' },
 });
 
-// Cada consulta va por separado: si una tabla todavía no existe, esa parte sale vacía y el resto funciona
 async function filas(sql) {
     try {
         return (await pool.query(sql)).rows;
@@ -42,11 +37,9 @@ const uno = async (sql) => {
 };
 const num = (v) => (v === null || v === undefined ? 0 : Number(v));
 
-// Serie de los últimos N días con ceros en los días sin datos
 function serieDias(rows, dias) {
     const mapa = new Map((rows || []).map((r) => [r.dia, num(r.n)]));
     const out = [];
-    // Los días se cuentan en hora de Guadalajara, igual que en las consultas
     const hoyTxt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date()); // AAAA-MM-DD
     const [y, m, dd] = hoyTxt.split('-').map(Number);
     for (let i = dias - 1; i >= 0; i--) {
@@ -56,7 +49,6 @@ function serieDias(rows, dias) {
     return out;
 }
 
-// GET /api/estadisticas
 router.get('/', limitador, requerirAdmin, async (req, res) => {
     const [
         usuariosTot, usuariosRol, usuariosDia,
@@ -165,9 +157,6 @@ router.get('/', limitador, requerirAdmin, async (req, res) => {
     });
 });
 
-// ---------- Reportes de personas (los revisa quien administra) ----------
-// Aqui SI aparecen nombres (hace falta para actuar), por eso va detras de la llave de administrador. Nunca se muestran correos.
-// GET /api/estadisticas/reportes
 router.get('/reportes', limitador, requerirAdmin, async (req, res) => {
     try {
         const { rows } = await pool.query(
@@ -192,7 +181,6 @@ router.get('/reportes', limitador, requerirAdmin, async (req, res) => {
     }
 });
 
-// POST /api/estadisticas/reportes/:id/revisado
 router.post('/reportes/:id/revisado', limitador, requerirAdmin, async (req, res) => {
     const id = Number(req.params.id);
     if (!Number.isInteger(id) || id < 1) return res.status(400).json({ status: 'fail', message: 'Reporte no válido' });

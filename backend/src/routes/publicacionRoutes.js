@@ -10,7 +10,6 @@ const { NOMBRE_VALIDO, enviarFoto } = require('../middleware/fotos');
 
 const router = express.Router();
 
-// Solo estudiantes y colaboradores participan (leen, publican, dan like y comentan). Los visitantes no.
 router.use(verificarToken, requerirRol('estudiante', 'colaborador'));
 
 const DIR_FOTOS = path.join(__dirname, '../../uploads/publicaciones');
@@ -34,20 +33,17 @@ const idParam = (req) => {
   const n = Number(req.params.id);
   return Number.isInteger(n) && n > 0 ? n : null;
 };
-// Quien puede ver una publicacion: todos, solo amigos (amistad aceptada) o solo su autor. $yo = parametro con mi id.
 const puedeVer = (yo, p = 'p') => `(${p}.usuario_id = ${yo} OR ${p}.privacidad = 'todos' OR (${p}.privacidad = 'amigos' AND EXISTS (
     SELECT 1 FROM amistades f WHERE f.estado = 'aceptada'
       AND ((f.solicitante_id = ${p}.usuario_id AND f.destinatario_id = ${yo}) OR (f.destinatario_id = ${p}.usuario_id AND f.solicitante_id = ${yo})))))`;
 const PRIVACIDADES = ['todos', 'amigos', 'solo_yo'];
 const error500 = (res, err) => { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); };
 
-// ---------- Fotos: llegan como data URL (jpeg/png/webp), se validan y se guardan en backend/uploads ----------
 function decodificarFoto(dataUrl) {
   const m = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(typeof dataUrl === 'string' ? dataUrl : '');
   if (!m) return null;
   const buf = Buffer.from(m[2], 'base64');
   if (!buf.length || buf.length > MAX_BYTES_FOTO) return null;
-  // Se comprueba el contenido real, no solo lo que dice el encabezado
   const esJpg = buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
   const esPng = buf.slice(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
   const esWebp = buf.slice(0, 4).toString() === 'RIFF' && buf.slice(8, 12).toString() === 'WEBP';
@@ -66,7 +62,6 @@ const borrarArchivos = (nombres) => nombres.forEach((n) => {
   if (/^[a-f0-9]{32}\.(jpg|png|webp)$/.test(n)) fs.unlink(path.join(DIR_FOTOS, n), () => {});
 });
 
-// ---------- Listado ----------
 const SELECT_PUBLICACION = `
   SELECT p.id, p.actividad, p.pie_foto, p.distancia_m, p.duracion_s, p.calorias, p.mostrar_estadisticas,
          p.ubicacion, p.privacidad, p.creado_en, p.editado_en,
@@ -106,14 +101,12 @@ function aJson(r, yo) {
   };
 }
 
-// GET /api/publicaciones?antes=<id>&limite=10  -> mas recientes primero (paginado por id)
 router.get('/', async (req, res) => {
   const yo = req.usuario.id;
   const limite = Math.min(Math.max(Number(req.query.limite) || 10, 1), 30);
   const antes = Number(req.query.antes);
   try {
     const params = [yo, limite];
-    // No se muestran personas bloqueadas (de cualquiera de los dos lados) ni silenciadas
     let filtro = `WHERE ${puedeVer('$1')}
       AND NOT ${hayBloqueo('$1', 'p.usuario_id')}
       AND NOT EXISTS (SELECT 1 FROM silenciados s WHERE s.usuario_id = $1 AND s.silenciado_id = p.usuario_id)`;
@@ -123,8 +116,6 @@ router.get('/', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Crear ----------
-// Verdadero si TODOS los ids son amigos mios (aceptados), verificados y sin bloqueo
 async function sonMisAmigos(yo, ids) {
   if (!ids.length) return true;
   const r = await pool.query(
@@ -136,7 +127,6 @@ async function sonMisAmigos(yo, ids) {
 }
 const limpiarIds = (v, yo) => [...new Set((Array.isArray(v) ? v : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n !== yo))];
 
-// POST /api/publicaciones { actividad, pie_foto?, distancia_m?, duracion_s?, calorias?, mostrar_estadisticas?, ubicacion?, privacidad?, fotos?: [dataUrl] }
 router.post('/', limitePublicar, async (req, res) => {
   const b = req.body || {};
   const actividad = texto(b.actividad, 12);
@@ -155,7 +145,6 @@ router.post('/', limitePublicar, async (req, res) => {
 
   const privacidad = PRIVACIDADES.includes(b.privacidad) ? b.privacidad : 'todos';
 
-  // Etiquetas: solo amigos, sin bloqueos, y no en publicaciones solo para mi
   const yo = req.usuario.id;
   const etiquetas = [...new Set((Array.isArray(b.etiquetas) ? b.etiquetas : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n !== yo))];
   if (etiquetas.length > MAX_ETIQUETAS) return res.status(400).json({ error: `Máximo ${MAX_ETIQUETAS} personas etiquetadas` });
@@ -203,7 +192,6 @@ router.post('/', limitePublicar, async (req, res) => {
   }
 });
 
-// ---------- Foto de una publicacion: solo la ve quien puede ver la publicacion ----------
 router.get('/foto/:archivo', async (req, res) => {
   const archivo = String(req.params.archivo || '');
   if (!NOMBRE_VALIDO.test(archivo)) return res.status(404).json({ error: 'No encontramos esa foto' });
@@ -217,7 +205,6 @@ router.get('/foto/:archivo', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Una sola publicacion (para abrirla desde un aviso) ----------
 router.get('/:id', async (req, res) => {
   const id = idParam(req);
   const yo = req.usuario.id;
@@ -230,7 +217,6 @@ router.get('/:id', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Editar mi publicacion: texto, ubicacion, privacidad y etiquetas (las fotos y las estadisticas no cambian) ----------
 router.patch('/:id', limitePublicar, async (req, res) => {
   const id = idParam(req);
   const yo = req.usuario.id;
@@ -251,7 +237,6 @@ router.patch('/:id', limitePublicar, async (req, res) => {
     const privacidad = 'privacidad' in b ? b.privacidad : antes.privacidad;
     if (!pie && !antes.n_fotos) { await cliente.query('ROLLBACK'); return res.status(400).json({ error: 'Escribe algo o deja al menos una foto' }); }
 
-    // Etiquetas: lista final deseada (si no la mandan, se conservan; si queda solo_yo, se quitan todas)
     const actuales = (await cliente.query('SELECT usuario_id FROM publicacion_etiquetas WHERE publicacion_id = $1', [id])).rows.map((r) => r.usuario_id);
     let finales = 'etiquetas' in b ? limpiarIds(b.etiquetas, yo) : actuales;
     if (privacidad === 'solo_yo') {
@@ -284,7 +269,6 @@ router.patch('/:id', limitePublicar, async (req, res) => {
   } finally { cliente.release(); }
 });
 
-// ---------- Quitarme una etiqueta (la puede quitar la persona etiquetada) ----------
 router.delete('/:id/etiqueta', async (req, res) => {
   const id = idParam(req);
   if (!id) return res.status(400).json({ error: 'Publicación inválida' });
@@ -296,7 +280,6 @@ router.delete('/:id/etiqueta', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Borrar la propia publicacion ----------
 router.delete('/:id', async (req, res) => {
   const id = idParam(req);
   if (!id) return res.status(400).json({ error: 'Publicación inválida' });
@@ -316,7 +299,6 @@ async function visible(id, yo) {
   return r.rowCount > 0;
 }
 
-// ---------- Like (alterna) ----------
 router.post('/:id/like', limiteReaccion, async (req, res) => {
   const id = idParam(req);
   if (!id) return res.status(400).json({ error: 'Publicación inválida' });
@@ -331,7 +313,6 @@ router.post('/:id/like', limiteReaccion, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Comentarios ----------
 router.get('/:id/comentarios', async (req, res) => {
   const id = idParam(req);
   if (!id) return res.status(400).json({ error: 'Publicación inválida' });
@@ -368,7 +349,6 @@ router.post('/:id/comentarios', limiteComentar, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// Borra un comentario propio, o cualquiera dentro de una publicacion propia
 router.delete('/:id/comentarios/:cid', async (req, res) => {
   const id = idParam(req);
   const cid = Number(req.params.cid);
@@ -384,7 +364,6 @@ router.delete('/:id/comentarios/:cid', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Reportar una publicacion ajena ----------
 router.post('/:id/reportar', limiteReaccion, async (req, res) => {
   const id = idParam(req);
   const motivo = texto(req.body && req.body.motivo, 20);

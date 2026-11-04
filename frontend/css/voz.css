@@ -1,6 +1,3 @@
-/* voz.css - botón de micrófono, panel de texto de la guía por voz y lista de indicaciones.
-   Va DESPUÉS de mapa.css y mapa-buscador.css. Los elementos viven dentro de .map-screen-container (el marco de 430 px). */
-
 /* Micrófono dentro de la barra de búsqueda (antes era solo un dibujo).
    Área de toque de 44 px sin hacer más alta la barra (márgenes negativos). */
 .map-search-bar .search-mic {

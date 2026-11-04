@@ -9,10 +9,9 @@
     <link rel="stylesheet" href="css/publicaciones.css">
     <link rel="stylesheet" href="css/role-ui.css">
     <script src="js/aviso.js"></script>
-<script src="js/role-ui.js"></script>   <!-- antes de los demás scripts de la página -->
+<script src="js/role-ui.js"></script>
 
     <style>
-        /* Estilos sutiles para que el link del perfil no tenga subrayado feo */
         .user-profile-link {
             text-decoration: none;
             color: inherit;
@@ -34,7 +33,6 @@
 
 <div class="mobile-app-wrapper">
 
-    <!-- Header Principal -->
     <header class="app-header">
         <h1 class="brand-title">UAGPS</h1>
         <button type="button" class="campana" id="btn-avisos" aria-label="Avisos">
@@ -43,9 +41,7 @@
         </button>
     </header>
 
-    <!-- Sub-header de Navegación Rápida -->
     <div class="top-actions" role="navigation" aria-label="Accesos rápidos">
-        <!-- Botón MAPAS -->
         <a href="mapa.html" class="action-btn active" id="btn-mapas" style="text-decoration: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon">
                 <path d="M20 10c0 6-8 12-8 12s-8-6-8-10a8 8 0 0 1 16 0Z"/>
@@ -54,7 +50,6 @@
             <span>MAPAS</span>
         </a>
 
-        <!-- Botón PUBLICACIÓN -->
         <a href="nueva-publicacion.html" class="action-btn" id="btn-publicacion" style="text-decoration: none;">
             <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon">
                 <circle cx="12" cy="12" r="10"/>
@@ -65,19 +60,14 @@
         </a>
     </div>
 
-    <!-- ==========================================
-             SECCIÓN: CARRUSEL DE EVENTOS UAG
-             ========================================== -->
     <section class="uag-events-section" aria-labelledby="titulo-eventos">
         <div class="events-header">
             <h2 class="events-title" id="titulo-eventos">⚡ EVENTOS UAG</h2>
             <span class="events-subtitle">Desliza para ver más ›</span>
         </div>
 
-        <!-- Carrusel Horizontal de Eventos -->
         <div class="events-carousel" tabindex="0" role="group" aria-label="Eventos UAG. Desliza o usa las flechas para ver más">
 
-            <!-- Evento 1 -->
             <div class="event-card">
                 <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=400" alt="Conferencia Tech" class="event-bg">
                 <div class="event-overlay">
@@ -90,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- Evento 2 -->
             <div class="event-card">
                 <img src="https://images.unsplash.com/photo-1517649763962-0c623266010b?auto=format&fit=crop&q=80&w=400" alt="Torneo Deportivo" class="event-bg">
                 <div class="event-overlay">
@@ -103,7 +92,6 @@
                 </div>
             </div>
 
-            <!-- Evento 3 -->
             <div class="event-card">
                 <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400" alt="Festival Cultural" class="event-bg">
                 <div class="event-overlay">
@@ -119,17 +107,14 @@
         </div>
     </section>
 
-    <!-- Contenido Principal: Feed de Publicaciones -->
     <main class="feed-container">
 
         <h2 class="feed-section-title" style="margin: 12px 14px 6px 14px; font-size: 0.9rem; font-weight: 800; color: #333;">Feed de la Comunidad</h2>
 
-        <!-- Aquí js/feed.js dibuja las publicaciones reales -->
         <div id="feed-posts"></div>
 
     </main>
 
-    <!-- Barra de Navegación Inferior (Bottom Nav) -->
     <nav class="bottom-nav">
         <a href="feed.html" id="nav-inicio" class="nav-item active">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -145,14 +130,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
             <span>MENSAJES</span>
         </a>
-        <!-- En la barra inferior (bottom-nav) -->
         <a href="mi_perfil.html" id="nav-perfil" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>PERFIL</span>
         </a>
     </nav>
 
-    <!-- Overlay del Tutorial -->
     <div id="tutorial-overlay" class="tutorial-overlay hidden">
         <button type="button" id="btn-skip-tutorial" class="tutorial-skip-btn">Omitir</button>
         <div id="tutorial-card" class="tutorial-card">
@@ -162,7 +145,6 @@
 
 </div>
 
-<!-- Carga de Scripts (api.js primero: feed.js lo usa) -->
 <script src="js/api.js"></script>
 <script src="js/actividades.js"></script>
 <script src="js/pub-selectores.js"></script>

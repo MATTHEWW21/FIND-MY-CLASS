@@ -6,9 +6,8 @@ const { verificarToken, requerirRol } = require('../middleware/auth');
 const router = express.Router();
 router.use(verificarToken, requerirRol('estudiante', 'colaborador'));
 
-const PESO_KG = 70; // peso de referencia (aproximado), el mismo que usa "Nueva publicacion"
+const PESO_KG = 70;
 const MET = { caminata: 3.5, carrera: 9, ciclismo: 6.8, inclusivo: 3, scooter: 4 };
-// Velocidad maxima creible (m/s) por actividad: sirve para descartar datos imposibles
 const VEL_MAX = { caminata: 4, carrera: 9, ciclismo: 20, inclusivo: 5, scooter: 12 };
 const ZONA = 'America/Mexico_City';
 
@@ -18,7 +17,6 @@ const entero = (v) => (Number.isFinite(Number(v)) && v !== '' && v !== null ? Ma
 
 const calorias = (tipo, duracionS) => Math.round(MET[tipo] * PESO_KG * (duracionS / 3600));
 
-// POST /api/actividades { tipo, distancia_m, duracion_s, origen?, destino? }
 router.post('/', limiteGuardar, async (req, res) => {
   try {
     const b = req.body || {};
@@ -35,7 +33,6 @@ router.post('/', limiteGuardar, async (req, res) => {
     if (distancia / duracion > VEL_MAX[tipo]) {
       return res.status(400).json({ error: 'La velocidad registrada no es posible para esta actividad' });
     }
-    // Las calorias se calculan aqui: no se confia en el valor que mande el telefono
     const cal = calorias(tipo, duracion);
     const { rows } = await pool.query(
       `INSERT INTO actividades (usuario_id, tipo, origen, distancia_m, duracion_s, calorias, destino)
@@ -47,12 +44,10 @@ router.post('/', limiteGuardar, async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// ---------- Racha y premios ----------
 const MS_DIA = 24 * 3600 * 1000;
 const aMs = (iso) => { const [y, m, d] = iso.split('-').map(Number); return Date.UTC(y, m - 1, d); };
-const lunesDe = (ms) => ms - ((new Date(ms).getUTCDay() + 6) % 7) * MS_DIA; // la semana empieza el lunes
+const lunesDe = (ms) => ms - ((new Date(ms).getUTCDay() + 6) % 7) * MS_DIA;
 
-// Racha: periodos seguidos con al menos una actividad. Si hoy (o esta semana) aun no hay, la racha no se pierde todavia.
 function rachas(diasIso, hoyIso) {
   const hoy = aMs(hoyIso);
   const dias = new Set(diasIso.map(aMs));
@@ -95,7 +90,6 @@ function premios(s) {
   return lista.map(({ ok, ...p }) => ({ ...p, obtenido: ok }));
 }
 
-// GET /api/actividades/resumen -> todo lo que muestra el perfil
 router.get('/resumen', async (req, res) => {
   try {
     const yo = req.usuario.id;

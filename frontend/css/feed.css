@@ -28,7 +28,6 @@
     color: #d97736;
 }
 
-/* Contenedor Carrusel Horizontal con Scroll Snap */
 .events-carousel {
     display: flex;
     gap: 12px;
@@ -38,14 +37,12 @@
     -webkit-overflow-scrolling: touch;
 }
 
-/* Ocultar barra de scroll para acabado limpio */
 .events-carousel::-webkit-scrollbar {
     display: none;
 }
 
-/* Tarjeta individual de evento */
 .event-card {
-    flex: 0 0 240px; /* Ancho fijo para cada tarjeta */
+    flex: 0 0 240px;
     height: 130px;
     border-radius: 16px;
     position: relative;
@@ -69,7 +66,6 @@
     left: 0;
 }
 
-/* Degradado oscuro para legibilidad del texto */
 .event-overlay {
     position: absolute;
     top: 0;

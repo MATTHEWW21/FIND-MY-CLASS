@@ -9,12 +9,10 @@ html[data-role="visitante"] #nav-mensajes {
     display: none !important;
 }
 
-/* El visitante además no tiene perfil ni registro de rutas guardado */
 html[data-role="visitante"] #nav-perfil {
     display: none !important;
 }
 
-/* Icono de docente (birrete) sobre la foto de perfil del colaborador */
 .avatar-docente { position: relative; display: inline-block; }
 html:not([data-role="colaborador"]) .avatar-docente::after { content: none; }
 html[data-role="colaborador"] .avatar-docente::after {

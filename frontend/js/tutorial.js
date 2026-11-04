@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (!overlay || !tutorialCard || !tutorialText) return;
 
-    // El tutorial se guarda en la cuenta (no solo en este teléfono). Los visitantes no tienen cuenta: solo cuenta el teléfono.
     const conCuenta = () => !!localStorage.getItem("token") && localStorage.getItem("userRole") !== "visitante" && typeof apiFetch === "function";
     async function yaLoVioEnLaCuenta() {
         if (!conCuenta()) return false;
@@ -18,8 +17,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         apiFetch("/auth/me/tutorial-visto", { method: "POST" }).catch(() => { /* se reintenta la próxima vez */ });
     }
 
-    // El tutorial sale una sola vez por cuenta (no por teléfono).
-    // Para volver a verlo mientras pruebas: agrega ?tutorial=1 a la URL del feed.
     const cuenta = localStorage.getItem("userEmail") || localStorage.getItem("userRole") || "anon";
     const claveVisto = "hasSeenTutorial:" + cuenta;
     const forzar = new URLSearchParams(location.search).get("tutorial") === "1";
@@ -28,14 +25,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // En este teléfono no lo has visto, pero quizá ya lo viste con tu cuenta en otro dispositivo (o con otro link): se pregunta al servidor
     if (!forzar && await yaLoVioEnLaCuenta()) {
         localStorage.setItem(claveVisto, "true");
         return;
     }
-    overlay.classList.remove("hidden");     // viene oculto desde el HTML para que no parpadee cuando ya lo viste
+    overlay.classList.remove("hidden");
 
-    // Pasos de la vista completa (estudiante y colaborador con feed)
     const completeSteps = [
         {
             text: "Toca la pantalla para iniciar el tutorial",
@@ -57,7 +52,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             target: ".uag-events-section",
             position: "bottom"
         },
-        // Una publicación del feed, explicada pieza por pieza (si todavía no hay ninguna, sale un solo aviso)
         {
             text: "Cada publicación muestra quién la hizo y cuándo. El ícono de color de la derecha indica la actividad: caminata, carrera, bici, scooter o inclusiva.",
             target: ".feed-container .post-card .pub-cabecera",
@@ -116,7 +110,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     ];
 
-    // Pasos de la vista simplificada (colaborador): aterriza directo en el mapa
     const simplifiedSteps = [
         {
             text: "Toca la pantalla para iniciar el tutorial",
@@ -150,18 +143,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     ];
 
-    // role-ui.js (en el <head>) marca <html data-vista="simplificada"> para el colaborador simplificado
     const esSimplificada = document.documentElement.dataset.vista === "simplificada";
     const allSteps = esSimplificada ? simplifiedSteps : completeSteps;
 
-    // Solo se muestran los pasos cuyo elemento existe y está visible en esta pantalla
-    // (la vista simplificada oculta PUBLICACIÓN y MENSAJES con role-ui.css).
     function esVisible(selector) {
         const el = document.querySelector(selector);
         return !!el && el.getClientRects().length > 0;
     }
-    // Si falta el elemento pero el paso trae un texto "siFalta" (p. ej. el feed todavía no tiene publicaciones), se muestra ese aviso solo.
-    // Se calcula hasta que el feed termine de cargar (las publicaciones llegan del servidor un momento después de abrir la página)
     let tutorialSteps = null;
     function prepararPasos() {
         tutorialSteps = allSteps.map(step => {
@@ -171,7 +159,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }).filter(Boolean);
     }
 
-    // Lector de pantalla (TalkBack): el tutorial es un diálogo, anuncia cada paso y se avanza con Enter/espacio
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-label", "Tutorial. Toca la pantalla para avanzar");
@@ -249,7 +236,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         try { overlay.focus({ preventScroll: true }); } catch (e) { /* sin foco */ }
     }
 
-    // En el feed espera (máximo 3 s) a que aparezca la primera publicación; en las demás pantallas arranca de inmediato
     if (document.getElementById("feed-posts") && !document.querySelector("#feed-posts .post-card")) {
         let esperado = 0;
         const revisar = setInterval(() => {

@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const rol = localStorage.getItem('selectedRole');
 
-    // Si no eligió rol (o es visitante) no debe estar aquí
     if (rol !== 'estudiante' && rol !== 'colaborador') {
         window.location.href = 'index.html';
         return;
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         spec:  { el: document.getElementById('rule-spec'),  test: (v) => /[^A-Za-z0-9]/.test(v) },
     };
 
-    // Validación en vivo mientras escribe
     passMain.addEventListener('input', () => {
         Object.values(rules).forEach(({ el, test }) => {
             const ok = test(passMain.value);
@@ -58,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             localStorage.setItem('pendingEmail', correo);
-            // Solo aparece si el backend tiene DEV_MOSTRAR_CODIGO=true (pruebas)
             if (data.codigo_dev) {
                 await FMCAviso.alerta(`[Modo desarrollo]\nTu código de verificación es: ${data.codigo_dev}`, 'info');
             }

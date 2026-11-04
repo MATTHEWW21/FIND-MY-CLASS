@@ -1,6 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Delimitar área de la UAG e inicializar el mapa
-    // (márgenes un poco más amplios que antes para que los pines de las orillas se vean completos)
     const boundsUAG = L.latLngBounds(
         L.latLng(20.6850, -103.4260),
         L.latLng(20.7010, -103.4090)
@@ -19,16 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // Refresco de lienzo para asegurar renderizado correcto en móviles
     setTimeout(() => { map.invalidateSize(); }, 300);
 
-    // 2. Referencias a Elementos del DOM
     const searchTrigger = document.getElementById("search-trigger");
-    const routePanel = document.getElementById("route-panel");       // Panel 1: Ruta Detallada
-    const arrivalPanel = document.getElementById("arrival-panel");   // Panel 2: ¡Llegaste a tu destino!
-    const feedbackPanel = document.getElementById("feedback-panel"); // Panel 3: Tu Experiencia
-    const reportPanel = document.getElementById("report-panel");     // Panel 4: Reportar Incidencia
-    const searchPanel = document.getElementById("search-panel");     // Panel nuevo: Buscador
+    const routePanel = document.getElementById("route-panel");
+    const arrivalPanel = document.getElementById("arrival-panel");
+    const feedbackPanel = document.getElementById("feedback-panel");
+    const reportPanel = document.getElementById("report-panel");
+    const searchPanel = document.getElementById("search-panel");
 
     const btnStart = document.getElementById("btn-start");
     const btnFinish = document.getElementById("btn-finish");
@@ -47,14 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnSubmitReport = document.getElementById("btn-submit-report");
     const categoryChips = document.querySelectorAll(".category-chip");
 
-    // ==========================================
-    // LUGARES DEL CAMPUS: PINES, CHIPS Y BUSCADOR
-    // ==========================================
     const B = window.FMCBusqueda;
     const TIPOS = B ? B.TIPOS : {};
 
-    const MIN_CAMINANDO = 80;   // metros por minuto (≈ 4.8 km/h)
-    // Formas de moverse: las mismas actividades de INICIAR RUTA. "vel" = metros por minuto para estimar el tiempo
+    const MIN_CAMINANDO = 80;
     const MODOS = {
         caminata:  { nombre: "Caminar",   emoji: "🚶", vel: 80 },
         carrera:   { nombre: "Correr",    emoji: "🏃", vel: 170 },
@@ -62,24 +54,24 @@ document.addEventListener("DOMContentLoaded", () => {
         scooter:   { nombre: "Scooter",   emoji: "🛴", vel: 200 },
         inclusivo: { nombre: "Accesible", emoji: "♿", vel: 65, largo: "Silla de ruedas o recorrido accesible" },
     };
-    const CLAVE_RUTA = "rutaMapa";            // la ruta en curso se guarda para que no se pierda al cambiar de pantalla
+    const CLAVE_RUTA = "rutaMapa";
     const CADUCA_RUTA_MS = 4 * 3600 * 1000;
-    const FACTOR_CAMINO = 1.3;  // la línea recta siempre es más corta que el camino real
+    const FACTOR_CAMINO = 1.3;
 
     let lugares = [];
     let destino = null;
-    let rutaActual = null;      // { metros } de la ruta dibujada, para guardarla al finalizar
+    let rutaActual = null;
     let inicioNavegacion = null;
-    let modo = "caminata";      // forma de moverse elegida
-    let metrosRuta = null;      // distancia de la ruta dibujada (para recalcular tiempos al cambiar de modo)
-    let ultimoDestino = null;   // se conserva hasta cerrar la calificación (limpiarRuta borra `destino`)
-    let capaBase = L.layerGroup().addTo(map);   // edificios y puertas: siempre visibles
-    let capaSel = L.layerGroup().addTo(map);    // destino elegido y línea de ruta
-    let marcaOrigen = null;                     // punto fijo del origen (se quita cuando ya se sigue tu posicion en vivo)
-    let siguiendo = true;                       // el mapa te sigue mientras caminas; si lo mueves o haces zoom, deja de seguirte
+    let modo = "caminata";
+    let metrosRuta = null;
+    let ultimoDestino = null;
+    let capaBase = L.layerGroup().addTo(map);
+    let capaSel = L.layerGroup().addTo(map);
+    let marcaOrigen = null;
+    let siguiendo = true;
     let btnCentrar = null;
-    let marcaPosicion = null;                   // punto azul de "tu posición" mientras te guía la voz
-    const capasChip = {};                       // snacks / alimentos / bebedero: se prenden con los chips
+    let marcaPosicion = null;
+    const capasChip = {};
 
     function crearPin(l, seleccionado) {
         const t = TIPOS[l.tipo] || { emoji: '📍' };
@@ -96,8 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return m;
     }
 
-    // ---------- Visitante: solo ve lo que corresponde a su asunto ----------
-    // tipos: categorias que se muestran completas; servicios: nombres sueltos de la categoria "servicio".
     const ASUNTOS = {
         administrativo: { etiqueta: 'Administrativo', tipos: ['oficina', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'], servicios: /banco|solutions|recursos humanos|asistencia social|store|protecci/ },
         medico:         { etiqueta: 'Médico',         tipos: ['salud', 'puerta', 'estacionamiento', 'encuentro', 'entrada_accesible'] },
@@ -126,7 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Chips de filtros: prenden y apagan las capas de snacks, comida y bebederos
     document.querySelectorAll(".filter-chips .chip[data-tipo]").forEach((chip) => {
         const tipo = chip.dataset.tipo;
         capasChip[tipo] = L.layerGroup();
@@ -137,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Para el visitante: aviso del asunto elegido (con enlace para cambiarlo) y sin chips vacios
     function prepararAvisoAsunto() {
         if (!asuntoVisita) return;
         const cont = document.querySelector('.filter-chips');
@@ -163,9 +151,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Red de caminos (puntos y tramos). Si todavia no hay, las rutas se dibujan en linea recta aproximada.
     const R = window.FMCRutas;
-    const GUIA = window.FMCGuia;   // indicaciones habladas (js/voz-guia.js); si no esta cargado, el mapa funciona igual
+    const GUIA = window.FMCGuia;
     let grafo = { puntos: [], rutas: [] };
     async function cargarGrafo() {
         try {
@@ -175,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ---------- Buscador ----------
     const inputBusqueda = document.getElementById("search-input");
     const listaResultados = document.getElementById("search-results");
     const catsBusqueda = document.getElementById("search-cats");
@@ -224,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (!consulta.trim() && !tipoFiltro) {
-            // Sin búsqueda: todo agrupado por tipo
             B.agrupar(lugares).forEach((g) => {
                 listaResultados.appendChild(elemento("h4", "search-group", `${TIPOS[g.tipo].emoji} ${TIPOS[g.tipo].etiqueta}`));
                 g.items.forEach((l) => listaResultados.appendChild(crearItem(l)));
@@ -255,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (inputBusqueda) inputBusqueda.addEventListener("input", renderResultados);
     if (btnCerrarBusqueda) btnCerrarBusqueda.addEventListener("click", cerrarBusqueda);
 
-    // ---------- Destino y ruta (línea recta aproximada por ahora) ----------
     function obtenerOrigen() {
         const puerta1 = lugares.find((l) => l.numero === "P1");
         const respaldo = {
@@ -268,7 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     const p = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                    // Si estás fuera del campus (o el GPS falló), se calcula desde la Puerta 1
                     if (boundsUAG.contains(p)) resolve({ lat: p.lat, lng: p.lng, etiqueta: "TU UBICACIÓN" });
                     else resolve(respaldo);
                 },
@@ -300,9 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.dispatchEvent(new CustomEvent("fmc:limpiar"));
     }
 
-    // ---------- Formas de moverse ----------
     function modosDisponibles() {
-        // Con rutas accesibles activadas no tiene sentido ofrecer caminar, correr o bici
         return necesitaRutaAccesible() ? ["inclusivo", "scooter"] : ["caminata", "carrera", "ciclismo", "scooter", "inclusivo"];
     }
     function modoInicial() {
@@ -311,7 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
         try { g = localStorage.getItem("modoMovilidad"); } catch (e) {}
         return disp.includes(g) ? g : disp[0];
     }
-    // El modo "Accesible" siempre usa solo caminos sin escaleras
     const soloAccesibleEfectivo = () => necesitaRutaAccesible() || modo === "inclusivo";
 
     const filaModos = document.getElementById("metrics-row");
@@ -328,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
             b.setAttribute("role", "radio");
             b.setAttribute("aria-checked", clave === modo ? "true" : "false");
             b.tabIndex = clave === modo ? 0 : -1;
-            b.disabled = !!inicioNavegacion;     // ya empezaste: no se cambia a media ruta
+            b.disabled = !!inicioNavegacion;
             const ico = elemento("span", "m-ico", m.emoji); ico.setAttribute("aria-hidden", "true");
             const nom = elemento("span", "m-nombre", m.nombre);
             const tpo = elemento("span", "m-tiempo", metrosRuta == null ? "-- MIN" : minutos(metrosRuta, m.vel) + " MIN");
@@ -355,7 +335,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pintarModos();
         if (conservarFoco) { const b = filaModos.querySelector(`[data-modo="${clave}"]`); if (b) b.focus(); }
         guardarEstadoRuta();
-        // Solo se recalcula el camino si cambia la necesidad de evitar escaleras; si no, basta con el tiempo
         if (destino && antes !== soloAccesibleEfectivo()) await trazarRuta(destino);
     }
 
@@ -367,8 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function borrarEstadoRuta() { try { localStorage.removeItem(CLAVE_RUTA); } catch (e) {} }
 
-    // Las rutas accesibles ya no se eligen aqui: salen de la respuesta en Preferencias
-    // (se guarda en la cuenta y llega en localStorage como accessibleRoutes)
     function necesitaRutaAccesible() {
         try { return localStorage.getItem("accessibleRoutes") === "true"; } catch (e) { return false; }
     }
@@ -379,7 +356,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cerrarBusqueda();
         map.setView([l.lat, l.lng], 18);
 
-        // Textos del panel con el destino real
         textoPanel("dest-name", l.nombre);
         textoPanel("arrival-name", `${l.nombre} - UAG Campus CU`);
         routePanel.classList.remove("hidden");
@@ -387,15 +363,13 @@ document.addEventListener("DOMContentLoaded", () => {
         await trazarRuta(l);
     }
 
-    // ---------- Trazo de la ruta: cada tipo de tramo se distingue por su FORMA (liso, puntos, rayas largas) y no solo por el color ----------
     const ESTILO_TRAMO = {
         normal:    { nombre: "Camino normal", color: "#8A3A0B", weight: 5, dash: null,    cap: "round" },
-        escaleras: { nombre: "Escaleras",     color: "#D55E00", weight: 6, dash: "1 9",   cap: "round" },   // puntitos, como escalones
-        rampa:     { nombre: "Rampa",         color: "#0072B2", weight: 5, dash: "16 7",  cap: "butt" },    // rayas largas
+        escaleras: { nombre: "Escaleras",     color: "#D55E00", weight: 6, dash: "1 9",   cap: "round" },
+        rampa:     { nombre: "Rampa",         color: "#0072B2", weight: 5, dash: "16 7",  cap: "butt" },
     };
     const tipoDeTramo = (t) => (ESTILO_TRAMO[t] ? t : "normal");
 
-    // Une los tramos seguidos del mismo tipo en una sola línea (así el patrón no se corta en cada punto) y los dibuja con un borde blanco
     function dibujarTramos(tramos) {
         const corridas = [];
         tramos.forEach((t) => {
@@ -412,7 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return Array.from(new Set(corridas.map((c) => c.tipo)));
     }
 
-    // Leyenda bajo el texto de la ruta: muestra solo los tipos que esta ruta usa, con muestra del trazo Y nombre
     function pintarLeyenda(tipos, aproximada) {
         const cont = document.getElementById("route-legend");
         if (!cont) return;
@@ -436,11 +409,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Cual de las rutas posibles al destino se esta viendo (0 = la mas corta). Vuelve a 0 con otro destino.
     let indiceRuta = 0;
     let destinoDeIndice = null;
 
-    // Dibuja la ruta hacia l: por los andadores si hay red de caminos, o en línea recta aproximada si no
     async function trazarRuta(l) {
         if (destinoDeIndice !== l) { indiceRuta = 0; destinoDeIndice = l; }
         capaSel.clearLayers();
@@ -449,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
         pintarModos();
 
         const origen = await obtenerOrigen();
-        if (destino !== l) return; // eligió otro destino mientras se obtenía la ubicación
+        if (destino !== l) return;
         capaSel.clearLayers();
         crearPin(l, true).addTo(capaSel);
 
@@ -476,11 +447,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ruta) {
             metros = Math.round(ruta.metros / 10) * 10;
             tiposRuta = ruta.tramos && ruta.tramos.length ? dibujarTramos(ruta.tramos) : ["normal"];
-            // Las rampas solo se destacan cuando la persona pidio rutas accesibles (para los demas son un tramo normal)
-            const rampas = soloAccesible ? (ruta.rampas || []) : [];   // las rampas se dibujan con los pines de mapa-accesibilidad.js
+            const rampas = soloAccesible ? (ruta.rampas || []) : [];
             const textoRampas = rampas.length ? ` Pasa por ${rampas.length === 1 ? "una rampa" : rampas.length + " rampas"} ♿.` : "";
             const numero = lista.length > 1 ? `Ruta ${indiceRuta + 1} de ${lista.length}. ` : "";
-            // Si da muchisima mas vuelta que la linea recta, casi siempre es que falta un camino en el mapa: se avisa para que no se confie a ciegas
             const recta = map.distance([origen.lat, origen.lng], [l.lat, l.lng]);
             const vuelta = ruta.metros > 700 && ruta.metros > recta * 3 ? " Ojo: esta ruta da mucha vuelta; puede que todavía falte un camino en el mapa por esta zona." : "";
             hint = `${numero}Ruta por los andadores del campus hacia ${l.nombre}.${soloAccesible && !aviso ? " Camino accesible." : ""}${textoRampas}${extra}${aviso}${vuelta}`;
@@ -490,10 +459,8 @@ document.addEventListener("DOMContentLoaded", () => {
             L.polyline([[origen.lat, origen.lng], [l.lat, l.lng]], { color: "#6b5a50", weight: 4, dashArray: "8 8", interactive: false }).addTo(capaSel);
             hint = `Distancia aproximada en línea recta hacia ${l.nombre}: todavía no hay un camino trazado hasta ahí.`;
         }
-        // Si ya se esta siguiendo tu posicion en vivo, ese punto es el unico (no se dibuja otro fijo en el origen)
         if (!marcaPosicion) marcaOrigen = L.circleMarker([origen.lat, origen.lng], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1, interactive: false }).addTo(capaSel);
 
-        // Si el destino es un estacionamiento, se muestran SOLO las cajas especiales de ese estacionamiento
         if (l.tipo === "estacionamiento" && window.FMCAcc && FMCAcc.cajasDe) {
             let cajas = [];
             try { cajas = await FMCAcc.cajasDe(l, 140); } catch (e) { cajas = []; }
@@ -511,7 +478,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Indicaciones paso a paso (para leerlas en pantalla y para la guia por voz)
         const tramos = ruta && ruta.tramos ? ruta.tramos : [{ a: { lat: origen.lat, lng: origen.lng }, b: { lat: l.lat, lng: l.lng }, metros, tipo: "libre" }];
         const aproximada = !ruta;
         const pasos = GUIA ? GUIA.generarPasos(tramos, l.nombre, { aproximada }) : [];
@@ -528,27 +494,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
     }
 
-    // ABRIR EL BUSCADOR: al dar tap en "BUSCA AQUÍ" (y al pulsar "VER OTRA RUTA")
     if (searchTrigger && searchPanel) {
         searchTrigger.addEventListener("click", abrirBusqueda);
-        // Con teclado o lector de pantalla: Enter o espacio abren el buscador
         searchTrigger.addEventListener("keydown", (e) => {
             if ((e.target === searchTrigger || e.target.matches("input[readonly]")) && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); abrirBusqueda(); }
         });
     }
     if (btnChange && searchPanel) btnChange.addEventListener("click", abrirBusqueda);
-    // OTRA RUTA: el mismo destino por otro camino (se va rotando entre las que haya)
     if (btnOtraRuta) {
         btnOtraRuta.addEventListener("click", async () => {
             if (!destino || btnOtraRuta.disabled) return;
             indiceRuta += 1;
-            await trazarRuta(destino);   // desde donde estas ahora (si ya vas caminando)
+            await trazarRuta(destino);
             if (inicioNavegacion) document.dispatchEvent(new CustomEvent("fmc:rutacambiada"));
             btnOtraRuta.focus();
         });
     }
 
-    // Cancelar la ruta (sin terminarla): limpia el mapa y no se vuelve a abrir
     const btnCancelarRuta = document.getElementById("btn-cancelar-ruta");
     if (btnCancelarRuta) {
         btnCancelarRuta.addEventListener("click", async () => {
@@ -561,7 +523,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Al volver al mapa (desde Perfil, Iniciar ruta, etc.) se retoma la ruta que había en curso
     async function restaurarRuta() {
         let g = null;
         try { g = JSON.parse(localStorage.getItem(CLAVE_RUTA) || "null"); } catch (e) {}
@@ -581,18 +542,16 @@ document.addEventListener("DOMContentLoaded", () => {
     pintarModos();
     Promise.all([cargarLugares(), cargarGrafo()]).then(restaurarRuta);
 
-    // Guarda la última ruta terminada: "Nueva publicación" la usa para llenar distancia, tiempo y calorías
     function guardarUltimaRuta() {
         if (!rutaActual || !destino) return;
-        const estimado = Math.round((rutaActual.metros / MODOS[modo].vel) * 60);   // segundos según cómo te moviste
+        const estimado = Math.round((rutaActual.metros / MODOS[modo].vel) * 60);
         let segundos = inicioNavegacion ? Math.round((Date.now() - inicioNavegacion) / 1000) : estimado;
-        if (segundos < estimado * 0.2) segundos = estimado;   // si se pulsó FINALIZAR casi al instante (pruebas), se usa el tiempo estimado
+        if (segundos < estimado * 0.2) segundos = estimado;
         try {
             localStorage.setItem("ultimaRuta", JSON.stringify({
                 distancia_m: rutaActual.metros, duracion_s: segundos, destino: destino.nombre, actividad: modo, ts: Date.now(),
             }));
         } catch (e) {}
-        // También se guarda en la cuenta para el perfil y la racha (si no se logra, no pasa nada)
         if (typeof registrarActividad === "function") {
             registrarActividad({ tipo: modo, origen: "mapa", destino: destino.nombre, distancia_m: Math.round(rutaActual.metros), duracion_s: segundos });
         }
@@ -617,7 +576,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btnOtraRuta && !btnOtraRuta.hidden) btnOtraRuta.disabled = /NO HAY/.test(btnOtraRuta.textContent);
     }
 
-    // BOTÓN EMPEZAR Y FINALIZAR
     if (btnStart && btnFinish) {
         btnStart.addEventListener("click", () => {
             inicioNavegacion = Date.now();
@@ -626,11 +584,10 @@ document.addEventListener("DOMContentLoaded", () => {
             document.dispatchEvent(new CustomEvent("fmc:empezar"));
         });
 
-        // PASO 1 A PASO 2: Al pulsar FINALIZAR abre "¡Llegaste a tu destino!"
         btnFinish.addEventListener("click", () => {
             document.dispatchEvent(new CustomEvent("fmc:finalizar"));
             guardarUltimaRuta();
-            borrarEstadoRuta();   // la ruta ya terminó: no se vuelve a abrir al regresar al mapa
+            borrarEstadoRuta();
             routePanel.classList.add("hidden");
             setTimeout(() => {
                 arrivalPanel.classList.remove("hidden");
@@ -638,7 +595,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // PASO 2 A PASO 3: Al pulsar CONTINUAR abre "TU EXPERIENCIA"
     if (btnContinue) {
         btnContinue.addEventListener("click", () => {
             arrivalPanel.classList.add("hidden");
@@ -648,7 +604,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // SISTEMA INTERACTIVO DE ESTRELLAS
     let estrellasElegidas = 0;
     starBtns.forEach((star, index) => {
         star.addEventListener("click", () => {
@@ -665,7 +620,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ---------- Mini mapa del reporte: tocar para colocar el pin ----------
     const contador = document.querySelector(".char-count");
     let miniMapa = null;
     let pinReporte = null;
@@ -683,7 +637,6 @@ document.addEventListener("DOMContentLoaded", () => {
             L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(miniMapa);
             miniMapa.on("click", (e) => ponerPin(e.latlng));
         }
-        // Empieza centrado en el destino (o el centro del campus) con el pin ya puesto ahí
         const centro = ultimoDestino ? L.latLng(ultimoDestino.lat, ultimoDestino.lng) : L.latLng(20.6938, -103.4178);
         miniMapa.setView(centro, 18);
         setTimeout(() => miniMapa.invalidateSize(), 50);
@@ -707,17 +660,14 @@ document.addEventListener("DOMContentLoaded", () => {
         ultimoDestino = null;
     }
 
-    // CERRAR Y REINICIAR LA VISTA GENERAL
     const closeFeedback = () => {
         if (feedbackPanel) feedbackPanel.classList.add("hidden");
         reiniciarFormularios();
         limpiarRuta();
 
-        // Reinicia los botones de inicio al estado original
         reiniciarBotones();
     };
 
-    // Si le da tap a ENVIAR: guarda la calificación en el servidor y cierra
     if (btnSendFeedback) {
         btnSendFeedback.addEventListener("click", async () => {
             if (!estrellasElegidas) {
@@ -746,18 +696,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Si le da tap a AHORA NO, GRACIAS: Se cierra en silencio
     if (btnSkipFeedback) {
         btnSkipFeedback.addEventListener("click", () => {
             closeFeedback();
         });
     }
 
-    // ==========================================
-    // PASO 3 A PASO 4: FLUJO DE REPORTAR INCIDENCIA
-    // ==========================================
-
-    // Abrir la pantalla de Reportar Incidencia al presionar "Reportar ❗️"
     if (btnReportIssue && reportPanel) {
         btnReportIssue.addEventListener("click", () => {
             feedbackPanel.classList.add("hidden");
@@ -768,7 +712,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Regresar de Reportar a la pantalla de Valoración
     const closeReport = () => {
         if (reportPanel) reportPanel.classList.add("hidden");
         setTimeout(() => {
@@ -779,7 +722,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnBackReport) btnBackReport.addEventListener("click", closeReport);
     if (btnCancelReport) btnCancelReport.addEventListener("click", closeReport);
 
-    // Selección de chips de categoría
     categoryChips.forEach(chip => {
         chip.addEventListener("click", () => {
             categoryChips.forEach(c => c.classList.remove("active"));
@@ -787,7 +729,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Enviar Reporte: guarda la incidencia (categoría, descripción y ubicación del pin)
     if (btnSubmitReport) {
         btnSubmitReport.addEventListener("click", async () => {
             const chip = document.querySelector(".category-chip.active");
@@ -813,7 +754,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Si la persona mueve el mapa o hace zoom mientras camina, el mapa deja de seguirla hasta que toque "Centrar"
     function crearBotonCentrar() {
         btnCentrar = document.createElement("button");
         btnCentrar.type = "button";
@@ -840,19 +780,15 @@ document.addEventListener("DOMContentLoaded", () => {
     map.on("zoomstart", dejarDeSeguir);
     document.addEventListener("fmc:empezar", () => { siguiendo = true; if (btnCentrar) btnCentrar.hidden = true; });
 
-    // ==========================================
-    // PUENTE CON LA GUIA POR VOZ (js/voz.js)
-    // ==========================================
     window.FMCMapa = {
         lugares: () => lugares,
-        mapa: () => map,   // para mapa-accesibilidad.js
+        mapa: () => map,
         destino: () => destino,
         seleccionarDestino: (l) => seleccionarDestino(l),
         obtenerOrigen: () => obtenerOrigen(),
         recalcular: () => (destino ? trazarRuta(destino) : Promise.resolve()),
         dentroDelCampus: (lat, lng) => boundsUAG.contains(L.latLng(lat, lng)),
         abrirBusqueda: () => abrirBusqueda(),
-        // Para quien no puede usar el mini mapa del reporte: coloca el pin en unas coordenadas (accesibilidad.js)
         ponerPinReporte: (lat, lng) => {
             if (!miniMapa) return false;
             const ll = L.latLng(lat, lng);
@@ -863,7 +799,6 @@ document.addEventListener("DOMContentLoaded", () => {
         empezar: () => { if (btnStart) btnStart.click(); },
         enNavegacion: () => !!inicioNavegacion && !!btnFinish && !btnFinish.disabled,
         finalizar: () => { if (btnFinish && !btnFinish.disabled) btnFinish.click(); },
-        // Punto azul con la posicion actual (o la simulada en el modo demo)
         mostrarPosicion: (lat, lng) => {
             if (marcaOrigen) { try { capaSel.removeLayer(marcaOrigen); } catch (e) { /* ya no estaba */ } marcaOrigen = null; }
             if (!marcaPosicion) {
@@ -876,7 +811,6 @@ document.addEventListener("DOMContentLoaded", () => {
         quitarPosicion: () => { if (marcaPosicion) { map.removeLayer(marcaPosicion); marcaPosicion = null; } siguiendo = true; if (btnCentrar) btnCentrar.hidden = true; },
     };
 
-    // Contador de caracteres de la descripción
     const areaReporte = document.querySelector(".report-textarea");
     if (areaReporte && contador) {
         areaReporte.addEventListener("input", () => { contador.textContent = `${areaReporte.value.length}/200`; });
