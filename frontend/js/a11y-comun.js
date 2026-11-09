@@ -73,7 +73,7 @@
 
     const CIERRAN_CON_ESC = ['amigos-fondo', 'activity-modal'];
     const NOMBRES = { 'activity-modal': 'Seleccionar actividad', 'sos-overlay': 'SOS activado', 'medical-overlay': 'Ruta al consultorio médico', 'resumen-overlay': 'Resumen de tu recorrido' };
-    const abiertas = new Map();   // fondo -> { opener, quitar }
+    const abiertas = new Map();
     let contador = 0;
 
     function bloquearFondo(fondo, activo) {
@@ -153,7 +153,7 @@
         aviso.setAttribute('aria-live', 'polite');
         document.body.appendChild(aviso);
         let calladoHasta = 0;
-        document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.story-item')) calladoHasta = Date.now() + 2500; }, true);   // al abrir un chat se carga el historial
+        document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.story-item')) calladoHasta = Date.now() + 2500; }, true);
         new MutationObserver((muts) => {
             if (Date.now() < calladoHasta) return;
             muts.forEach((m) => m.addedNodes.forEach((n) => {

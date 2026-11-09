@@ -1,4 +1,3 @@
-/* mensajes-extra.css - piezas nuevas de Mensajes (amigos, avatares, fotos). Va despues de mensajes.css. */
 .hidden { display: none !important; }
 
 .chat-back-arrow { text-decoration: none; }
@@ -63,11 +62,11 @@
 .amigo-fila .nombre { flex: 1; font-size: .82rem; font-weight: 700; color: #2b2b2b; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .amigo-fila button {
     border: 1px solid #d97736; background: #fff; color: #b8601f; border-radius: 10px; padding: 6px 10px;
-    font-size: .72rem; font-weight: 800; cursor: pointer; flex: none;
+    font-size: 0.75rem; font-weight: 800; cursor: pointer; flex: none;
 }
 .amigo-fila button.principal { background: #d97736; color: #fff; }
 .amigo-fila button.peligro { border-color: #b3382c; color: #b3382c; }
 .amigo-fila button:disabled { opacity: .55; cursor: default; }
-.amigo-fila .estado { font-size: .7rem; font-weight: 700; color: #8c8275; flex: none; }
+.amigo-fila .estado { font-size: 0.75rem; font-weight: 700; color: #8c8275; flex: none; }
 .amigos-mensaje { min-height: 1.1em; margin: 12px 0 0; text-align: center; font-size: .8rem; font-weight: 700; color: #2e8b46; }
 .amigos-mensaje.error { color: #b3382c; }

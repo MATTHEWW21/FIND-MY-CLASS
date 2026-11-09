@@ -1,7 +1,4 @@
--- 018_moderacion.sql: bloquear, silenciar y reportar personas.
--- Se puede correr mas de una vez (IF NOT EXISTS). Solo ASCII.
 
--- Bloquear: no se ven entre si (feed, comentarios, busqueda, perfil, solicitudes). Al bloquear se quita la amistad.
 CREATE TABLE IF NOT EXISTS bloqueos (
     bloqueador_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     bloqueado_id   INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -11,7 +8,6 @@ CREATE TABLE IF NOT EXISTS bloqueos (
 );
 CREATE INDEX IF NOT EXISTS idx_bloqueos_bloqueado ON bloqueos (bloqueado_id);
 
--- Silenciar: solo se dejan de ver sus publicaciones en el feed; siguen siendo amigos.
 CREATE TABLE IF NOT EXISTS silenciados (
     usuario_id     INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     silenciado_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -20,7 +16,6 @@ CREATE TABLE IF NOT EXISTS silenciados (
     CHECK (usuario_id <> silenciado_id)
 );
 
--- Reportar a una persona: lo revisa quien administra (panel de estadisticas). Un reporte por pareja; si se repite, se actualiza.
 CREATE TABLE IF NOT EXISTS reportes_usuario (
     id             SERIAL PRIMARY KEY,
     reportante_id  INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,

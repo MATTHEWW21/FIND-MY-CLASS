@@ -1,6 +1,4 @@
-/* ==========================================
-   ESTILOS DE LA VISTA DE PERFIL DE USUARIO
-   ========================================== */
+/* ESTILOS DE LA VISTA DE PERFIL DE USUARIO */
 
 .registro-container {
     display: flex;
@@ -45,7 +43,7 @@
 }
 
 .profile-handle {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 900;
     color: #555555;
     letter-spacing: 1px;
@@ -115,6 +113,7 @@
     background-color: #f0e6d8;
 }
 
+/* Banner Verde Borde a Borde */
 .profile-banner {
     width: 100%;
     height: 120px;
@@ -190,7 +189,7 @@
 }
 
 .stat-label {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: #777777;
     font-weight: 700;
 }
@@ -226,7 +225,7 @@
 }
 
 .streaks-title {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 900;
     color: #8c8275;
     letter-spacing: 0.8px;
@@ -271,7 +270,7 @@
 }
 
 .streak-score {
-    font-size: 0.62rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #555555;
 }

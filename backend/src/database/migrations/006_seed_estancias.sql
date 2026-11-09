@@ -1,10 +1,3 @@
--- 006_seed_estancias.sql
--- LISTA PROVISIONAL: son los ejemplos que salen en el diseño de Canva.
--- Agrega aquí las salas de maestro y cubículos/oficinas reales: una línea por espacio.
---   ('EDIFICIO', 'CÓDIGO DEL ESPACIO', PISO, 'TIPO')
---   PISO: 0 = planta baja (PB), 1 = P1, 2 = P2, ...
---   TIPO: 'sala_maestro' o 'cubiculo_oficina'
--- Se puede volver a correr; los espacios repetidos se ignoran.
 
 INSERT INTO aulas (edificio_id, codigo, piso, tipo)
 SELECT e.id, v.codigo, v.piso, v.tipo

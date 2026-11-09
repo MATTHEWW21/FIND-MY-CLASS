@@ -122,7 +122,6 @@
     function mostrarTexto(texto, estado) {
         if (!panel) return;
         panel.hidden = false;
-        // Si la app ya habla el texto, el lector de pantalla no debe repetirlo encima (se oirían dos voces a la vez)
         panel.setAttribute('aria-live', (synth && debeHablarGuia()) ? 'off' : 'polite');
         if (estado !== undefined) lblEstado.textContent = estado || '';
         lblTexto.textContent = texto || '';
@@ -358,7 +357,7 @@
             if (G.distanciaM(guia.hist[k], p) >= 8) { guia.rumboReal = G.rumbo(guia.hist[k], p); break; }
         }
         if (window.FMCMapa) window.FMCMapa.mostrarPosicion(p.lat, p.lng);
-        const avisoAcc = window.FMCAcc ? window.FMCAcc.avisoCerca(p) : null;   // 'Adelante: escalera...' (una vez por elemento)
+        const avisoAcc = window.FMCAcc ? window.FMCAcc.avisoCerca(p) : null;
         if (avisoAcc && debeHablarGuia()) hablar(avisoAcc, { interrumpir: false });
 
         const ult = ruta.pasos.length - 1;
@@ -372,7 +371,7 @@
             }
         }
         const paso = ruta.pasos[guia.idx];
-        if (!guia.previoDicho && paso.metros >= 35 && G.distanciaM(p, paso.fin) <= RADIO_PREVIO) {   // en pasos cortos no hace falta avisar antes
+        if (!guia.previoDicho && paso.metros >= 35 && G.distanciaM(p, paso.fin) <= RADIO_PREVIO) {
             guia.previoDicho = true;
             const previo = G.textoPrevio(paso, guia.rumboReal);
             if (debeHablarGuia()) hablar(previo, { interrumpir: false });
@@ -453,11 +452,11 @@
 
     function simular() {
         const puntos = [ruta.tramos[0].a].concat(ruta.tramos.map((t) => t.b));
-        let seg = 0, recorrido = 0;     // seg: tramo actual, recorrido: metros dentro del tramo
+        let seg = 0, recorrido = 0;
         const g = guia;
         g.simId = setInterval(() => {
             if (guia !== g || !g.activa) return clearInterval(g.simId);
-            let avance = VEL_DEMO * 0.4;   // intervalo de 400 ms
+            let avance = VEL_DEMO * 0.4;
             while (avance > 0 && seg < puntos.length - 1) {
                 const a = puntos[seg], b = puntos[seg + 1];
                 const largo = G.distanciaM(a, b) || 0.001;

@@ -40,7 +40,7 @@ const num = (v) => (v === null || v === undefined ? 0 : Number(v));
 function serieDias(rows, dias) {
     const mapa = new Map((rows || []).map((r) => [r.dia, num(r.n)]));
     const out = [];
-    const hoyTxt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date()); // AAAA-MM-DD
+    const hoyTxt = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City' }).format(new Date());
     const [y, m, dd] = hoyTxt.split('-').map(Number);
     for (let i = dias - 1; i >= 0; i--) {
         const clave = new Date(Date.UTC(y, m - 1, dd - i)).toISOString().slice(0, 10);

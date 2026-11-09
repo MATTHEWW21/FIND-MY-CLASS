@@ -36,7 +36,7 @@
 }
 
 .sub-header-title {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 1.5px;
     color: #80776c;
@@ -125,12 +125,12 @@
 }
 
 .m-val {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
 }
 
 .m-lbl {
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     color: #d1cdcd;
     letter-spacing: 0.5px;
 }
@@ -186,7 +186,7 @@
     align-items: center;
     text-decoration: none;
     color: #8c8275;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
@@ -231,7 +231,7 @@
 }
 
 .popover-title {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #d96828;
     text-align: center;
@@ -276,7 +276,7 @@
 .bg-grey { background-color: #e0e0e0; }
 
 .opt-text {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     color: #2c2c2c;
 }
@@ -386,7 +386,7 @@
 }
 
 .stat-item span {
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #777777;
 }
@@ -451,7 +451,7 @@
 }
 
 .detail-text-col small {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: #888888;
     font-weight: 500;
 }
@@ -540,7 +540,7 @@ input:checked + .slider:before {
 }
 
 .post-time {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: #777777;
 }
 
@@ -563,6 +563,7 @@ input:checked + .slider:before {
     margin-bottom: 10px;
 }
 
+/* Fila de Métricas */
 .post-stats-row {
     display: flex;
     gap: 20px;
@@ -575,7 +576,7 @@ input:checked + .slider:before {
 }
 
 .p-stat .lbl {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: #888888;
 }
 
@@ -602,7 +603,7 @@ input:checked + .slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     color: #555555;
     margin-bottom: 10px;
 }

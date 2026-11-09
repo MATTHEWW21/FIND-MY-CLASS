@@ -1,5 +1,3 @@
--- 015_amigos_mensajes.sql: amistades (solicitud + aceptar) y mensajes uno a uno (texto o una foto).
--- Se puede correr mas de una vez (IF NOT EXISTS). Solo ASCII.
 
 CREATE TABLE IF NOT EXISTS amistades (
     id               SERIAL PRIMARY KEY,
@@ -9,7 +7,6 @@ CREATE TABLE IF NOT EXISTS amistades (
     creado_en        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CHECK (solicitante_id <> destinatario_id)
 );
--- Una sola fila por pareja, sin importar quien mando la solicitud
 CREATE UNIQUE INDEX IF NOT EXISTS ux_amistades_pareja
     ON amistades (LEAST(solicitante_id, destinatario_id), GREATEST(solicitante_id, destinatario_id));
 CREATE INDEX IF NOT EXISTS idx_amistades_destinatario ON amistades (destinatario_id, estado);

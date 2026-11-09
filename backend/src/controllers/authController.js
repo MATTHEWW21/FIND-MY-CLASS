@@ -490,7 +490,7 @@ async function cambiarPassword(req, res) {
     }
     const password_hash = await bcrypt.hash(nueva, 12);
     await pool.query('UPDATE usuarios SET password_hash = $1 WHERE id = $2', [password_hash, req.usuario.id]);
-    await cerrarSesiones(req.usuario.id, req.usuario.sid);   // las demas sesiones se cierran; esta se queda
+    await cerrarSesiones(req.usuario.id, req.usuario.sid);
     return res.json({ mensaje: 'Contraseña actualizada. Cerramos tus otras sesiones.' });
   } catch (err) {
     return errorServidor(res, err);

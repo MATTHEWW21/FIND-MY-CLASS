@@ -5,7 +5,7 @@
 
     let respaldo = '';
     const leerLlave = () => { try { return sessionStorage.getItem(CLAVE) || respaldo; } catch (e) { return respaldo; } };
-    const guardarLlave = (v) => { respaldo = v; try { v ? sessionStorage.setItem(CLAVE, v) : sessionStorage.removeItem(CLAVE); } catch (e) { /* sin almacenamiento */ } };
+    const guardarLlave = (v) => { respaldo = v; try { v ? sessionStorage.setItem(CLAVE, v) : sessionStorage.removeItem(CLAVE); } catch (e) {  } };
 
     const ETIQUETAS = {
         estudiante: 'Estudiantes', colaborador: 'Colaboradores', visitante: 'Visitantes',

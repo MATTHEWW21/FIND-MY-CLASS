@@ -1,14 +1,17 @@
+// El .env se carga primero, antes que cualquier modulo que lea variables
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const pool = require('./config/db');
 const { cabecerasSeguras, corsConfig, apiNoEncontrada, manejadorErrores } = require('./middleware/seguridad');
 
+// Sin un secreto real para firmar sesiones el servidor no debe arrancar
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
     console.error('Falta JWT_SECRET en el .env (minimo 32 caracteres).');
     process.exit(1);
 }
 
+// Importar rutas
 const edificioRoutes = require('./routes/edificioRoutes');
 const categoriaRoutes = require('./routes/categoriaRoutes');
 const servicioRoutes = require('./routes/servicioRoutes');
@@ -28,16 +31,29 @@ const notificacionRoutes = require('./routes/notificacionRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Detras de un tunel o proxy HTTPS (cloudflared, nginx...) la IP real del visitante llega en X-Forwarded-For.
+// Con TRUST_PROXY=1 en el .env, los limitadores de intentos cuentan por persona y no todos juntos. Si no esta, no cambia nada.
 if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 
+// Compresion gzip de paginas, scripts y respuestas JSON (baja ~75% los datos por el tunel/internet).
+// Si el paquete aun no esta instalado (npm install compression), la app sigue funcionando sin comprimir.
+try { app.use(require('compression')()); } catch (e) { console.warn('compression no instalado: se sirve sin comprimir (npm install compression)'); }
+
+// Middlewares
 app.use(cabecerasSeguras);
 app.use(corsConfig());
+// Las publicaciones llevan fotos (base64): este límite mayor va ANTES del express.json() general
 app.use('/api/publicaciones', express.json({ limit: '8mb' }));
 app.use('/api/mensajes', express.json({ limit: '3mb' }));
 app.use(express.json());
 
+// Servir los archivos estáticos del frontend para abrirlos desde el cel o navegador
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
+// Las fotos (publicaciones y mensajes) ya NO se sirven como archivos publicos: se piden con sesion en
+// /api/publicaciones/foto/:archivo y /api/mensajes/foto/:archivo, y solo las ve quien tiene permiso.
+
+// Montar rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/catalogos', catalogoRoutes);
 app.use('/api/mapa', mapaRoutes);
@@ -54,6 +70,7 @@ app.use('/api/edificios', edificioRoutes);
 app.use('/api/categorias', categoriaRoutes);
 app.use('/api/servicios', servicioRoutes);
 
+// Health Check
 app.get('/api/health', async (req, res) => {
     try {
         const result = await pool.query('SELECT NOW()');
@@ -68,9 +85,11 @@ app.get('/api/health', async (req, res) => {
     }
 });
 
+// Cualquier otra ruta /api/... responde 404 en JSON, y los errores no muestran detalles internos (va al final de las rutas)
 app.use('/api', apiNoEncontrada);
 app.use(manejadorErrores);
 
+// IMPORTANTE: Agregamos '0.0.0.0' para escuchar en toda la red local
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
 });

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta UAG 19·35 (Tecobus)</title>
+    <style>
+        :root { --naranja: #B04E0E; --granate: #62262F; --crema: #FDF8F2; --tinta: #2b2b2b; --gris: #665d54; --linea: #eadfd4; }
+        html.daltonismo { --naranja: #0072B2; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--crema); color: var(--tinta); }
+        header { background: var(--granate); color: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+        header a { color: #fff; text-decoration: none; font-size: 1.6rem; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+        header h1 { margin: 0; font-size: 1.1rem; }
+        main { max-width: 520px; margin: 0 auto; padding: 16px; display: grid; gap: 14px; }
+        .tarjeta { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 16px; }
+        .tarjeta h2 { margin: 0 0 6px; font-size: 1rem; }
+        .ruta { font-size: 1.15rem; font-weight: 800; color: var(--granate); }
+        .proxima { background: var(--granate); color: #fff; border-color: var(--granate); }
+        .proxima .hora { font-size: 2.6rem; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+        .proxima .falta { font-size: 1rem; margin-top: 2px; }
+        .proxima .luego { margin-top: 8px; font-size: .9rem; opacity: .9; }
+        .horas { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 10px 0 0; }
+        .horas li { text-align: center; padding: 10px 0; border-radius: 10px; border: 1px solid var(--linea); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .horas li.paso { color: #8c8275; text-decoration: line-through; background: #f6f1ea; }
+        .horas li.sig { background: var(--naranja); color: #fff; border-color: var(--naranja); }
+        .btn { display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 14px; background: var(--naranja); color: #fff; font-weight: 800; text-decoration: none; margin-top: 10px; }
+        .nota { font-size: .82rem; color: var(--gris); margin: 0; }
+        .nota-aviso { font-weight: 700; color: var(--granate); }
+        a:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }
+    </style>
+    <script src="js/ui-grande.js"></script>
+    <script src="js/daltonismo.js"></script>
+</head>
+<body>
+<header>
+    <a href="feed.html" aria-label="Volver al inicio">←</a>
+    <h1>Ruta UAG 19·35</h1>
+</header>
+<main>
+    <section class="tarjeta">
+        <div class="ruta">C.U. → I.C.B.</div>
+        <p class="nota">Traslado entre Ciudad Universitaria (CU) e ICB.</p>
+    </section>
+
+    <section class="tarjeta proxima" aria-live="polite" id="proxima">
+        <h2>Próxima salida desde CU</h2>
+        <div class="hora" id="p-hora">--:--</div>
+        <div class="falta" id="p-falta"></div>
+        <div class="luego" id="p-luego"></div>
+    </section>
+
+    <section class="tarjeta">
+        <h2>Salidas de CU hacia I.C.B.</h2>
+        <ul class="horas" id="lista"></ul>
+    </section>
+
+    <section class="tarjeta">
+        <h2>¿Dónde tomarla?</h2>
+        <p style="margin:0"><b>En CU:</b> frente a la entrada del Estacionamiento 1.</p>
+        <a class="btn" href="mapa.html?ir=Estacionamiento%201">Llévame a la parada</a>
+        <p class="nota" style="margin-top:12px"><b>Se baja en el ICB:</b> frente a la entrada de Av. Montevideo (CLV e ICB).</p>
+    </section>
+
+    <p class="nota" id="aviso"></p>
+    <p class="nota">Horarios tomados del letrero oficial del campus. Pueden cambiar en vacaciones o días sin clases.</p>
+</main>
+<script>
+    const SALIDAS = ['07:15', '08:15', '09:00', '11:00', '12:00', '13:00', '14:00', '15:00'];
+    const aMin = (h) => { const [a, b] = h.split(':').map(Number); return a * 60 + b; };
+    function pintar() {
+        const ahora = new Date();
+        const min = ahora.getHours() * 60 + ahora.getMinutes();
+        const dia = ahora.getDay();
+        const sig = SALIDAS.findIndex((h) => aMin(h) > min);
+        document.getElementById('lista').innerHTML = SALIDAS.map((h, i) =>
+            `<li class="${sig === -1 || i < sig ? 'paso' : i === sig ? 'sig' : ''}"${i === sig ? ' aria-label="próxima salida"' : ''}>${h}</li>`).join('');
+        const hora = document.getElementById('p-hora'), falta = document.getElementById('p-falta'), luego = document.getElementById('p-luego');
+        if (sig === -1) {
+            hora.textContent = 'Ya no hay más hoy';
+            hora.style.fontSize = '1.5rem';
+            falta.textContent = 'La última salida de CU fue a las ' + SALIDAS[SALIDAS.length - 1] + '. Mañana empieza a las ' + SALIDAS[0] + '.';
+            luego.textContent = '';
+        } else {
+            hora.style.fontSize = '';
+            hora.textContent = SALIDAS[sig];
+            const f = aMin(SALIDAS[sig]) - min;
+            falta.textContent = f < 60 ? `Sale en ${f} min` : `Sale en ${Math.floor(f / 60)} h ${f % 60} min`;
+            luego.textContent = SALIDAS[sig + 1] ? 'Después: ' + SALIDAS[sig + 1] : 'Es la última de hoy.';
+        }
+        document.getElementById('aviso').textContent = (dia === 0 || dia === 6) ? 'Ojo: el letrero no dice si la ruta opera en fin de semana. Confirma antes de ir.' : '';
+        document.getElementById('aviso').className = 'nota nota-aviso';
+    }
+    pintar();
+    setInterval(pintar, 30000);
+</script>
+</body>
+</html>

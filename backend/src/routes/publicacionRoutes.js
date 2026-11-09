@@ -292,7 +292,6 @@ router.delete('/:id', async (req, res) => {
   } catch (err) { error500(res, err); }
 });
 
-// Una publicacion que yo puedo ver (publica o mia)
 async function visible(id, yo) {
   const r = await pool.query(
     `SELECT 1 FROM publicaciones p WHERE p.id = $1 AND ${puedeVer('$2')} AND NOT ${hayBloqueo('$2', 'p.usuario_id')}`, [id, yo]);

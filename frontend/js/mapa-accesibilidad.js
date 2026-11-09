@@ -102,7 +102,7 @@
     }
 
     function quitar() {
-        if (capa && window.FMCMapa && FMCMapa.mapa) { try { FMCMapa.mapa().removeLayer(capa); } catch (e) { /* ya no estaba */ } }
+        if (capa && window.FMCMapa && FMCMapa.mapa) { try { FMCMapa.mapa().removeLayer(capa); } catch (e) {  } }
         capa = null;
     }
 
@@ -118,7 +118,7 @@
                 f.trazo.forEach((q) => { const d = distARuta({ lat: q[0], lng: q[1] }); if (d < mejor) { mejor = d; lat = q[0]; lng = q[1]; } });
             } else if (f.trazo && f.trazo.length > 1) {
                 L.polyline(f.trazo, { color: '#ffffff', weight: 7, opacity: .9, interactive: false }).addTo(capa);
-                L.polyline(f.trazo, { color: f.tipo === 'escalera' ? '#D55E00' : f.tipo === 'rampa' ? '#0072B2' : '#009E73', weight: 4, dashArray: f.tipo === 'escalera' ? '2 6' : null, lineCap: 'round', interactive: false }).addTo(capa);
+                L.polyline(f.trazo, { color: (window.FMCDaltonismo && FMCDaltonismo.activo()) ? (f.tipo === 'escalera' ? '#E69F00' : '#0072B2') : (f.tipo === 'escalera' ? '#D55E00' : f.tipo === 'rampa' ? '#0072B2' : '#009E73'), weight: 4, dashArray: f.tipo === 'escalera' ? '2 6' : null, lineCap: 'round', interactive: false }).addTo(capa);
             }
             const m = L.marker([lat, lng], { icon: icono(f), title: textoPin(f), alt: textoPin(f), keyboard: false, riseOnHover: true });
             m.bindTooltip(textoPin(f), { direction: 'top', offset: [0, -12] });

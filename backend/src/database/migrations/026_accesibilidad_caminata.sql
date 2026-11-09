@@ -1,4 +1,3 @@
--- 026: pines de accesibilidad de la caminata del 29 de octubre (escaleras, rampas, pasos peatonales y estacionamientos). Solo AGREGA lo que no estaba (a menos de 15 m de uno igual); se puede correr de nuevo.
 BEGIN;
 INSERT INTO accesibilidad (tipo, nombre, trazo, latitud, longitud, largo_m) SELECT 'rampa', 'Rampa', '[[20.69436409,-103.41924031],[20.6943358,-103.41911199]]'::jsonb, 20.6943358, -103.4191120, 13.7 WHERE NOT EXISTS (SELECT 1 FROM accesibilidad WHERE tipo = 'rampa' AND ABS(latitud - 20.6943358) < 0.00004 AND ABS(longitud - -103.4191120) < 0.00004);
 INSERT INTO accesibilidad (tipo, nombre, trazo, latitud, longitud, largo_m) SELECT 'escalera', 'Escalera', '[[20.69430169,-103.42012309]]'::jsonb, 20.6943017, -103.4201231, 0.0 WHERE NOT EXISTS (SELECT 1 FROM accesibilidad WHERE tipo = 'escalera' AND ABS(latitud - 20.6943017) < 0.00004 AND ABS(longitud - -103.4201231) < 0.00004);

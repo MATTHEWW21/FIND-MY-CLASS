@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (m.texto) {
             const p = document.createElement('p');
-            p.textContent = m.texto; // textContent: nunca se interpreta como HTML
+            p.textContent = m.texto;
             b.appendChild(p);
         }
         const t = document.createElement('span');

@@ -1,9 +1,5 @@
--- 025: caminos nuevos sacados de la caminata del 29 de octubre (GPS Logger). NO borra nada de la red existente; se puede correr de nuevo sin duplicar.
---  A) 12 enlaces entre puntos que ya existian pero no estaban conectados (los caminaste y la red daba una vuelta enorme).
---  B) 5 caminos nuevos (puntos nuevos 'Punto 3xx'); donde se unen a un camino existente, ese camino se parte en dos para que se pueda pasar de uno a otro.
 BEGIN;
 
--- Puntos nuevos
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 301', 20.6945064, -103.4188492, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 301');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 302', 20.6950247, -103.4188745, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 302');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 303', 20.6965023, -103.4178249, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 303');
@@ -21,7 +17,6 @@ INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 314',
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 315', 20.6932789, -103.4207200, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 315');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 316', 20.6929071, -103.4207225, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 316');
 
--- Caminos existentes que se parten para poder unirse
 DO $$ DECLARE v_id INT; v_acc BOOLEAN; v_tipo VARCHAR;
 BEGIN
     SELECT r.id, r.es_accesible, r.tipo INTO v_id, v_acc, v_tipo FROM rutas r JOIN puntos o ON o.id = r.origen_punto_id JOIN puntos d ON d.id = r.destino_punto_id
@@ -95,7 +90,6 @@ BEGIN
     END IF;
 END $$;
 
--- Caminos nuevos (enlaces y tramos)
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 189 - Punto 19', o.id, d.id, 36.61, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 189' AND d.nombre = 'Punto 19' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 189 - Punto 19', 'Punto 19 - Punto 189'));
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 138 - Punto 15', o.id, d.id, 3.65, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 138' AND d.nombre = 'Punto 15' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 138 - Punto 15', 'Punto 15 - Punto 138'));
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 15 - Punto 150', o.id, d.id, 9.74, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 15' AND d.nombre = 'Punto 150' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 15 - Punto 150', 'Punto 150 - Punto 15'));

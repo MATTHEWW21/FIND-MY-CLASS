@@ -1,5 +1,3 @@
--- 013_publicaciones.sql: publicaciones de la comunidad (feed), fotos, likes, comentarios y reportes.
--- Se puede correr mas de una vez (IF NOT EXISTS). Solo ASCII.
 
 CREATE TABLE IF NOT EXISTS publicaciones (
     id                   SERIAL PRIMARY KEY,

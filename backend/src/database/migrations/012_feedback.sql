@@ -1,10 +1,8 @@
--- 012_feedback.sql: calificaciones de la caminata e incidencias reportadas desde el mapa.
--- Se puede correr mas de una vez (IF NOT EXISTS). Solo ASCII: se puede pasar con docker cp o con pipe.
 
 CREATE TABLE IF NOT EXISTS calificaciones (
     id             SERIAL PRIMARY KEY,
-    usuario_id     INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,  -- NULL si es visitante/invitado
-    destino_clave  VARCHAR(40),                                         -- ej. 'servicio-12' o 'edificio-3'
+    usuario_id     INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    destino_clave  VARCHAR(40),
     destino_nombre VARCHAR(150),
     estrellas      SMALLINT NOT NULL CHECK (estrellas BETWEEN 1 AND 5),
     comentario     VARCHAR(500),

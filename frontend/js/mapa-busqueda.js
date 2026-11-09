@@ -1,5 +1,3 @@
-// mapa-busqueda.js - lógica pura del buscador del mapa (sin Leaflet ni DOM, para poder probarla sola).
-// Se carga ANTES de mapa.js:  <script src="js/mapa-busqueda.js"></script>
 (function (root) {
     const TIPOS = {
         edificio:        { emoji: '🏢', etiqueta: 'Edificios',          sing: 'Edificio',     sinonimos: 'edificio salon clase' },

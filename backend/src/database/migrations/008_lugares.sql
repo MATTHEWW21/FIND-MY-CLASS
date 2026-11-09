@@ -1,17 +1,9 @@
--- 008_lugares.sql
--- Amplía `servicios` para guardar TODOS los lugares del mapa oficial de la UAG
--- (puertas, food points, oficinas, auditorios, deportes, salud, estacionamientos...)
--- y agrega los edificios que faltaban: Rectoría y Edificio N.
--- Las coordenadas se llenan después con la herramienta de coordenadas (migración 009).
--- Requiere 003. Es seguro correrla más de una vez.
 
--- 1. Edificios nuevos (sin coordenadas todavía)
 INSERT INTO edificios (nombre, codigo) VALUES
     ('Rectoría', 'R'),
     ('Edificio N', 'N')
 ON CONFLICT (codigo) DO NOTHING;
 
--- 2. Columnas nuevas en servicios
 ALTER TABLE servicios ADD COLUMN IF NOT EXISTS tipo VARCHAR(30)
     CHECK (tipo IN ('puerta', 'alimentos', 'oficina', 'auditorio', 'servicio', 'deportes', 'salud', 'estacionamiento', 'snacks', 'bebedero'));
 ALTER TABLE servicios ADD COLUMN IF NOT EXISTS latitud  NUMERIC(10, 8);
@@ -19,8 +11,6 @@ ALTER TABLE servicios ADD COLUMN IF NOT EXISTS longitud NUMERIC(11, 8);
 ALTER TABLE servicios ADD COLUMN IF NOT EXISTS numero_mapa VARCHAR(10);
 CREATE UNIQUE INDEX IF NOT EXISTS servicios_numero_mapa_uk ON servicios (numero_mapa);
 
--- 3. Lugares del mapa oficial (numero_mapa = el número/código que trae el mapa de la UAG).
---    OJO: es_accesible queda en TRUE por defecto; revísalo lugar por lugar cuando lo sepas.
 INSERT INTO servicios (nombre, tipo, numero_mapa) VALUES
     ('Puerta 1', 'puerta', 'P1'),
     ('Puerta 2', 'puerta', 'P2'),

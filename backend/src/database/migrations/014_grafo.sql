@@ -1,8 +1,5 @@
--- Guarda esto como el siguiente numero de migracion (ej. 013_grafo.sql) y córrelo con docker cp + -f
--- REEMPLAZA toda la red de caminos (puntos y rutas). Se puede correr de nuevo sin duplicar nada.
 
 BEGIN;
--- Tipo de tramo: normal, escaleras o rampa (se agrega solo la primera vez)
 ALTER TABLE rutas ADD COLUMN IF NOT EXISTS tipo VARCHAR(10) NOT NULL DEFAULT 'normal' CHECK (tipo IN ('normal','escaleras','rampa'));
 DELETE FROM rutas;
 DELETE FROM puntos;
@@ -222,7 +219,6 @@ INSERT INTO puntos (nombre, latitud, longitud, es_accesible) VALUES
                                                                  ('Punto 215', 20.6944668, -103.4205160, true),
                                                                  ('Punto 216', 20.6941191, -103.4207077, true);
 
--- Tramos (se unen con los puntos por nombre)
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo)
 SELECT 'Punto 23 - Punto 24', o.id, d.id, 41.18, true, 'normal'
 FROM puntos o, puntos d WHERE o.nombre = 'Punto 23' AND d.nombre = 'Punto 24';

@@ -1,7 +1,6 @@
-/* registro-extra.css - piezas nuevas de INICIAR RUTA (GPS, terminar, resumen, SOS real). Va despues de registro.css. */
 .hidden { display: none !important; }
 
-.gps-estado { margin: 10px 16px 0; text-align: center; font-size: .72rem; font-weight: 700; color: #8c8275; min-height: 1.1em; }
+.gps-estado { margin: 10px 16px 0; text-align: center; font-size: 0.75rem; font-weight: 700; color: #8c8275; min-height: 1.1em; }
 .gps-estado.ok { color: #2e8b46; }
 .gps-estado.aviso { color: #b8601f; }
 
@@ -29,7 +28,7 @@
 .resumen-stats { display: flex; justify-content: space-around; margin-bottom: 12px; }
 .resumen-stats div { display: flex; flex-direction: column; align-items: center; }
 .resumen-stats strong { font-size: 1.15rem; font-weight: 800; color: #1a1a1a; }
-.resumen-stats span { font-size: .6rem; font-weight: 800; color: #8c8275; letter-spacing: .5px; }
+.resumen-stats span { font-size: 0.75rem; font-weight: 800; color: #8c8275; letter-spacing: .5px; }
 .resumen-estado { min-height: 1.1em; margin: 0 0 12px; font-size: .78rem; font-weight: 700; color: #2e8b46; }
 .resumen-estado.error { color: #b3382c; }
 .resumen-btn {
@@ -39,11 +38,11 @@
 .resumen-btn.principal { background: #d97736; color: #fff; }
 .resumen-btn:disabled { opacity: .6; cursor: default; }
 
-.sos-aviso { margin: 0 0 10px; font-size: .72rem; font-weight: 700; color: #b8601f; text-align: center; line-height: 1.35; }
+.sos-aviso { margin: 0 0 10px; font-size: 0.75rem; font-weight: 700; color: #b8601f; text-align: center; line-height: 1.35; }
 .sos-aviso a { color: #b8601f; }
 .btn-sos-call:disabled, .btn-sos-contact:disabled { opacity: .6; cursor: default; }
 
 .medical-map-view { min-height: 0; }
 .medical-map { position: absolute; inset: 0; }
-.medical-nota { margin: 0 0 10px; font-size: .72rem; font-weight: 600; color: #666; line-height: 1.35; }
+.medical-nota { margin: 0 0 10px; font-size: 0.75rem; font-weight: 600; color: #666; line-height: 1.35; }
 .arrival-card-time { font-size: 1.9rem; }

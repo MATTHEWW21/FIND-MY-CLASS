@@ -1,4 +1,3 @@
--- 021: sesiones que se pueden revocar (cerrar en un dispositivo o en todos) y cuentas que se pueden suspender.
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS activo BOOLEAN NOT NULL DEFAULT TRUE;
 
 CREATE TABLE IF NOT EXISTS sesiones (

@@ -1,9 +1,5 @@
--- 028: enlaces de los tramos dudosos de la caminata del 29 de octubre. Como el GPS se movia en medio de esos tramos, solo se unieron el
--- PRIMER y el ULTIMO punto de cada uno con una linea recta (7 enlaces). Donde se unen a un camino existente, ese camino se parte en dos.
--- No borra nada; se puede correr de nuevo sin duplicar.
 BEGIN;
 
--- Puntos nuevos
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 317', 20.6939599, -103.4199635, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 317');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 318', 20.6950259, -103.4192351, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 318');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 319', 20.6954092, -103.4194426, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 319');
@@ -16,7 +12,6 @@ INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 325',
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 326', 20.6941218, -103.4209691, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 326');
 INSERT INTO puntos (nombre, latitud, longitud, es_accesible) SELECT 'Punto 327', 20.6932777, -103.4208586, true WHERE NOT EXISTS (SELECT 1 FROM puntos WHERE nombre = 'Punto 327');
 
--- Caminos existentes que se parten para poder unirse
 DO $$ DECLARE v_id INT; v_acc BOOLEAN; v_tipo VARCHAR;
 BEGIN
     SELECT r.id, r.es_accesible, r.tipo INTO v_id, v_acc, v_tipo FROM rutas r JOIN puntos o ON o.id = r.origen_punto_id JOIN puntos d ON d.id = r.destino_punto_id
@@ -128,7 +123,6 @@ BEGIN
     END IF;
 END $$;
 
--- Caminos nuevos (enlaces y tramos)
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 317 - Punto 145', o.id, d.id, 29.43, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 317' AND d.nombre = 'Punto 145' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 317 - Punto 145', 'Punto 145 - Punto 317'));
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 318 - Punto 319', o.id, d.id, 47.78, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 318' AND d.nombre = 'Punto 319' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 318 - Punto 319', 'Punto 319 - Punto 318'));
 INSERT INTO rutas (nombre, origen_punto_id, destino_punto_id, distancia_metros, es_accesible, tipo) SELECT 'Punto 320 - Punto 321', o.id, d.id, 51.47, true, 'normal' FROM puntos o, puntos d WHERE o.nombre = 'Punto 320' AND d.nombre = 'Punto 321' AND NOT EXISTS (SELECT 1 FROM rutas WHERE nombre IN ('Punto 320 - Punto 321', 'Punto 321 - Punto 320'));

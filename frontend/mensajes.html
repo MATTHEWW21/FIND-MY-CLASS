@@ -12,6 +12,7 @@
 <script src="js/role-ui.js"></script>
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
+    <script src="js/daltonismo.js"></script>
 </head>
 <body>
 
@@ -56,7 +57,7 @@
     </div>
 
     <div class="chat-input-bar hidden" id="chat-input-bar">
-        <button type="button" class="attach-btn" id="btn-adjuntar" title="Enviar una foto">📎</button>
+        <button type="button" class="attach-btn" id="btn-adjuntar" title="Enviar una foto" aria-label="Enviar una foto"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
         <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden>
         <div class="foto-previa hidden" id="foto-previa">
             <img id="foto-previa-img" alt="Foto por enviar">

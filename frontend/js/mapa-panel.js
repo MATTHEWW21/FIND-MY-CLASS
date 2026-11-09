@@ -102,7 +102,7 @@
     asa.addEventListener("pointerdown", (e) => {
         if (e.pointerType === "touch") return;
         y0 = e.clientY; hizoGesto = false;
-        if (asa.setPointerCapture) { try { asa.setPointerCapture(e.pointerId); } catch (err) { /* sin captura tambien sirve */ } }
+        if (asa.setPointerCapture) { try { asa.setPointerCapture(e.pointerId); } catch (err) {  } }
     });
     asa.addEventListener("pointermove", (e) => {
         if (y0 === null) return;

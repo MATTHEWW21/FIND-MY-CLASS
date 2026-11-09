@@ -71,7 +71,7 @@ body {
 }
 
 .timer-label {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #888888;
     letter-spacing: 1px;
@@ -98,7 +98,7 @@ body {
 }
 
 .metric-label {
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #8c8275;
     margin-top: 2px;
@@ -203,7 +203,7 @@ body {
 }
 
 .start-subtitle {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
     color: #cccccc;
     font-weight: 700;
 }
@@ -228,7 +228,7 @@ body {
     align-items: center;
     text-decoration: none;
     color: #8c8275;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
@@ -236,9 +236,7 @@ body {
     color: #cc6324;
 }
 
-/* ==========================================
-   ESTILOS PANEL SOS ACTIVADO
-   ========================================== */
+/* ESTILOS PANEL SOS ACTIVADO */
 .sos-overlay {
     position: fixed;
     top: 0;
@@ -312,7 +310,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #4a3e31;
     cursor: pointer;
@@ -354,7 +352,7 @@ body {
 
 .sos-section-title {
     display: block;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #8c7865;
     margin-bottom: 10px;
@@ -380,7 +378,7 @@ body {
 }
 
 .btn-sos-call small {
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     font-weight: 600;
     opacity: 0.9;
 }
@@ -400,7 +398,7 @@ body {
 }
 
 .sos-timer-label {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
     color: #666666;
     font-weight: 600;
 }
@@ -412,7 +410,7 @@ body {
     border: 1px solid #d8c2aa;
     border-radius: 12px;
     padding: 8px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 800;
     cursor: pointer;
 }
@@ -434,9 +432,7 @@ body {
     color: #ffffff;
 }
 
-/* ==========================================
-   VISTA DE ASISTENCIA MÉDICA Y MAPA UAG EXACTO
-   ========================================== */
+/* VISTA DE ASISTENCIA MÉDICA Y MAPA UAG EXACTO */
 .medical-overlay {
     position: fixed;
     top: 0;

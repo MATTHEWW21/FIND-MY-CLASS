@@ -19,6 +19,7 @@
     textarea { height: 150px; font-family: monospace; font-size: 12px; border: 0; border-top: 1px solid #ccc; padding: 8px; resize: vertical; }
 </style>
     <script src="js/ui-grande.js"></script>
+    <script src="js/daltonismo.js"></script>
 </head>
 <body>
 
@@ -43,22 +44,18 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// Herramienta TEMPORAL para dibujar la red de caminos del campus (puntos y tramos entre ellos).
-// Abrela con el backend corriendo:  http://localhost:3000/herramienta_rutas.html
-// El SQL que genera REEMPLAZA toda la red (borra y vuelve a insertar), asi que se puede correr las veces que haga falta.
 
 const CLAVE = 'grafoBorrador';
 const map = L.map('map', { minZoom: 15, maxZoom: 20 }).setView([20.6938, -103.4178], 17);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 20, maxNativeZoom: 19, attribution: '© OpenStreetMap' }).addTo(map);
 
-let pts = [];      // { uid, nombre, lat, lng, acc }
-let tramos = [];   // { a, b, tipo }  tipo: 'normal' | 'escaleras' | 'rampa'  (a y b son uid de puntos)
-let siguiente = 1; // siguiente uid
-let sel = null;    // uid del punto elegido en modo Conectar
-let lugares = [];  // referencia: edificios y lugares del mapa
+let pts = [];
+let tramos = [];
+let siguiente = 1;
+let sel = null;
+let lugares = [];
 let historial = [];
 
-// Tipos de tramo: normal (azul), escaleras (rojo con rayas, no accesible) y rampa (verde, accesible para silla de ruedas)
 const COLOR_TRAMO = { normal: '#2b7bd6', escaleras: '#d9534f', rampa: '#2e9e5b' };
 const ETIQUETA_TRAMO = { normal: '', escaleras: ' · escaleras', rampa: ' · rampa ♿' };
 const tipoNuevo = () => (document.getElementById('chk-acc').checked ? 'normal' : 'escaleras');
@@ -70,7 +67,6 @@ const estado = document.getElementById('estado');
 const modo = () => document.querySelector('input[name=modo]:checked').value;
 const accNuevo = () => document.getElementById('chk-acc').checked;
 
-// ---------- utilidades ----------
 function distancia(a, b) {
     const R = 6371000, rad = Math.PI / 180;
     const dLat = (b.lat - a.lat) * rad, dLng = (b.lng - a.lng) * rad;
@@ -87,7 +83,6 @@ function nombreNuevo() {
     return 'Punto ' + (max + 1);
 }
 
-// Nombres unicos (el SQL une los tramos con los puntos por nombre)
 function nombresUnicos() {
     const vistos = new Set();
     pts.forEach((p) => {
@@ -100,8 +95,6 @@ function nombresUnicos() {
 function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify({ pts, tramos, siguiente })); } catch (e) {} }
 function foto() { historial.push(JSON.stringify({ pts, tramos, siguiente })); if (historial.length > 80) historial.shift(); }
 
-// ---------- dibujo ----------
-// Grupos de puntos unidos entre sí, del más grande al más chico
 function grupos() {
     const padre = new Map(pts.map((p) => [p.uid, p.uid]));
     const raiz = (x) => { while (padre.get(x) !== x) x = padre.get(x); return x; };
@@ -110,7 +103,7 @@ function grupos() {
     pts.forEach((p) => { const r = raiz(p.uid); if (!por.has(r)) por.set(r, []); por.get(r).push(p.uid); });
     return Array.from(por.values()).sort((x, y) => y.length - x.length);
 }
-let sueltos = new Set();   // uid de los puntos que no están en el grupo principal
+let sueltos = new Set();
 
 function dibujar() {
     capaRed.clearLayers();
@@ -168,10 +161,9 @@ function actualizar() {
         ` · lugares a más de 80 m de la red: <b class="${lejos ? 'mal' : 'bien'}">${lejos}</b>` +
         (sel ? ` · elegido: <b>${porUid(sel).nombre}</b>` : '');
     salida.value = sql();
-    if (cambio) dibujar();   // repinta para que los puntos sueltos salgan en naranja
+    if (cambio) dibujar();
 }
 
-// ---------- acciones ----------
 function clickPunto(uid) {
     const m = modo();
     if (m === 'conectar') {
@@ -179,7 +171,7 @@ function clickPunto(uid) {
         else if (sel === uid) sel = null;
         else {
             if (!existeTramo(sel, uid)) { foto(); tramos.push({ a: sel, b: uid, tipo: tipoNuevo() }); }
-            sel = uid; // se sigue en cadena desde el punto al que llegaste
+            sel = uid;
         }
     } else if (m === 'borrar') {
         foto();
@@ -205,7 +197,7 @@ map.on('click', (e) => {
     const p = { uid: siguiente++, nombre: nombreNuevo(), lat: e.latlng.lat, lng: e.latlng.lng, acc: accNuevo() };
     pts.push(p);
     if (m === 'conectar') {
-        if (sel !== null) tramos.push({ a: sel, b: p.uid, tipo: tipoNuevo() }); // une con el punto elegido
+        if (sel !== null) tramos.push({ a: sel, b: p.uid, tipo: tipoNuevo() });
         sel = p.uid;
     }
     guardar(); dibujar();
@@ -235,7 +227,6 @@ document.getElementById('btn-recargar').addEventListener('click', async () => {
     await cargarDeBase();
 });
 
-// ---------- SQL (reemplaza toda la red) ----------
 function sql() {
     if (!pts.length) return '-- Todavia no hay puntos.';
     const f = (n) => Number(n).toFixed(7);
@@ -258,7 +249,6 @@ function sql() {
     return t;
 }
 
-// ---------- carga inicial ----------
 async function cargarDeBase() {
     try {
         const g = await (await fetch('/api/mapa/grafo')).json();
@@ -287,7 +277,6 @@ async function cargarDeBase() {
     try { borrador = JSON.parse(localStorage.getItem(CLAVE) || 'null'); } catch (e) {}
     if (borrador && Array.isArray(borrador.pts)) {
         pts = borrador.pts; siguiente = borrador.siguiente || (pts.length + 1);
-        // Los borradores anteriores guardaban solo accesible si/no: se convierten al tipo nuevo
         tramos = (borrador.tramos || []).map((t) => ({ a: t.a, b: t.b, tipo: t.tipo || (t.acc === false ? 'escaleras' : 'normal') }));
         dibujar();
     } else {

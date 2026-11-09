@@ -1,5 +1,3 @@
--- 030: el patio de Solutions (Oxxo, Flor de Córdoba, UAG Store, ASU) está un nivel abajo. Se marcan como ESCALERAS (no accesibles) tres
--- entradas que en la realidad se bajan por escalones. La entrada accesible es la rampa larga por Rectoría. Se puede correr de nuevo.
 BEGIN;
 UPDATE rutas r SET es_accesible = false, tipo = 'escaleras'
 FROM puntos a, puntos b

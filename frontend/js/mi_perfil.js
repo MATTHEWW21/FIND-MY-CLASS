@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         chkGrande.checked = FMCUIGrande.activo();
         chkGrande.addEventListener('change', () => FMCUIGrande.activar(chkGrande.checked));
     }
+    const chkDalto = $('ajuste-dalto');
+    if (chkDalto && window.FMCDaltonismo) {
+        chkDalto.checked = FMCDaltonismo.activo();
+        chkDalto.addEventListener('change', () => FMCDaltonismo.activar(chkDalto.checked));
+    }
     let usuario = null;
 
     function avisar(texto, esError) {

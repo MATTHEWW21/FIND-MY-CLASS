@@ -16,6 +16,7 @@
 <script src="js/role-ui.js"></script>
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
+    <script src="js/daltonismo.js"></script>
 </head>
 <body>
 
@@ -232,6 +233,11 @@
         <div class="search-top">
             <button type="button" class="search-close" id="btn-close-search" aria-label="Cerrar buscador">←</button>
             <input type="search" id="search-input" placeholder="Busca edificios, comida, bebederos..." aria-label="Buscar edificios, comida o bebederos" autocomplete="off">
+        </div>
+        <div class="origen-box" id="origen-box">
+            <span class="origen-estado" id="origen-estado" aria-live="polite">📍 Tu ubicación: GPS</span>
+            <button type="button" class="origen-btn" id="btn-origen-elegir">ESTOY EN…</button>
+            <button type="button" class="origen-btn origen-gps" id="btn-origen-gps" hidden>USAR MI GPS</button>
         </div>
         <div class="search-cats" id="search-cats"></div>
         <div class="search-results" id="search-results"></div>

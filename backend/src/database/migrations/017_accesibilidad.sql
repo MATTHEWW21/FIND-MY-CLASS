@@ -1,7 +1,3 @@
--- Escaleras, rampas, estacionamientos y pasos peatonales accesibles del campus (mapeo del 22 de octubre de 2026).
--- Cada fila es UN elemento: si es largo, "trazo" lleva todos sus puntos en orden ([[lat,lng], ...]); si es corto, lleva un solo punto.
--- Se puede correr de nuevo sin duplicar nada (reemplaza el contenido de la tabla). No toca la red de caminos (puntos/rutas).
--- Correr con:  docker cp 017_accesibilidad.sql naviu_postgres:/tmp/  y luego  docker exec -it naviu_postgres psql -U <usuario> -d <base> -f /tmp/017_accesibilidad.sql
 
 BEGIN;
 

@@ -1,3 +1,4 @@
+
 const API_BASE = '/api';
 
 const CLAVES_SESION = [
@@ -49,7 +50,6 @@ function guardarSesion(token, usuario) {
     if (usuario.nombre) localStorage.setItem('userName', usuario.nombre);
     else localStorage.removeItem('userName');
     localStorage.setItem('userVista', usuario.vista_preferida || 'completa');
-    // En un dispositivo nuevo el valor viene de la cuenta, no del teléfono
     if (typeof usuario.necesita_rutas_accesibles === 'boolean') {
         localStorage.setItem('accessibleRoutes', String(usuario.necesita_rutas_accesibles));
     }
@@ -63,7 +63,7 @@ async function cerrarSesion() {
                 fetch(API_BASE + '/auth/logout', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
                 new Promise((r) => setTimeout(r, 2500)),
             ]);
-        } catch (e) { /* igual se cierra en este dispositivo */ }
+        } catch (e) {  }
     }
     limpiarSesion();
     window.location.href = 'index.html';

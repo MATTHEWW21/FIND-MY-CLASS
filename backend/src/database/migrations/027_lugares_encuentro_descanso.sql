@@ -1,5 +1,3 @@
--- 027: lugares nuevos de la caminata del 29 de octubre: puntos de encuentro (emergencias), espacio para socializar y la entrada accesible de la Biblioteca.
--- Amplia los tipos permitidos en `servicios` y agrega los lugares. Se puede correr de nuevo sin duplicar nada.
 BEGIN;
 
 ALTER TABLE servicios DROP CONSTRAINT IF EXISTS servicios_tipo_check;

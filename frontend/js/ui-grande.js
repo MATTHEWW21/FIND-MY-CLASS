@@ -5,7 +5,7 @@
         document.documentElement.classList.toggle('ui-grande', !!on);
     }
     function activar(on) {
-        try { localStorage.setItem(CLAVE, on ? '1' : '0'); } catch (e) { /* sin almacenamiento: solo vale en esta pagina */ }
+        try { localStorage.setItem(CLAVE, on ? '1' : '0'); } catch (e) {  }
         aplicar(on);
     }
     const href = (document.currentScript && document.currentScript.src ? document.currentScript.src.replace(/js\/ui-grande\.js.*$/, '') : '') + 'css/ui-grande.css';

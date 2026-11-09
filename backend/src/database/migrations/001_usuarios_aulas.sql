@@ -1,7 +1,4 @@
--- 001_usuarios_aulas.sql
--- Usuarios, códigos de verificación, aulas y conexión edificios <-> puntos
 
--- 1. Usuarios de la app (estudiante, colaborador; visitante entra como invitado sin cuenta)
 CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -16,10 +13,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Correo único sin importar mayúsculas
 CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_correo ON usuarios (LOWER(correo));
 
--- 2. Códigos de 6 dígitos (verificación de cuenta y recuperación de contraseña)
 CREATE TABLE IF NOT EXISTS codigos_verificacion (
     id SERIAL PRIMARY KEY,
     usuario_id INT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -31,7 +26,6 @@ CREATE TABLE IF NOT EXISTS codigos_verificacion (
     creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Aulas (lo que realmente busca el usuario en "Find My Class")
 CREATE TABLE IF NOT EXISTS aulas (
     id SERIAL PRIMARY KEY,
     edificio_id INT NOT NULL REFERENCES edificios(id) ON DELETE CASCADE,
@@ -42,10 +36,8 @@ CREATE TABLE IF NOT EXISTS aulas (
     UNIQUE (edificio_id, codigo)
 );
 
--- 4. Cada edificio se conecta a la red de rutas por su punto de acceso
 ALTER TABLE edificios
     ADD COLUMN IF NOT EXISTS punto_acceso_id INT REFERENCES puntos(id) ON DELETE SET NULL;
 
--- 5. Geometría del tramo (GeoJSON LineString) para dibujar la ruta real en Leaflet
 ALTER TABLE rutas
     ADD COLUMN IF NOT EXISTS geometria JSONB;

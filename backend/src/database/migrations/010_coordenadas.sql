@@ -1,6 +1,4 @@
--- Guarda esto como el siguiente número de migración (ej. 010_coordenadas.sql) y córrelo con docker cp + -f
 
--- Coordenadas de edificios
 UPDATE edificios SET latitud = 20.6951409, longitud = -103.4191185 WHERE codigo = 'A';
 UPDATE edificios SET latitud = 20.6946588, longitud = -103.4198052 WHERE codigo = 'B';
 UPDATE edificios SET latitud = 20.6952665, longitud = -103.4202236 WHERE codigo = 'C';
@@ -14,7 +12,6 @@ UPDATE edificios SET latitud = 20.6956032, longitud = -103.4222674 WHERE codigo 
 UPDATE edificios SET latitud = 20.6941566, longitud = -103.4189200 WHERE codigo = 'R';
 UPDATE edificios SET latitud = 20.6940712, longitud = -103.4232384 WHERE codigo = 'N';
 
--- Coordenadas de los lugares del mapa oficial
 UPDATE servicios SET latitud = 20.6937590, longitud = -103.4194189 WHERE numero_mapa = '1';
 UPDATE servicios SET latitud = 20.6937440, longitud = -103.4195262 WHERE numero_mapa = '2';
 UPDATE servicios SET latitud = 20.6937440, longitud = -103.4196442 WHERE numero_mapa = '3';
@@ -88,7 +85,6 @@ UPDATE servicios SET latitud = 20.6963284, longitud = -103.4183085 WHERE numero_
 UPDATE servicios SET latitud = 20.6974424, longitud = -103.4173536 WHERE numero_mapa = 'E8';
 UPDATE servicios SET latitud = 20.6951391, longitud = -103.4228307 WHERE numero_mapa = 'E9';
 
--- Máquinas de snacks y bebederos nuevos
 INSERT INTO servicios (nombre, tipo, latitud, longitud) VALUES
                                                             ('Bebedero 5', 'bebedero', 20.6932658, -103.4199983),
                                                             ('Bebedero 6', 'bebedero', 20.6932416, -103.4200627),

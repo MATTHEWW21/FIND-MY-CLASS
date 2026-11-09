@@ -1,5 +1,3 @@
--- 016_actividades_sos.sql: actividades registradas (perfil, racha, premios), contacto de emergencia y alertas SOS.
--- Se puede correr mas de una vez (IF NOT EXISTS). Solo ASCII.
 
 CREATE TABLE IF NOT EXISTS actividades (
     id           SERIAL PRIMARY KEY,

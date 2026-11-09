@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         ultimoResumen = { tipo: e.tipo, distancia_m: Math.round(e.distanciaM), duracion_s: seg, calorias: calorias() };
-        // Para publicar en el feed (Nueva publicación lee esto)
         try {
             localStorage.setItem('ultimaRuta', JSON.stringify({
                 distancia_m: ultimoResumen.distancia_m, duracion_s: seg, destino: '', actividad: e.tipo, ts: Date.now(),
@@ -248,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reiniciar();
     });
 
-    // ---------- recuperar una actividad que se quedó a medias ----------
     try {
         const g = JSON.parse(localStorage.getItem(CLAVE) || 'null');
         if (g && ACT[g.tipo] && Date.now() - g.ts < 12 * 3600 * 1000) {
@@ -256,7 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
             estadoGps('Actividad en pausa: pulsa REANUDAR para continuar', 'aviso');
         } else localStorage.removeItem(CLAVE);
     } catch (err) {}
-    // Si hay una ruta en curso en el mapa, se avisa y se propone la misma forma de moverse (solo si aun no empiezas)
     try {
         const r = JSON.parse(localStorage.getItem('rutaMapa') || 'null');
         if (r && Date.now() - r.ts < 4 * 3600 * 1000 && r.nombre) {
@@ -268,9 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pintarSelector();
     pintar();
 
-    // =====================================================================
-    // SOS
-    // =====================================================================
     const sosOverlay = $('sos-overlay');
     const sosAviso = $('sos-aviso');
     const sosChips = document.querySelectorAll('.sos-chip');
@@ -281,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ESPERA_SOS = 25;
 
     let sosInterval = null, sosRestante = ESPERA_SOS, sosPos = null, sosEnCurso = false;
-    let telefonoSeguridad;      // undefined = aun no se consulta, null = no configurado
+    let telefonoSeguridad;
 
     function avisoSos(html) {
         sosAviso.replaceChildren();

@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     function marcarVistoEnLaCuenta() {
         if (!conCuenta()) return;
-        apiFetch("/auth/me/tutorial-visto", { method: "POST" }).catch(() => { /* se reintenta la próxima vez */ });
+        apiFetch("/auth/me/tutorial-visto", { method: "POST" }).catch(() => {  });
     }
 
     const cuenta = localStorage.getItem("userEmail") || localStorage.getItem("userRole") || "anon";
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     overlay.addEventListener("click", (e) => {
         if (skipBtn && (e.target === skipBtn || skipBtn.contains(e.target))) return;
-        if (!tutorialSteps) return;   // todavía cargando el feed
+        if (!tutorialSteps) return;
         currentStep++;
         updateStep();
     });
@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function arrancar() {
         prepararPasos();
         updateStep();
-        try { overlay.focus({ preventScroll: true }); } catch (e) { /* sin foco */ }
+        try { overlay.focus({ preventScroll: true }); } catch (e) {  }
     }
 
     if (document.getElementById("feed-posts") && !document.querySelector("#feed-posts .post-card")) {

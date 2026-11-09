@@ -1,0 +1,19 @@
+html.daltonismo { --naranja-a11y: #0072B2; }
+
+html.daltonismo .ajustes-mensaje, html.daltonismo .amigos-mensaje, html.daltonismo .resumen-estado, html.daltonismo .gps-estado.ok { color: #005a8d; }
+html.daltonismo .ajustes-mensaje.error, html.daltonismo .amigos-mensaje.error, html.daltonismo .resumen-estado.error { color: #9c3d00; font-weight: 800; }
+html.daltonismo .bg-green, html.daltonismo .badge-green { background-color: #0072B2; }
+html.daltonismo .bg-red, html.daltonismo .badge-red { background-color: #D55E00; }
+html.daltonismo .event-tag.culture { background-color: #0072B2; }
+html.daltonismo .event-tag.sports { background-color: #7a4a00; }
+html.daltonismo .voz-fab.escuchando { background: #D55E00; }
+html.daltonismo .aviso-btn.peligro { background: #D55E00; border-color: #D55E00; color: #000; }
+html.daltonismo .ajustes-boton.salir, html.daltonismo .amigo-fila button.peligro { color: #9c3d00; border-color: #9c3d00; }
+html.daltonismo .finish-btn { color: #9c3d00; border-color: #9c3d00; }
+html.daltonismo .finish-btn:active { background: #9c3d00; }
+html.daltonismo .btn-primary, html.daltonismo .btn-primary-submit, html.daltonismo .info-card,
+html.daltonismo .forgot-password-btn, html.daltonismo .avatar-iniciales, html.daltonismo #btn-agregar-foto-grande { background-color: #0072B2; }
+html.daltonismo .action-btn, html.daltonismo .action-btn span, html.daltonismo .events-subtitle, html.daltonismo .pub-mas,
+html.daltonismo .question, html.daltonismo .btn-text.next-btn, html.daltonismo .bottom-nav .nav-item.active span { color: #005a8d; }
+html.daltonismo .filter-chips .chip.active { background: #0072B2; border-color: #0072B2; }
+html.daltonismo .mensajes-en-linea, html.daltonismo .en-linea { color: #005a8d; }

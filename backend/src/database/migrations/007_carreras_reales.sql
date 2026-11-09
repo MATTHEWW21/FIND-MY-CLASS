@@ -1,8 +1,3 @@
--- 007_carreras_reales.sql
--- Lista real de carreras (oferta de Guadalajara según uag.mx).
--- Las 6 carreras provisionales de la migración 004 que cambian de nombre se renombran
--- (conservan su id, así que los usuarios que ya las eligieron no pierden su carrera).
--- Es seguro correrla más de una vez.
 
 UPDATE carreras SET nombre = 'Médico Cirujano'                          WHERE nombre = 'Medicina';
 UPDATE carreras SET nombre = 'Medicina Veterinaria y Zootecnista'       WHERE nombre = 'Veterinaria';

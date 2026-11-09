@@ -167,7 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const textoL = el("p", "pub-likes-texto", textoLikes(p));
         card.appendChild(textoL);
 
-        // Me gusta: se pinta al instante y se confirma con el servidor
         btnLike.addEventListener("click", async () => {
             const antes = { yo: p.yo_di_like, n: p.likes };
             p.yo_di_like = !p.yo_di_like; p.likes += p.yo_di_like ? 1 : -1;
@@ -383,7 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     async function cargarAvisos() {
         try { pintarInsignia((await apiFetch("/notificaciones")).no_leidas); }
-        catch (e) { btnAvisos.hidden = true; }      // vista sin feed completo: no hay avisos
+        catch (e) { btnAvisos.hidden = true; }
     }
     btnAvisos.addEventListener("click", async () => {
         const caja = el("div", "pub-menu");

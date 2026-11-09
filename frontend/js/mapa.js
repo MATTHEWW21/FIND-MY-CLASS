@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnSkipFeedback = document.getElementById("btn-skip-feedback");
     const starBtns = document.querySelectorAll(".star-btn");
 
-    // Botones del Panel de Reporte
     const btnReportIssue = document.getElementById("btn-report-issue");
     const btnBackReport = document.getElementById("btn-back-report");
     const btnCancelReport = document.getElementById("btn-cancel-report");
@@ -60,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let lugares = [];
     let destino = null;
+    let sinCajas = null;
     let rutaActual = null;
     let inicioNavegacion = null;
     let modo = "caminata";
@@ -168,6 +168,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCerrarBusqueda = document.getElementById("btn-close-search");
     let tipoFiltro = "";
 
+    const CLAVE_ORIGEN = "fmc_origen_manual";
+    let origenManual = null;
+    let modoOrigen = false;
+    try { origenManual = JSON.parse(sessionStorage.getItem(CLAVE_ORIGEN) || "null"); } catch (e) { origenManual = null; }
+    const origenEstado = document.getElementById("origen-estado");
+    const btnOrigenElegir = document.getElementById("btn-origen-elegir");
+    const btnOrigenGps = document.getElementById("btn-origen-gps");
+    function pintarOrigen() {
+        if (origenEstado) origenEstado.textContent = origenManual ? `📍 Estás en: ${origenManual.nombre}` : "📍 Tu ubicación: GPS";
+        if (btnOrigenElegir) {
+            btnOrigenElegir.textContent = modoOrigen ? "ELIGE EN LA LISTA" : (origenManual ? "CAMBIAR" : "ESTOY EN…");
+            btnOrigenElegir.setAttribute("aria-label", modoOrigen ? "Elige en la lista el edificio o lugar donde estás" : (origenManual ? "Cambiar el lugar donde estoy" : "Poner mi ubicación actual: elegir el edificio o lugar donde estoy"));
+        }
+        if (btnOrigenGps) btnOrigenGps.hidden = !origenManual;
+        inputBusqueda.placeholder = modoOrigen ? "¿Dónde estás? Busca tu edificio o lugar…" : "Busca edificios, comida, bebederos...";
+        inputBusqueda.setAttribute("aria-label", modoOrigen ? "Busca el edificio o lugar donde estás" : "Buscar edificios, comida o bebederos");
+    }
+    function fijarOrigen(l) {
+        origenManual = l ? { nombre: l.nombre, lat: l.lat, lng: l.lng } : null;
+        try { if (origenManual) sessionStorage.setItem(CLAVE_ORIGEN, JSON.stringify(origenManual)); else sessionStorage.removeItem(CLAVE_ORIGEN); } catch (e) {  }
+        modoOrigen = false;
+        pintarOrigen();
+    }
+    if (btnOrigenElegir) btnOrigenElegir.addEventListener("click", () => { modoOrigen = !modoOrigen; pintarOrigen(); inputBusqueda.focus(); });
+    if (btnOrigenGps) btnOrigenGps.addEventListener("click", async () => { fijarOrigen(null); if (destino) { cerrarBusqueda(); routePanel.classList.remove("hidden"); await trazarRuta(destino); } });
+
     function elemento(tag, clase, texto) {
         const el = document.createElement(tag);
         if (clase) el.className = clase;
@@ -185,7 +211,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const detalle = [t.sing, l.numero ? `Nº ${l.numero}` : ""].filter(Boolean).join(" · ");
         if (detalle) textos.appendChild(elemento("small", "", detalle));
         boton.appendChild(textos);
-        boton.addEventListener("click", () => seleccionarDestino(l));
+        boton.addEventListener("click", async () => {
+            if (modoOrigen) {
+                fijarOrigen(l);
+                if (destino) { cerrarBusqueda(); routePanel.classList.remove("hidden"); await trazarRuta(destino); } else { cerrarBusqueda(); map.setView([l.lat, l.lng], 18); }
+                return;
+            }
+            seleccionarDestino(l);
+        });
         return boton;
     }
 
@@ -227,6 +260,8 @@ document.addEventListener("DOMContentLoaded", () => {
     function abrirBusqueda() {
         [routePanel, arrivalPanel, feedbackPanel, reportPanel].forEach((p) => p && p.classList.add("hidden"));
         searchPanel.classList.remove("hidden");
+        modoOrigen = false;
+        pintarOrigen();
         renderCategorias();
         renderResultados();
         inputBusqueda.focus();
@@ -247,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
             lng: puerta1 ? puerta1.lng : -103.4163,
             etiqueta: "DESDE LA PUERTA 1",
         };
+        if (origenManual && !marcaPosicion) return Promise.resolve({ lat: origenManual.lat, lng: origenManual.lng, etiqueta: `ESTÁS EN: ${origenManual.nombre.toUpperCase()}` });
         return new Promise((resolve) => {
             if (!navigator.geolocation) return resolve(respaldo);
             navigator.geolocation.getCurrentPosition(
@@ -368,6 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
         escaleras: { nombre: "Escaleras",     color: "#D55E00", weight: 6, dash: "1 9",   cap: "round" },
         rampa:     { nombre: "Rampa",         color: "#0072B2", weight: 5, dash: "16 7",  cap: "butt" },
     };
+    const colorTramo = (t) => (window.FMCDaltonismo && FMCDaltonismo.activo() ? FMCDaltonismo.RUTA[t] : ESTILO_TRAMO[t].color);
     const tipoDeTramo = (t) => (ESTILO_TRAMO[t] ? t : "normal");
 
     function dibujarTramos(tramos) {
@@ -381,7 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
         corridas.forEach((c) => L.polyline(c.pts, { color: "#ffffff", weight: ESTILO_TRAMO[c.tipo].weight + 5, opacity: 0.95, lineCap: "round", interactive: false }).addTo(capaSel));
         corridas.forEach((c) => {
             const e = ESTILO_TRAMO[c.tipo];
-            L.polyline(c.pts, { color: e.color, weight: e.weight, opacity: 1, dashArray: e.dash, lineCap: e.cap, interactive: false }).addTo(capaSel);
+            L.polyline(c.pts, { color: colorTramo(c.tipo), weight: e.weight, opacity: 1, dashArray: e.dash, lineCap: e.cap, interactive: false }).addTo(capaSel);
         });
         return Array.from(new Set(corridas.map((c) => c.tipo)));
     }
@@ -392,7 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cont.textContent = "";
         const items = aproximada
             ? [{ nombre: "Línea recta aproximada", color: "#6b5a50", dash: "8 8", cap: "butt", weight: 4 }]
-            : tipos.map((t) => ({ nombre: ESTILO_TRAMO[t].nombre, color: ESTILO_TRAMO[t].color, dash: ESTILO_TRAMO[t].dash, cap: ESTILO_TRAMO[t].cap, weight: ESTILO_TRAMO[t].weight }));
+            : tipos.map((t) => ({ nombre: ESTILO_TRAMO[t].nombre, color: colorTramo(t), dash: ESTILO_TRAMO[t].dash, cap: ESTILO_TRAMO[t].cap, weight: ESTILO_TRAMO[t].weight }));
         const NS = "http://www.w3.org/2000/svg";
         items.forEach((it) => {
             const li = document.createElement("li");
@@ -461,7 +498,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (!marcaPosicion) marcaOrigen = L.circleMarker([origen.lat, origen.lng], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1, interactive: false }).addTo(capaSel);
 
-        if (l.tipo === "estacionamiento" && window.FMCAcc && FMCAcc.cajasDe) {
+        if (l.tipo === "estacionamiento" && sinCajas !== l && window.FMCAcc && FMCAcc.cajasDe) {
             let cajas = [];
             try { cajas = await FMCAcc.cajasDe(l, 140); } catch (e) { cajas = []; }
             if (destino !== l) return;
@@ -540,7 +577,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     modo = modoInicial();
     pintarModos();
-    Promise.all([cargarLugares(), cargarGrafo()]).then(restaurarRuta);
+    Promise.all([cargarLugares(), cargarGrafo()]).then(restaurarRuta).then(() => {
+        let ir = null; try { ir = new URLSearchParams(location.search).get('ir'); } catch (e) {  }
+        if (!ir) return;
+        const l = lugares.find((x) => x.nombre === ir);
+        if (l) { sinCajas = l; seleccionarDestino(l); }
+    });
 
     function guardarUltimaRuta() {
         if (!rutaActual || !destino) return;
@@ -558,17 +600,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function marcarEnNavegacion() {
-        btnStart.style.backgroundColor = "#2f6f3a";
+        btnStart.style.backgroundColor = (window.FMCDaltonismo && FMCDaltonismo.activo()) ? "#005a8d" : "#2f6f3a";
         btnStart.textContent = "EN NAVEGACIÓN";
         btnFinish.disabled = false;
-        btnFinish.style.backgroundColor = "#B3261E";
-        btnFinish.style.color = "#ffffff";
+        const dal = window.FMCDaltonismo && FMCDaltonismo.activo();
+        btnFinish.style.backgroundColor = dal ? "#E69F00" : "#B3261E";
+        btnFinish.style.color = dal ? "#000000" : "#ffffff";
         btnFinish.style.cursor = "pointer";
         pintarModos();
     }
     function reiniciarBotones() {
         if (!btnStart || !btnFinish) return;
-        btnStart.style.backgroundColor = "#B04E0E";
+        btnStart.style.backgroundColor = (window.FMCDaltonismo && FMCDaltonismo.activo()) ? "#0072B2" : "#B04E0E";
         btnStart.textContent = "EMPEZAR";
         btnFinish.disabled = true;
         btnFinish.style.backgroundColor = "#d8d8d8";
@@ -702,6 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+
     if (btnReportIssue && reportPanel) {
         btnReportIssue.addEventListener("click", () => {
             feedbackPanel.classList.add("hidden");
@@ -744,7 +788,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: { categoria, descripcion, latitud: ll.lat, longitud: ll.lng },
                 });
                 if (reportPanel) reportPanel.classList.add("hidden");
-                closeFeedback(); // Reinicia el flujo
+                closeFeedback();
                 FMCAviso.aviso("¡Reporte enviado con éxito! Muchas gracias por colaborar con la comunidad UAG.", 'ok');
             } catch (e) {
                 FMCAviso.aviso(e.message || "No se pudo enviar el reporte. Intenta de nuevo.", 'error');
@@ -800,7 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
         enNavegacion: () => !!inicioNavegacion && !!btnFinish && !btnFinish.disabled,
         finalizar: () => { if (btnFinish && !btnFinish.disabled) btnFinish.click(); },
         mostrarPosicion: (lat, lng) => {
-            if (marcaOrigen) { try { capaSel.removeLayer(marcaOrigen); } catch (e) { /* ya no estaba */ } marcaOrigen = null; }
+            if (marcaOrigen) { try { capaSel.removeLayer(marcaOrigen); } catch (e) {  } marcaOrigen = null; }
             if (!marcaPosicion) {
                 marcaPosicion = L.circleMarker([lat, lng], { radius: 9, color: "#ffffff", weight: 3, fillColor: "#2b7bd6", fillOpacity: 1, interactive: false }).addTo(map);
             } else {
