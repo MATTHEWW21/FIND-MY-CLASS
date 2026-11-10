@@ -11,7 +11,7 @@ async function verificarToken(req, res, next) {
 
   let datos;
   try {
-    datos = jwt.verify(token, process.env.JWT_SECRET);
+    datos = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
   } catch (err) {
     return res.status(401).json({ error: 'Sesión inválida o expirada' });
   }

@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ESPERA_SOS = 25;
 
     let sosInterval = null, sosRestante = ESPERA_SOS, sosPos = null, sosEnCurso = false;
+    let configSos = null;
     let telefonoSeguridad;
 
     function avisoSos(html) {
@@ -290,6 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sosChips.forEach((c) => c.addEventListener('click', () => {
         sosChips.forEach((x) => x.classList.remove('active'));
         c.classList.add('active');
+        pintarAyuda();
     }));
 
     function leerPosicion() {
@@ -304,8 +306,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     async function cargarTelefono() {
         if (telefonoSeguridad !== undefined) return telefonoSeguridad;
-        try { telefonoSeguridad = (await apiFetch('/sos/config')).telefono; } catch (err) { telefonoSeguridad = null; }
+        try {
+            configSos = await apiFetch('/sos/config');
+            telefonoSeguridad = configSos.telefono;
+        } catch (err) { telefonoSeguridad = null; }
         return telefonoSeguridad;
+    }
+
+    const AYUDA_POR_TIPO = {
+        ansiedad: { clave: 'psicologo', texto: 'LLAMAR A UN PSICÓLOGO' },
+        vehicular: { clave: 'proteccion_civil', texto: 'LLAMAR A PROTECCIÓN CIVIL' },
+        lesion: { clave: 'medico', texto: 'LLAMAR A DOCTOR / AMBULANCIA' },
+        mareo: { clave: 'medico', texto: 'LLAMAR A DOCTOR / AMBULANCIA' },
+        medica: { clave: 'medico', texto: 'LLAMAR A DOCTOR / AMBULANCIA' }
+    };
+    let telefonoAyuda = null, telefonoContacto = null;
+
+    function ponerBoton(span, texto, numero) {
+        span.replaceChildren(document.createTextNode(texto));
+        if (numero) {
+            span.appendChild(document.createTextNode(' '));
+            const chico = document.createElement('small');
+            chico.textContent = numero;
+            span.appendChild(chico);
+        }
+    }
+
+    function pintarAyuda() {
+        const bloque = $('sos-ayuda');
+        const ayuda = AYUDA_POR_TIPO[tipoSos()];
+        const numero = ayuda && configSos && configSos.telefonos ? configSos.telefonos[ayuda.clave] : null;
+        telefonoAyuda = numero || null;
+        if (!ayuda || !numero) { bloque.classList.add('hidden'); return; }
+        ponerBoton($('sos-ayuda-texto'), ayuda.texto, numero);
+        bloque.classList.remove('hidden');
+    }
+
+    async function pintarContacto() {
+        const bloque = $('sos-contacto');
+        const boton = $('btn-sos-llamar-contacto');
+        const vacio = $('sos-contacto-vacio');
+        telefonoContacto = null;
+        if (!puedeGuardar) { bloque.classList.add('hidden'); return; }
+        let usuario = null;
+        try { usuario = (await apiFetch('/auth/me')).usuario; } catch (err) { usuario = null; }
+        bloque.classList.remove('hidden');
+        if (usuario && usuario.contacto_emergencia_telefono) {
+            telefonoContacto = usuario.contacto_emergencia_telefono;
+            ponerBoton($('sos-contacto-texto'), 'LLAMAR A ' + (usuario.contacto_emergencia_nombre || 'MI CONTACTO').toUpperCase(), telefonoContacto);
+            boton.classList.remove('hidden');
+            vacio.classList.add('hidden');
+        } else {
+            boton.classList.add('hidden');
+            vacio.classList.remove('hidden');
+        }
+    }
+
+    async function llamarA(numero) {
+        if (!numero || sosEnCurso) return;
+        sosEnCurso = true;
+        clearInterval(sosInterval);
+        btnLlamar.disabled = true; btnContacto.disabled = true;
+        await registrarAlerta();
+        window.location.href = 'tel:' + numero;
+        setTimeout(cerrarSos, 800);
     }
     function cerrarSos() {
         sosOverlay.classList.add('hidden');
@@ -371,12 +435,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
         sosPos = null;
         leerPosicion().then((p) => { sosPos = p; });
+        await cargarTelefono();
+        pintarAyuda();
+        pintarContacto();
     }
 
     $('btn-sos').addEventListener('click', abrirSos);
     $('btn-sos-cancel').addEventListener('click', cerrarSos);
     btnLlamar.addEventListener('click', llamarSeguridad);
     btnContacto.addEventListener('click', avisarContacto);
+    $('btn-sos-ayuda').addEventListener('click', () => llamarA(telefonoAyuda));
+    $('btn-sos-llamar-contacto').addEventListener('click', () => llamarA(telefonoContacto));
 
     let mapaMedico = null, capaMedica = null, lugaresSalud = null, grafoMedico = null;
 
@@ -406,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pin = (l, resaltado) => L.marker([l.lat, l.lng], {
             icon: L.divIcon({ className: '', html: `<div style="font-size:${resaltado ? 28 : 22}px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))">🏥</div>`, iconSize: [28, 28], iconAnchor: [14, 14] }),
-        }).bindTooltip(l.nombre).addTo(capaMedica);
+        }).bindTooltip(document.createTextNode(l.nombre)).addTo(capaMedica);
         lugaresSalud.forEach((l) => pin(l, false));
 
         const pos = sosPos || await leerPosicion();

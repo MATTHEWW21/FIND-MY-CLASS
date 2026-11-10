@@ -6,9 +6,7 @@
     <title>UAGPS - Bienvenida</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/contraste.css">
-    <script>
-        try { if (localStorage.getItem('token') && localStorage.getItem('userRole') !== 'visitante') document.documentElement.classList.add('comprobando'); } catch (e) {}
-    </script>
+    <script src="js/comprobando.js"></script>
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
 </head>
@@ -35,7 +33,7 @@
 
 <main class="welcome-container" id="bienvenida">
     <div class="logo-container">
-        <img src="assets/logo.png" alt="Find My Class Logo" class="logo-img" onerror="this.style.display='none'">
+        <img src="assets/logo.png" alt="Find My Class Logo" class="logo-img">
     </div>
 
     <header class="header-text">

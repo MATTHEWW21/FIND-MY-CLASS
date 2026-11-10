@@ -1,0 +1,17 @@
+.privacidad-resumen { margin-top: 8px; padding: 14px 16px; background: #fff; border: 1px solid #ddd; border-radius: 14px; color: #222; font-size: .9rem; line-height: 1.45; }
+.privacidad-resumen p { margin: 0 0 12px; }
+.privacidad-casilla { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; font-weight: 600; cursor: pointer; }
+.privacidad-casilla input { flex: 0 0 auto; width: 24px; height: 24px; margin: 2px 0 0; accent-color: #0072B2; }
+.privacidad-casilla a { color: #0b5a8a; text-decoration: underline; }
+.privacidad-casilla input:focus-visible { outline: 3px solid #56B4E9; outline-offset: 2px; }
+
+.aviso-pagina { max-width: 720px; margin: 0 auto; padding: 20px 18px 48px; color: #222; font-size: 1rem; line-height: 1.55; }
+.aviso-pagina h1 { font-size: 1.6rem; margin: 8px 0 12px; }
+.aviso-pagina h2 { font-size: 1.2rem; margin: 28px 0 8px; }
+.aviso-pagina p, .aviso-pagina li { margin: 0 0 10px; }
+.aviso-pagina a { color: #0b5a8a; }
+.aviso-borrador { padding: 12px 14px; background: #fff4dc; border-left: 6px solid #E69F00; border-radius: 8px; font-weight: 600; }
+.aviso-volver { display: inline-block; min-height: 44px; padding: 10px 0; font-weight: 700; }
+.aviso-tabla { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.aviso-tabla th, .aviso-tabla td { text-align: left; vertical-align: top; padding: 8px 10px; border: 1px solid #ccc; }
+.aviso-tabla th { background: #f0eee6; }

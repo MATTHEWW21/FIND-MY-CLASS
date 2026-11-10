@@ -6,6 +6,7 @@
   <title>UAGPS - Registro</title>
   <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/contraste.css">
+    <link rel="stylesheet" href="css/privacidad.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
 </head>
@@ -35,6 +36,14 @@
     </div>
 
     <input type="password" id="pass-confirm" placeholder="Confirma Contraseña" required class="pill-input">
+
+    <div class="privacidad-resumen">
+      <p>La UAG es responsable de tus datos en UAGPS. Los usamos para tu cuenta, para guiarte por el campus, para los mensajes y publicaciones entre usuarios y para enviar tu alerta SOS. No los vendemos, y puedes eliminar tu cuenta cuando quieras.</p>
+      <label class="privacidad-casilla">
+        <input type="checkbox" id="reg-privacidad" required>
+        <span>He leído el <a href="privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a> y acepto el tratamiento de mis datos para esos fines.</span>
+      </label>
+    </div>
 
     <button type="submit" id="btn-submit" class="btn-primary margin-top-20">Continuar</button>
   </form>

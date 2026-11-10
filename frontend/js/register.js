@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (!document.getElementById('reg-privacidad').checked) {
+            FMCAviso.aviso('Para crear tu cuenta debes aceptar el aviso de privacidad.', 'error');
+            return;
+        }
+
         const correo = document.getElementById('reg-correo').value.trim();
 
         btnSubmit.disabled = true;
@@ -52,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     correo,
                     password: passMain.value,
                     rol,
+                    acepta_privacidad: true,
                 },
             });
 

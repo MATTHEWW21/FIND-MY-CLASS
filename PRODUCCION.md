@@ -11,6 +11,7 @@ Guia para pasar de la laptop (desarrollo + tunel) a un servidor de la UAG o a la
 | `ADMIN_API_KEY` | nueva, 16+ caracteres | Igual que el JWT |
 | `DB_PASSWORD` | nueva y larga | No uses la de desarrollo |
 | `SEGURIDAD_UAG_TELEFONO` | telefono real con lada, por ejemplo `+523312345678` | Lo usa el boton SOS |
+| `PSICOLOGO_TELEFONO`, `PROTECCION_CIVIL_TELEFONO`, `MEDICO_TELEFONO` | numeros reales de la UAG (opcionales) | Botones de llamada del SOS. Sin ellos: Linea de la Vida 800 911 2000 y 911 |
 | `DOMINIO_INSTITUCIONAL` | `edu.uag.mx` | Solo se registran correos de ese dominio |
 | `TRUST_PROXY` | `1` si hay tunel, nginx o balanceador delante | Para que los limites de intentos cuenten por persona |
 | `CORS_ORIGIN` | el dominio de la app, por ejemplo `https://uagps.uag.mx` | Con `NODE_ENV=production` sin esto, CORS queda cerrado |

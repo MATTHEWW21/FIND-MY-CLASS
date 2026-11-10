@@ -4,6 +4,11 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const pool = require('../config/db');
 
+const fs = require('fs');
+const path = require('path');
+
+const PRIVACIDAD_VERSION = '2026-11-borrador';
+const DIR_UPLOADS = path.join(__dirname, '../../uploads');
 const ROLES_REGISTRABLES = ['estudiante', 'colaborador'];
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const PASSWORD_MENSAJE =
@@ -13,10 +18,12 @@ const MAX_INTENTOS = 5;
 
 const DOMINIO_INSTITUCIONAL = (process.env.DOMINIO_INSTITUCIONAL || '').trim().toLowerCase();
 
+
 const normalizar = (correo) => String(correo || '').trim().toLowerCase();
 const hashCodigo = (codigo) => crypto.createHash('sha256').update(String(codigo)).digest('hex');
 const generarCodigo = () => crypto.randomInt(100000, 1000000).toString();
 
+const HASH_FALSO = bcrypt.hashSync('sin-cuenta', 12);
 const firmarToken = (payload, expiresIn) => jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
 
 const MAX_SESIONES = 10;
@@ -56,6 +63,7 @@ const usuarioPublico = (u) => ({
   vista_preferida: u.vista_preferida,
   onboarding_completado: u.onboarding_completado,
   necesita_rutas_accesibles: u.necesita_rutas_accesibles,
+  consentimiento_sensible: !!u.consentimiento_sensible_en,
   edificio_habitual_id: u.edificio_habitual_id,
   carrera_id: u.carrera_id,
   espacio_trabajo: u.espacio_trabajo,
@@ -120,6 +128,7 @@ const errorServidor = (res, err) => {
   return res.status(500).json({ error: 'Error interno del servidor' });
 };
 
+
 async function registro(req, res) {
   try {
     const nombre = String(req.body.nombre || '').trim();
@@ -130,6 +139,9 @@ async function registro(req, res) {
 
     if (!nombre || !apellido || !numero_registro || !correo || !password || !rol) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
+    }
+    if (req.body.acepta_privacidad !== true) {
+      return res.status(400).json({ error: 'Debes aceptar el aviso de privacidad para crear tu cuenta' });
     }
     if (!ROLES_REGISTRABLES.includes(rol)) {
       return res.status(400).json({ error: 'Rol no válido para registro' });
@@ -167,16 +179,17 @@ async function registro(req, res) {
     if (idExistente) {
       await pool.query(
           `UPDATE usuarios
-           SET nombre = $1, apellido = $2, numero_registro = $3, password_hash = $4, rol = $5
+           SET nombre = $1, apellido = $2, numero_registro = $3, password_hash = $4, rol = $5,
+               privacidad_aceptada_en = NOW(), privacidad_version = $7
            WHERE id = $6`,
-          [nombre, apellido, numero_registro, password_hash, rol, idExistente]
+          [nombre, apellido, numero_registro, password_hash, rol, idExistente, PRIVACIDAD_VERSION]
       );
       usuarioId = idExistente;
     } else {
       const { rows } = await pool.query(
-          `INSERT INTO usuarios (nombre, apellido, numero_registro, correo, password_hash, rol)
-           VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-          [nombre, apellido, numero_registro, correo, password_hash, rol]
+          `INSERT INTO usuarios (nombre, apellido, numero_registro, correo, password_hash, rol, privacidad_aceptada_en, privacidad_version)
+           VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7) RETURNING id`,
+          [nombre, apellido, numero_registro, correo, password_hash, rol, PRIVACIDAD_VERSION]
       );
       usuarioId = rows[0].id;
     }
@@ -202,7 +215,7 @@ async function verificarCuenta(req, res) {
     const MENSAJE = 'Código o contraseña incorrectos, o el código ya expiró';
 
     const cuenta = await pool.query('SELECT id, password_hash FROM usuarios WHERE LOWER(correo) = $1 AND verificado = FALSE', [correo]);
-    const coincide = cuenta.rows[0] ? await bcrypt.compare(password, cuenta.rows[0].password_hash) : false;
+    const coincide = await bcrypt.compare(password, cuenta.rows[0] ? cuenta.rows[0].password_hash : HASH_FALSO) && !!cuenta.rows[0];
     if (!coincide) {
       if (cuenta.rows[0]) {
         await pool.query(
@@ -253,7 +266,7 @@ async function login(req, res) {
 
     const { rows } = await pool.query('SELECT * FROM usuarios WHERE LOWER(correo) = $1', [correo]);
     const u = rows[0];
-    const coincide = u ? await bcrypt.compare(password, u.password_hash) : false;
+    const coincide = await bcrypt.compare(password, u ? u.password_hash : HASH_FALSO) && !!u;
     if (!coincide) {
       return res.status(401).json({ error: 'Correo o contraseña incorrectos' });
     }
@@ -326,6 +339,20 @@ async function me(req, res) {
   }
 }
 
+async function consentimientoSensible(usuarioId, necesita, acepta) {
+  if (necesita === false) return { limpiar: true };
+  if (necesita !== true) return {};
+  if (acepta === true) return { otorgar: true };
+  const { rows } = await pool.query('SELECT consentimiento_sensible_en FROM usuarios WHERE id = $1', [usuarioId]);
+  if (rows[0] && rows[0].consentimiento_sensible_en) return {};
+  return { falta: true };
+}
+
+const FALTA_CONSENTIMIENTO = {
+  error: 'Necesitamos tu autorización expresa para guardar este dato sensible',
+  codigo: 'CONSENTIMIENTO_SENSIBLE',
+};
+
 async function actualizarPerfil(req, res) {
   try {
     if (req.usuario.invitado) {
@@ -348,6 +375,8 @@ async function actualizarPerfil(req, res) {
     if (necesita_rutas_accesibles !== undefined && typeof necesita_rutas_accesibles !== 'boolean') {
       return res.status(400).json({ error: 'Valor de rutas accesibles no válido' });
     }
+    const cs = await consentimientoSensible(req.usuario.id, necesita_rutas_accesibles, req.body.consentimiento_sensible);
+    if (cs.falta) return res.status(400).json(FALTA_CONSENTIMIENTO);
 
     if (vista_preferida !== undefined) {
       if (!['completa', 'simplificada'].includes(vista_preferida)) {
@@ -364,10 +393,12 @@ async function actualizarPerfil(req, res) {
              onboarding_completado = COALESCE($2, onboarding_completado),
              necesita_rutas_accesibles = COALESCE($3, necesita_rutas_accesibles),
              contacto_emergencia_nombre = CASE WHEN $5 THEN $6 ELSE contacto_emergencia_nombre END,
-             contacto_emergencia_telefono = CASE WHEN $5 THEN $7 ELSE contacto_emergencia_telefono END
+             contacto_emergencia_telefono = CASE WHEN $5 THEN $7 ELSE contacto_emergencia_telefono END,
+             consentimiento_sensible_en = CASE WHEN $8 THEN NOW() WHEN $9 THEN NULL ELSE consentimiento_sensible_en END
          WHERE id = $4 RETURNING *`,
         [vista_preferida ?? null, onboarding_completado ?? null, necesita_rutas_accesibles ?? null, req.usuario.id,
-          hayContacto, quitaContacto ? null : contactoNombre, quitaContacto ? null : contactoTel]
+          hayContacto, quitaContacto ? null : contactoNombre, quitaContacto ? null : contactoTel,
+          !!cs.otorgar, !!cs.limpiar]
     );
     return res.json({ usuario: usuarioPublico(rows[0]) });
   } catch (err) {
@@ -389,6 +420,8 @@ async function actualizarPreferencias(req, res) {
     if (typeof body.necesita_rutas_accesibles !== 'boolean') {
       return res.status(400).json({ error: 'Indica si necesitas rutas accesibles' });
     }
+    const cs = await consentimientoSensible(req.usuario.id, body.necesita_rutas_accesibles, body.consentimiento_sensible);
+    if (cs.falta) return res.status(400).json(FALTA_CONSENTIMIENTO);
 
     const datos = {
       edificio_habitual_id: null,
@@ -451,7 +484,8 @@ async function actualizarPreferencias(req, res) {
              espacio_trabajo = $4,
              estancia_id = $5,
              vista_preferida = $6,
-             onboarding_completado = TRUE
+             onboarding_completado = TRUE,
+             consentimiento_sensible_en = CASE WHEN $8 THEN NOW() WHEN $9 THEN NULL ELSE consentimiento_sensible_en END
          WHERE id = $7 RETURNING *`,
         [
           body.necesita_rutas_accesibles,
@@ -461,6 +495,8 @@ async function actualizarPreferencias(req, res) {
           datos.estancia_id,
           datos.vista_preferida,
           req.usuario.id,
+          !!cs.otorgar,
+          !!cs.limpiar,
         ]
     );
     return res.json({ usuario: usuarioPublico(rows[0]) });
@@ -539,7 +575,46 @@ async function cerrarSesionDe(req, res) {
   } catch (err) { return errorServidor(res, err); }
 }
 
+const borrarArchivo = (carpeta, nombre) => {
+  if (nombre && /^[a-f0-9]{32}\.(jpg|png|webp)$/.test(nombre)) {
+    fs.unlink(path.join(DIR_UPLOADS, carpeta, nombre), () => {});
+  }
+};
+
+async function eliminarCuenta(req, res) {
+  try {
+    if (req.usuario.invitado) {
+      return res.status(403).json({ error: 'Los invitados no tienen cuenta' });
+    }
+    const password = String((req.body || {}).password || '');
+    if (!password) {
+      return res.status(400).json({ error: 'Escribe tu contraseña para confirmar' });
+    }
+    const { rows } = await pool.query('SELECT password_hash FROM usuarios WHERE id = $1', [req.usuario.id]);
+    const coincide = await bcrypt.compare(password, rows[0] ? rows[0].password_hash : HASH_FALSO) && !!rows[0];
+    if (!coincide) {
+      return res.status(400).json({ error: 'La contraseña es incorrecta' });
+    }
+
+    const fotosPub = await pool.query(
+      `SELECT pf.archivo FROM publicacion_fotos pf JOIN publicaciones p ON p.id = pf.publicacion_id WHERE p.usuario_id = $1`,
+      [req.usuario.id]);
+    const fotosMsj = await pool.query(
+      'SELECT foto FROM mensajes WHERE (de_id = $1 OR para_id = $1) AND foto IS NOT NULL',
+      [req.usuario.id]);
+
+    await pool.query('DELETE FROM usuarios WHERE id = $1', [req.usuario.id]);
+
+    fotosPub.rows.forEach((f) => borrarArchivo('publicaciones', f.archivo));
+    fotosMsj.rows.forEach((f) => borrarArchivo('mensajes', f.foto));
+    return res.json({ mensaje: 'Tu cuenta y tus datos fueron eliminados' });
+  } catch (err) {
+    return errorServidor(res, err);
+  }
+}
+
 module.exports = {
+  eliminarCuenta,
   tutorialVisto, logout, logoutTodas, listarSesiones, cerrarSesionDe,
   registro, verificarCuenta, reenviarCodigo, login, invitado,
   olvidePassword, restablecerPassword, me, actualizarPerfil, actualizarPreferencias, cambiarPassword,

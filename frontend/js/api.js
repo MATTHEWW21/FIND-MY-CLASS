@@ -41,6 +41,19 @@ async function apiFetch(path, { method = 'GET', body } = {}) {
     return data;
 }
 
+async function apiFetchConConsentimiento(path, opciones) {
+    try {
+        return await apiFetch(path, opciones);
+    } catch (err) {
+        if (!err.data || err.data.codigo !== 'CONSENTIMIENTO_SENSIBLE') throw err;
+        const autoriza = await FMCAviso.confirmar(
+            'Guardar que necesitas rutas accesibles es un dato de salud y se considera sensible. Lo usamos solo para mostrarte caminos sin escaleras y puedes retirarlo cuando quieras en Perfil, Ajustes. ¿Autorizas que lo guardemos?',
+            { si: 'Sí, autorizo', no: 'No, gracias' });
+        if (!autoriza) throw new Error('No se guardó porque no diste tu autorización');
+        return apiFetch(path, { ...opciones, body: { ...opciones.body, consentimiento_sensible: true } });
+    }
+}
+
 function guardarSesion(token, usuario) {
     localStorage.setItem('token', token);
     localStorage.setItem('userLoggedIn', 'true');

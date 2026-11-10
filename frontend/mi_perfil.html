@@ -166,6 +166,16 @@
             <p class="ajustes-vacio" id="moderacion-vacio">No has bloqueado ni silenciado a nadie.</p>
         </div>
 
+        <button type="button" class="ajustes-boton" id="btn-aviso-privacidad">Aviso de privacidad</button>
+
+        <button type="button" class="ajustes-boton" id="btn-abrir-borrar">Eliminar mi cuenta</button>
+
+        <form class="ajustes-password hidden" id="form-borrar" autocomplete="off">
+            <small id="borrar-ayuda">Se borran tu perfil, publicaciones, mensajes y amistades. No se puede deshacer.</small>
+            <input type="password" id="borrar-pw" placeholder="Tu contraseña" aria-label="Tu contraseña para confirmar" aria-describedby="borrar-ayuda" autocomplete="current-password" required>
+            <button type="submit" class="ajustes-boton salir" id="btn-confirmar-borrar">Eliminar definitivamente</button>
+        </form>
+
         <p class="ajustes-mensaje" id="ajustes-mensaje" role="status"></p>
 
         <button type="button" class="ajustes-boton salir" id="btn-cerrar-sesion">Cerrar sesión</button>

@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         avisar('');
         input.disabled = true;
         try {
-            const data = await apiFetch('/auth/me', { method: 'PATCH', body: cambio });
+            const data = await apiFetchConConsentimiento('/auth/me', { method: 'PATCH', body: cambio });
             guardarSesion(localStorage.getItem('token'), data.usuario);
             pintarUsuario(data.usuario);
             avisar('Guardado');
@@ -300,6 +300,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             avisar(data.usuario.contacto_emergencia_telefono ? 'Contacto guardado' : 'Contacto eliminado');
         } catch (err) { avisar(err.message, true); }
         finally { btn.disabled = false; }
+    });
+
+    $('btn-aviso-privacidad').addEventListener('click', () => { window.location.href = 'privacidad.html'; });
+
+    const formBorrar = $('form-borrar');
+    $('btn-abrir-borrar').addEventListener('click', () => { formBorrar.classList.toggle('hidden'); avisar(''); });
+    formBorrar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        avisar('');
+        const seguro = await FMCAviso.confirmar('¿Seguro que quieres eliminar tu cuenta? Se borrarán tus datos y no se puede deshacer.', { si: 'Eliminar', no: 'Cancelar', peligro: true });
+        if (!seguro) return;
+        const btn = $('btn-confirmar-borrar');
+        btn.disabled = true;
+        try {
+            await apiFetch('/auth/me', { method: 'DELETE', body: { password: $('borrar-pw').value } });
+            limpiarSesion();
+            await FMCAviso.alerta('Tu cuenta y tus datos fueron eliminados.', 'ok');
+            window.location.href = 'index.html';
+        } catch (err) {
+            avisar(err.message, true);
+            btn.disabled = false;
+        }
     });
 
     const form = $('form-password');

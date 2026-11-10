@@ -12,9 +12,21 @@ const LNG = [-103.432, -103.404];
 
 const limiteSos = rateLimit({ windowMs: 10 * 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false, message: { error: 'Ya enviaste varias alertas seguidas. Si es una emergencia, llama directamente a seguridad.' } });
 
+const limpiarTel = (valor, porDefecto) => {
+  const t = String(valor || porDefecto || '').replace(/[^\d+]/g, '');
+  return t.length >= 3 ? t : null;
+};
+
 router.get('/config', (req, res) => {
-  const tel = (process.env.SEGURIDAD_UAG_TELEFONO || '').replace(/[^\d+]/g, '');
-  res.json({ telefono: tel.length >= 8 ? tel : null });
+  const tel = limpiarTel(process.env.SEGURIDAD_UAG_TELEFONO);
+  res.json({
+    telefono: tel && tel.length >= 8 ? tel : null,
+    telefonos: {
+      psicologo: limpiarTel(process.env.PSICOLOGO_TELEFONO, '8009112000'),
+      proteccion_civil: limpiarTel(process.env.PROTECCION_CIVIL_TELEFONO, '911'),
+      medico: limpiarTel(process.env.MEDICO_TELEFONO, '911')
+    }
+  });
 });
 
 router.post('/', limiteSos, async (req, res) => {

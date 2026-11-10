@@ -121,7 +121,7 @@
                 L.polyline(f.trazo, { color: (window.FMCDaltonismo && FMCDaltonismo.activo()) ? (f.tipo === 'escalera' ? '#E69F00' : '#0072B2') : (f.tipo === 'escalera' ? '#D55E00' : f.tipo === 'rampa' ? '#0072B2' : '#009E73'), weight: 4, dashArray: f.tipo === 'escalera' ? '2 6' : null, lineCap: 'round', interactive: false }).addTo(capa);
             }
             const m = L.marker([lat, lng], { icon: icono(f), title: textoPin(f), alt: textoPin(f), keyboard: false, riseOnHover: true });
-            m.bindTooltip(textoPin(f), { direction: 'top', offset: [0, -12] });
+            m.bindTooltip(document.createTextNode(textoPin(f)), { direction: 'top', offset: [0, -12] });
             m.on('add', () => { const el = m.getElement(); if (el) { el.setAttribute('role', 'img'); el.setAttribute('aria-label', textoPin(f)); el.removeAttribute('tabindex'); } });
             m.addTo(capa);
         });

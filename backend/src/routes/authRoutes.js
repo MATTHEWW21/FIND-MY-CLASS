@@ -28,6 +28,7 @@ router.delete('/sesiones/:id', verificarToken, ctrl.cerrarSesionDe);
 router.get('/me', verificarToken, ctrl.me);
 router.patch('/me', verificarToken, ctrl.actualizarPerfil);
 router.post('/me/password', verificarToken, limitadorLogin, ctrl.cambiarPassword);
+router.delete('/me', verificarToken, limitadorLogin, ctrl.eliminarCuenta);
 router.post('/me/tutorial-visto', verificarToken, ctrl.tutorialVisto);
 router.put('/me/preferencias', verificarToken, ctrl.actualizarPreferencias);
 

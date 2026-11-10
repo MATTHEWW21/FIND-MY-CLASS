@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         btnSave.disabled = true;
         try {
-            const data = await apiFetch('/auth/me/preferencias', { method: 'PUT', body });
+            const data = await apiFetchConConsentimiento('/auth/me/preferencias', { method: 'PUT', body });
             localStorage.setItem('accessibleRoutes', String(data.usuario.necesita_rutas_accesibles));
             localStorage.setItem('userVista', data.usuario.vista_preferida);
             window.location.href = 'loading.html';

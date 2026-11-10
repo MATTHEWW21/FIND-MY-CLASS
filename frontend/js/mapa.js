@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
             iconAnchor: seleccionado ? [20, 20] : [15, 15],
         });
         const m = L.marker([l.lat, l.lng], { icon: icono, title: l.nombre });
-        m.bindTooltip(l.nombre, { direction: 'top', offset: [0, -14] });
+        m.bindTooltip(document.createTextNode(l.nombre), { direction: 'top', offset: [0, -14] });
         m.on('add', () => { const el = m.getElement(); if (el) { el.setAttribute('role', 'button'); el.setAttribute('aria-label', `${l.nombre}. Toca para ir a este lugar`); } });
         m.on('click', () => seleccionarDestino(l));
         return m;
@@ -504,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (destino !== l) return;
             cajas.forEach((c) => {
                 const ic = L.divIcon({ className: "", iconSize: [34, 34], iconAnchor: [17, 17], html: `<div style="width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid #1d4f91;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.4)" aria-hidden="true">${c.icono}</div>` });
-                const mk = L.marker([c.lat, c.lng], { icon: ic, title: `${c.texto}, a ${c.m} m`, keyboard: false }).bindTooltip(`${c.texto} (${c.m} m)`).addTo(capaSel);
+                const mk = L.marker([c.lat, c.lng], { icon: ic, title: `${c.texto}, a ${c.m} m`, keyboard: false }).bindTooltip(document.createTextNode(`${c.texto} (${c.m} m)`)).addTo(capaSel);
                 const el = mk.getElement(); if (el) { el.setAttribute("role", "img"); el.setAttribute("aria-label", `${c.texto}, a ${c.m} metros`); }
             });
             if (cajas.length) {
