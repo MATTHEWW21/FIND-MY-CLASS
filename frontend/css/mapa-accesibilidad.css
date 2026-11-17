@@ -1,4 +1,3 @@
-/* Pines de accesibilidad: la forma y la letra dicen el tipo, el color solo refuerza (paleta Okabe-Ito) */
 .acc-pin-wrap { background: transparent; border: 0; }
 .acc-pin {
     display: flex; align-items: center; justify-content: center;

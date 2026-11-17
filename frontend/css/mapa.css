@@ -144,7 +144,6 @@ body {
     margin: 0 auto 10px auto;
 }
 
-/* PANEL 1: RUTA DETALLADA Y PASO A PASO */
 .route-loc-box {
     background: #ffffff;
     border: 1px solid #e0d8c8;
@@ -666,7 +665,6 @@ body {
     cursor: pointer;
 }
 
-/* BARRA INFERIOR DE NAVEGACIÓN */
 .bottom-nav {
     position: fixed;
     bottom: 0;

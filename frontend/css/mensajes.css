@@ -261,12 +261,11 @@
 
 .message-bubble.sent {
     align-self: flex-end;
-    background-color: #d97736; /* Terracota UAG */
+    background-color: #d97736;
     color: #ffffff;
     border-bottom-right-radius: 2px;
 }
 
-/* Caja de Texto Inferior */
 .chat-input-bar {
     position: absolute;
     bottom: 60px;

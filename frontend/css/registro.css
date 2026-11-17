@@ -214,7 +214,6 @@ body {
     font-weight: 700;
 }
 
-/* Navegación Inferior */
 .bottom-nav {
     position: absolute;
     bottom: 0;
@@ -660,7 +659,6 @@ body {
     100% { transform: scale(1.15); opacity: 1; }
 }
 
-/* Tarjeta Flotante Inferior */
 .arrival-time-card {
     position: absolute;
     bottom: 75px;

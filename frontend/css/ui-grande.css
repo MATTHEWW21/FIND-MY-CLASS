@@ -1,4 +1,3 @@
-/* Modo "Botones grandes": objetivos tactiles de al menos 56 px y letra mas grande en lo que se toca */
 html.ui-grande button, html.ui-grande [role="button"], html.ui-grande .chip, html.ui-grande a.btn,
 html.ui-grande input[type="checkbox"] + span, html.ui-grande .nav-item, html.ui-grande select { min-height: 56px; font-size: 1.1rem; }
 html.ui-grande .chip { padding: 0 18px; min-height: 48px; font-size: 1rem; }

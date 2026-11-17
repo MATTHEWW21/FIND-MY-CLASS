@@ -1,7 +1,3 @@
-/* role-ui.css - qué se ve según el perfil. Se activa con js/role-ui.js (atributos en <html>).
-   Cárgalo DESPUÉS de styles.css:  <link rel="stylesheet" href="css/role-ui.css"> */
-
-/* Vista simplificada (colaborador) y visitante: sin PUBLICACIÓN ni MENSAJES */
 html[data-vista="simplificada"] #btn-publicacion,
 html[data-vista="simplificada"] #nav-mensajes,
 html[data-role="visitante"] #btn-publicacion,
