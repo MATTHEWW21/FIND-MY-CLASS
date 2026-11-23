@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B1E33">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>UAGPS - Mapa</title>
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="css/styles.css">
@@ -17,13 +22,14 @@
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
+    <script src="js/oscuro.js"></script>
 </head>
 <body>
 
 <main class="map-screen-container">
 
-    <header class="map-header">
-        <h1>UAGPS</h1>
+    <header class="map-header marca-header">
+        <h1><img src="assets/logo-uagps.svg" alt="" class="marca-logo">UAGPS</h1>
     </header>
 
     <div id="map"></div>
@@ -37,6 +43,7 @@
     </div>
 
     <div class="filter-chips" role="group" aria-label="Filtrar lugares por tipo">
+        <button class="chip chip-fav" data-tipo="favoritos"><span aria-hidden="true">⭐</span> FAVORITOS</button>
         <button class="chip" data-tipo="snacks"><span aria-hidden="true">🍿</span> MÁQUINAS DE SNACKS</button>
         <button class="chip" data-tipo="alimentos"><span aria-hidden="true">🍽️</span> COMIDA</button>
         <button class="chip" data-tipo="bebedero"><span aria-hidden="true">💧</span> BEBEDEROS</button>
@@ -55,6 +62,7 @@
             <div class="loc-row">
                 <span class="dot pin" aria-hidden="true">📍</span>
                 <span class="val-dest" id="dest-name">Elige un destino</span>
+                <button type="button" class="btn-fav" id="btn-fav" aria-pressed="false" hidden><span aria-hidden="true">☆</span></button>
             </div>
         </div>
 
@@ -275,6 +283,7 @@
 <script src="js/api.js"></script>
 <script src="js/mapa-busqueda.js"></script>
 <script src="js/mapa-rutas.js"></script>
+<script src="js/mapa-favoritos.js"></script>
 <script src="js/voz-guia.js"></script>
 <script src="js/mapa.js"></script>
 <script src="js/mapa-panel.js"></script>

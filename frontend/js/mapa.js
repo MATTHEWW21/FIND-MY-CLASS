@@ -104,6 +104,10 @@ document.addEventListener("DOMContentLoaded", () => {
         );
     }
 
+    const FAV = window.FMCFavoritos;
+    const esFavorito = (l) => !!(FAV && l && FAV.es(l.clave));
+    const favoritos = () => lugares.filter(esFavorito);
+
     function dibujarPines() {
         capaBase.clearLayers();
         Object.keys(capasChip).forEach((k) => capasChip[k].clearLayers());
@@ -114,15 +118,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 crearPin(l, false).addTo(capasChip[l.tipo]);
             }
         });
+        if (capasChip.favoritos) favoritos().forEach((l) => crearPin(l, false).addTo(capasChip.favoritos));
     }
 
     document.querySelectorAll(".filter-chips .chip[data-tipo]").forEach((chip) => {
         const tipo = chip.dataset.tipo;
         capasChip[tipo] = L.layerGroup();
         chip.addEventListener("click", () => {
+            if (tipo === "favoritos" && !chip.classList.contains("active") && !favoritos().length) {
+                FMCAviso.aviso("Aún no tienes favoritos. Elige un lugar y toca la estrella ☆ para guardarlo.", "info");
+                return;
+            }
             const activo = chip.classList.toggle("active");
+            chip.setAttribute("aria-pressed", activo ? "true" : "false");
             if (activo) capasChip[tipo].addTo(map);
             else map.removeLayer(capasChip[tipo]);
+            if (activo && tipo === "favoritos") {
+                const fs = favoritos();
+                if (fs.length === 1) map.setView([fs[0].lat, fs[0].lng], 18);
+                else map.fitBounds(L.latLngBounds(fs.map((l) => [l.lat, l.lng])), { padding: [60, 60], maxZoom: 18 });
+            }
         });
     });
 
@@ -136,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
         a.textContent = '🎯 ' + asuntoVisita.etiqueta.toUpperCase() + ' · CAMBIAR';
         cont.insertBefore(a, cont.firstChild);
         cont.querySelectorAll('.chip[data-tipo]').forEach((c) => {
-            if (!lugares.some((l) => l.tipo === c.dataset.tipo)) c.style.display = 'none';
+            if (c.dataset.tipo !== 'favoritos' && !lugares.some((l) => l.tipo === c.dataset.tipo)) c.style.display = 'none';
         });
     }
 
@@ -225,8 +240,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderCategorias() {
         catsBusqueda.innerHTML = "";
         const opciones = [["", "Todo"]].concat(
+            favoritos().length ? [["favoritos", "⭐ Favoritos"]] : [],
             B.ORDEN_TIPOS.filter((t) => lugares.some((l) => l.tipo === t)).map((t) => [t, TIPOS[t].etiqueta])
         );
+        if (tipoFiltro === "favoritos" && !favoritos().length) tipoFiltro = "";
         opciones.forEach(([tipo, etiqueta]) => {
             const b = elemento("button", "search-cat" + (tipo === tipoFiltro ? " active" : ""), etiqueta);
             b.type = "button";
@@ -242,7 +259,18 @@ document.addEventListener("DOMContentLoaded", () => {
             listaResultados.appendChild(elemento("p", "search-empty", "Cargando lugares…"));
             return;
         }
+        if (tipoFiltro === "favoritos") {
+            const res = B.buscar(favoritos(), consulta, "");
+            if (!res.length) listaResultados.appendChild(elemento("p", "search-empty", "Ninguno de tus favoritos coincide con eso."));
+            res.forEach((l) => listaResultados.appendChild(crearItem(l)));
+            return;
+        }
         if (!consulta.trim() && !tipoFiltro) {
+            const fs = favoritos();
+            if (fs.length) {
+                listaResultados.appendChild(elemento("h4", "search-group", "⭐ Tus favoritos"));
+                fs.forEach((l) => listaResultados.appendChild(crearItem(l)));
+            }
             B.agrupar(lugares).forEach((g) => {
                 listaResultados.appendChild(elemento("h4", "search-group", `${TIPOS[g.tipo].emoji} ${TIPOS[g.tipo].etiqueta}`));
                 g.items.forEach((l) => listaResultados.appendChild(crearItem(l)));
@@ -300,6 +328,30 @@ document.addEventListener("DOMContentLoaded", () => {
     function minutos(metros, velocidad) {
         return Math.max(1, Math.round(metros / velocidad));
     }
+
+    const btnFav = document.getElementById("btn-fav");
+    function pintarFavorito() {
+        if (!btnFav) return;
+        btnFav.hidden = !destino || !FAV;
+        if (!destino) return;
+        const si = esFavorito(destino);
+        btnFav.firstElementChild.textContent = si ? "★" : "☆";
+        btnFav.classList.toggle("activo", si);
+        btnFav.setAttribute("aria-pressed", si ? "true" : "false");
+        btnFav.setAttribute("aria-label", si ? `Quitar ${destino.nombre} de favoritos` : `Guardar ${destino.nombre} en favoritos`);
+    }
+    if (btnFav) btnFav.addEventListener("click", () => {
+        if (!destino || !FAV) return;
+        const ahora = FAV.alternar(destino.clave);
+        FMCAviso.aviso(ahora ? `${destino.nombre} se guardó en tus favoritos.` : `${destino.nombre} se quitó de tus favoritos.`, "ok");
+    });
+    document.addEventListener("fmc:favoritos", () => {
+        dibujarPines();
+        pintarFavorito();
+        const chipFav = document.querySelector('.filter-chips .chip[data-tipo="favoritos"]');
+        if (chipFav && chipFav.classList.contains("active") && !favoritos().length) chipFav.click();
+        if (!searchPanel.classList.contains("hidden")) { renderCategorias(); renderResultados(); }
+    });
 
     function textoPanel(id, texto) {
         const el = document.getElementById(id);
@@ -393,6 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
         map.setView([l.lat, l.lng], 18);
 
         textoPanel("dest-name", l.nombre);
+        pintarFavorito();
         textoPanel("arrival-name", `${l.nombre} - UAG Campus CU`);
         routePanel.classList.remove("hidden");
         guardarEstadoRuta();

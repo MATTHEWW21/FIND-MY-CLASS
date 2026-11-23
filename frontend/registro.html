@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B1E33">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>UAGPS - Iniciar Ruta</title>
     <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="css/styles.css">
@@ -14,13 +19,14 @@
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
+    <script src="js/oscuro.js"></script>
 </head>
 <body>
 
 <main class="registro-container">
 
-    <header class="registro-header">
-        <h1>UAGPS</h1>
+    <header class="registro-header marca-header">
+        <h1><img src="assets/logo-uagps.svg" alt="" class="marca-logo">UAGPS</h1>
     </header>
 
     <div class="activity-icon-main" id="activity-main-icon">
@@ -51,7 +57,8 @@
     <p class="gps-estado" id="gps-estado">Elige tu actividad y pulsa COMENZAR</p>
 
     <div class="sos-wrapper">
-        <button class="sos-btn" id="btn-sos">SOS</button>
+        <button class="sos-btn" id="btn-sos" aria-describedby="sos-leyenda">SOS</button>
+        <p class="sos-leyenda" id="sos-leyenda">¿Emergencia? Toca para pedir ayuda</p>
     </div>
 
     <hr class="divider">

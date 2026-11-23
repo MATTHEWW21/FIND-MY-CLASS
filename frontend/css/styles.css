@@ -1139,3 +1139,131 @@ a.action-btn.active {
 .post-card {
     scroll-margin-bottom: 70px;
 }
+#bienvenida {
+    justify-content: flex-start;
+}
+
+#bienvenida .logo-container {
+    margin-top: auto;
+    margin-bottom: 12px;
+}
+
+#bienvenida .role-selection {
+    margin-top: auto;
+}
+
+.codigo-dev {
+    width: 100%;
+    max-width: 320px;
+    padding: 14px 16px;
+    border: 2px dashed #e07a41;
+    border-radius: 16px;
+    background-color: #fff6ef;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.codigo-dev[hidden] {
+    display: none;
+}
+
+.codigo-dev-titulo {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #8a4421;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.codigo-dev-valor {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    letter-spacing: 6px;
+    user-select: all;
+}
+
+.codigo-dev-nota {
+    font-size: 0.75rem;
+    color: #555555;
+    text-align: center;
+    line-height: 1.35;
+}
+
+.btn-resend {
+    background: none;
+    border: none;
+    padding: 8px 4px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+}
+
+.btn-resend:disabled {
+    color: #999999;
+    cursor: default;
+    text-decoration: none;
+}
+
+.resend-estado {
+    min-height: 1em;
+    font-size: 0.8rem;
+    color: #555555;
+    text-align: center;
+}
+
+.marca-logo {
+    height: 1.3em;
+    width: auto;
+    margin-right: 8px;
+    vertical-align: -0.3em;
+}
+
+header.marca-header {
+    background-color: #6B1E33;
+    border-bottom-color: #4d1424;
+}
+
+header.marca-header h1,
+header.marca-header .brand-title {
+    color: #ffffff;
+}
+
+header.marca-header .marca-logo {
+    width: 1.6em;
+    height: 1.6em;
+    padding: 3px;
+    object-fit: contain;
+    background-color: #ffffff;
+    border-radius: 50%;
+    vertical-align: -0.45em;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+header.marca-header .campana,
+header.marca-header .btn-ajustes {
+    color: #ffffff;
+}
+
+header.marca-header .campana:focus-visible,
+header.marca-header .btn-ajustes:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 2px;
+    border-radius: 10px;
+}
+
+header.marca-header .campana-n {
+    box-shadow: 0 0 0 2px #6B1E33;
+    background-color: #f08a4b;
+    color: #1a1a1a;
+}
+
+header.app-title-header.marca-header {
+    padding: 12px 0 8px;
+}
+
+header.app-title-header.marca-header h1 {
+    margin: 0;
+}

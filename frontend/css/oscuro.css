@@ -1,0 +1,1674 @@
+html.modo-oscuro {
+    color-scheme: dark;
+}
+
+html.modo-oscuro body {
+    background-color: #141414;
+    color: #e8e6e3;
+}
+
+html.modo-oscuro .leaflet-tile-pane {
+    filter: brightness(0.82) contrast(1.05);
+}
+
+html.modo-oscuro .logo-img,
+html.modo-oscuro .loading-logo-img,
+html.modo-oscuro .login-logo-img,
+html.modo-oscuro .uag-logo-img {
+    background-color: #ffffff;
+    border-radius: 22px;
+    padding: 10px;
+}
+
+html.modo-oscuro body {
+    background-color: #212121;
+}
+
+html.modo-oscuro .welcome-container {
+    background-color: #1c1c1c;
+}
+
+html.modo-oscuro .header-text h1 {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .subtitle {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .role-btn {
+    background-color: #242424;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .role-btn.active {
+    background-color: #282828;
+    color: #ededed;
+}
+
+html.modo-oscuro .rules-box {
+    color: #bebebe;
+}
+
+html.modo-oscuro .form-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .pill-input {
+    background-color: #242424;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .pill-input::placeholder {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .pill-input:focus {
+    background-color: #292929;
+}
+
+html.modo-oscuro .rules-box p {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .rule-invalid {
+    color: #acacac;
+}
+
+html.modo-oscuro .rule-valid {
+    color: #9ad59d;
+}
+
+html.modo-oscuro .link-back {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .verify-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .verify-text {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .login-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .input-icon {
+    color: #c8c8c8;
+}
+
+html.modo-oscuro .pill-input-icon {
+    background-color: #242424;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .pill-input-icon::placeholder {
+    color: #bebebe;
+}
+
+html.modo-oscuro .pill-input-icon:focus {
+    background-color: #292929;
+}
+
+html.modo-oscuro .form-subtitle {
+    color: #bebebe;
+}
+
+html.modo-oscuro .onboarding-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .onboarding-card {
+    background-color: #242424;
+}
+
+html.modo-oscuro .card-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .card-description {
+    color: #dadada;
+}
+
+html.modo-oscuro .indicator-pill {
+    background-color: #1c1c1c;
+}
+
+html.modo-oscuro .preferences-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .section-title-pill {
+    background-color: #242424;
+    color: #dadada;
+}
+
+html.modo-oscuro .btn-option {
+    background-color: #242424;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .select-field {
+    color: #dadada;
+}
+
+html.modo-oscuro .select-label {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .loading-app-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .loading-subtitle {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .spinner-circle {
+    border: 5px solid #464646;
+    border-top: 5px solid #8c8c8c;
+}
+
+html.modo-oscuro .loading-text {
+    color: #dadada;
+}
+
+html.modo-oscuro body.feed-body {
+    background-color: #232323;
+}
+
+html.modo-oscuro .mobile-app-wrapper {
+    background-color: #202020;
+}
+
+html.modo-oscuro .app-header {
+    background-color: #1c1c1c;
+    border-bottom: 1px solid #444444;
+}
+
+html.modo-oscuro .brand-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .top-action-bar {
+    background-color: #1c1c1c;
+    border-bottom: 1px solid #454545;
+}
+
+html.modo-oscuro .post-card {
+    background-color: #1c1c1c;
+}
+
+html.modo-oscuro .user-name {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .post-time {
+    color: #acacac;
+}
+
+html.modo-oscuro .activity-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .metric-label {
+    color: #acacac;
+}
+
+html.modo-oscuro .metric-value {
+    color: #dadada;
+}
+
+html.modo-oscuro .mini-avatar {
+    border: 2px solid #3d3d3d;
+}
+
+html.modo-oscuro .likes-text {
+    color: #bebebe;
+}
+
+html.modo-oscuro .comment-btn {
+    background-color: #4d3a30;
+}
+
+html.modo-oscuro .bottom-nav {
+    background-color: #2c241d;
+    border-top: 1px solid #554a40;
+}
+
+html.modo-oscuro .tutorial-overlay {
+    background-color: rgba(61, 61, 61, 0.60);
+}
+
+html.modo-oscuro .tutorial-skip-btn {
+    background: rgba(61, 61, 61, 0.70);
+    border: 1px solid rgba(61, 61, 61, 0.30);
+}
+
+html.modo-oscuro .tutorial-card {
+    background-color: rgba(71, 71, 71, 0.95);
+    border: 1px solid rgba(61, 61, 61, 0.20);
+}
+
+html.modo-oscuro .step-highlight {
+    background: #1c1c1c !important;
+}
+
+html.modo-oscuro .bottom-nav.nav-above .step-highlight {
+    background: #1c1c1c !important;
+}
+
+html.modo-oscuro .codigo-dev {
+    background-color: #2b1e15;
+}
+
+html.modo-oscuro .codigo-dev-titulo {
+    color: #dfaa90;
+}
+
+html.modo-oscuro .codigo-dev-valor {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .codigo-dev-nota {
+    color: #bebebe;
+}
+
+html.modo-oscuro .resend-estado {
+    color: #bebebe;
+}
+
+html.modo-oscuro .events-title {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .event-overlay {
+    background: linear-gradient(to top, rgba(61, 61, 61, 0.85) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
+}
+
+html.modo-oscuro .pub-insignia {
+    background: #1d272a;
+    color: #94cbdb;
+}
+
+html.modo-oscuro .pub-pie {
+    background: #262118;
+    border: 1px solid #4f483d;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .pub-ubicacion {
+    color: #acacac;
+}
+
+html.modo-oscuro .pub-btn {
+    color: #bebebe;
+}
+
+html.modo-oscuro .pub-likes-texto {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .pub-vacio, html.modo-oscuro .pub-error {
+    color: #acacac;
+}
+
+html.modo-oscuro .pub-mas {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .pub-hoja {
+    background: #25211b;
+}
+
+html.modo-oscuro .pub-hoja h4 {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .pub-coment {
+    border-bottom: 1px solid #50493a;
+}
+
+html.modo-oscuro .pub-coment .nombre {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .pub-coment .txt {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .pub-form input {
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .pub-menu button {
+    background: #1c1c1c;
+    color: #dadada;
+}
+
+html.modo-oscuro .pub-miniaturas {
+    background: #302d27;
+}
+
+html.modo-oscuro .pub-miniaturas .mini {
+    background: #2b2b2b;
+}
+
+html.modo-oscuro .pub-miniaturas .mini button {
+    background: rgba(61, 61, 61, 0.65);
+}
+
+html.modo-oscuro .pub-miniaturas .agregar {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .pub-lugares-lista .item {
+    border-bottom: 1px solid #50493a;
+}
+
+html.modo-oscuro .post-con {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .pub-destacada {
+    border-bottom: 1px solid #50493a;
+    background: #2a2014;
+}
+
+html.modo-oscuro .pub-destacada-titulo {
+    color: #eeac81;
+}
+
+html.modo-oscuro .et-ayuda {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .et-opcion {
+    border-bottom: 1px solid #50493a;
+    color: #dadada;
+}
+
+html.modo-oscuro .aviso-item {
+    background: #1c1c1c;
+    color: #dadada;
+}
+
+html.modo-oscuro .aviso-cuando {
+    color: #bebab6;
+}
+
+html.modo-oscuro .priv-ayuda {
+    color: #bebab6;
+}
+
+html.modo-oscuro .ed-label {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .ed-texto, html.modo-oscuro .ed-input {
+    border: 1px solid #5a554a;
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .mobile-container {
+    background-color: #25211b;
+}
+
+html.modo-oscuro .app-title-header h1 {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .sub-header-title {
+    color: #b0ada8;
+}
+
+html.modo-oscuro .media-preview-container {
+    background-color: #4b4b4b;
+}
+
+html.modo-oscuro .activity-badge-btn {
+    border: 2px solid #3d3d3d;
+}
+
+html.modo-oscuro .preview-metrics-banner {
+    background: linear-gradient(to top, rgba(61, 61, 61, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+}
+
+html.modo-oscuro .gallery-grid {
+    background-color: #302d27;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .activity-popover {
+    background-color: #1c1c1c;
+}
+
+html.modo-oscuro .popover-arrow {
+    border-bottom: 8px solid #3d3d3d;
+}
+
+html.modo-oscuro .option-item.selected {
+    background-color: #2a1d14;
+}
+
+html.modo-oscuro .bg-grey {
+    background-color: #2a2a2a;
+}
+
+html.modo-oscuro .opt-text {
+    color: #d5d5d5;
+}
+
+html.modo-oscuro .publish-card-preview {
+    background-color: #484848;
+}
+
+html.modo-oscuro .publish-overlay-stats {
+    background: rgba(28, 28, 28, 0.92);
+}
+
+html.modo-oscuro .stat-item strong {
+    color: #e4e4e4;
+}
+
+html.modo-oscuro .stat-item span {
+    color: #acacac;
+}
+
+html.modo-oscuro .caption-input-box textarea {
+    background-color: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .details-list-section {
+    background-color: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .details-section-title {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .details-item {
+    border-bottom: 1px solid #4d463a;
+    color: #dadada;
+}
+
+html.modo-oscuro .slider {
+    background-color: #333333;
+}
+
+html.modo-oscuro .slider:before {
+    background-color: #1c1c1c;
+}
+
+html.modo-oscuro .feed-card-post {
+    background: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .user-name {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .post-time {
+    color: #acacac;
+}
+
+html.modo-oscuro .post-title-text {
+    color: #e4e4e4;
+}
+
+html.modo-oscuro .p-stat .val {
+    color: #e4e4e4;
+}
+
+html.modo-oscuro .post-reactions-row {
+    color: #bebebe;
+}
+
+html.modo-oscuro .post-caption-box {
+    background: #262118;
+    border: 1px solid #4f483d;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .registro-container {
+    background-color: #25211b;
+}
+
+html.modo-oscuro .registro-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .registro-header h1 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .profile-handle {
+    color: #bebebe;
+}
+
+html.modo-oscuro .profile-dropdown-menu {
+    background: #1c1c1c;
+    border: 1px solid #8c8c8c;
+}
+
+html.modo-oscuro .dropdown-item {
+    background: #1c1c1c;
+    border-bottom: 1px solid #8c8c8c;
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .dropdown-item:hover, html.modo-oscuro .dropdown-item:active {
+    background-color: #2e2922;
+}
+
+html.modo-oscuro .profile-banner {
+    background-color: #3a3d35;
+}
+
+html.modo-oscuro .profile-avatar-large {
+    background-color: #28231d;
+    border: 4px solid #4b4335;
+}
+
+html.modo-oscuro .profile-real-name {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .stat-number {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .stat-label {
+    color: #acacac;
+}
+
+html.modo-oscuro .streak-score {
+    color: #bebebe;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .rep-titulo {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .rep-ayuda {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .rep-opcion {
+    color: #dadada;
+}
+
+html.modo-oscuro .rep-hoja textarea {
+    border: 1px solid #5a554a;
+}
+
+html.modo-oscuro .rep-cancelar {
+    background: #1c1c1c;
+    color: #eeac81;
+}
+
+html.modo-oscuro .registro-container {
+    background-color: #25211b;
+}
+
+html.modo-oscuro .registro-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .registro-header h1 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .my-profile-avatar {
+    background-color: #1c1c1c;
+    color: #d6d6d6;
+    border: 1px solid #554d43;
+}
+
+html.modo-oscuro .section-title-bold {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .activity-icon-type {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .activity-value {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .activity-date {
+    color: #c4c4c4;
+}
+
+html.modo-oscuro .streak-numbers p {
+    color: #c4c4c4;
+}
+
+html.modo-oscuro .streak-numbers strong {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .friends-header {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .friend-thumb {
+    border: 1px solid #585148;
+}
+
+html.modo-oscuro .milestone-tag {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .motivation-card {
+    background-color: #3c3f37;
+}
+
+html.modo-oscuro .motivation-title {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .motivation-list {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .btn-ajustes {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .my-profile-name {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .ajustes-hoja {
+    background: #25211b;
+}
+
+html.modo-oscuro .ajustes-cerrar {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .ajustes-cuenta {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .ajustes-cuenta strong {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .ajustes-fila {
+    background: #1c1c1c;
+    border: 1px solid #544d40;
+    color: #d9d2cd;
+}
+
+html.modo-oscuro .ajustes-boton {
+    background: #1c1c1c;
+    color: #deae91;
+}
+
+html.modo-oscuro .ajustes-boton.salir {
+    background: #1c1c1c;
+    color: #df9891;
+}
+
+html.modo-oscuro .ajustes-password input {
+    border: 1px solid #544d40;
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .ajustes-password small {
+    color: #bab3ac;
+}
+
+html.modo-oscuro .ajustes-mensaje {
+    color: #97d8a8;
+}
+
+html.modo-oscuro .ajustes-mensaje.error {
+    color: #df9891;
+}
+
+html.modo-oscuro .friend-avatar {
+    border: 1px solid #585148;
+}
+
+html.modo-oscuro .ajustes-contacto {
+    background: #1c1c1c;
+    border: 1px solid #544d40;
+}
+
+html.modo-oscuro .ajustes-contacto strong {
+    color: #d9d2cd;
+}
+
+html.modo-oscuro .ajustes-contacto small {
+    color: #bab3ac;
+}
+
+html.modo-oscuro .ajustes-contacto input {
+    border: 1px solid #544d40;
+    background: #25211b;
+}
+
+html.modo-oscuro .ajustes-lista li {
+    border-bottom: 1px solid #50493a;
+}
+
+html.modo-oscuro .ajustes-lista li small {
+    color: #bebab6;
+}
+
+html.modo-oscuro .ajustes-lista button {
+    background: #1c1c1c;
+    color: #eeac81;
+}
+
+html.modo-oscuro .ajustes-vacio {
+    color: #bebab6;
+}
+
+html.modo-oscuro .registro-container {
+    background-color: #28231d;
+}
+
+html.modo-oscuro .registro-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .registro-header h1 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .chat-subheader {
+    background: #1c1c1c;
+    border-bottom: 1px solid #534c41;
+}
+
+html.modo-oscuro .chat-title-row h2 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .search-bar-wrapper {
+    background-color: #2b271f;
+    border: 1px solid #544d40;
+}
+
+html.modo-oscuro .search-input {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .story-circle.new-chat {
+    background-color: #2b2721;
+}
+
+html.modo-oscuro .online-status {
+    border: 1.5px solid #3d3d3d;
+}
+
+html.modo-oscuro .story-name {
+    color: #bebebe;
+}
+
+html.modo-oscuro .active-chat-header {
+    background: #2e2a22;
+    border-bottom: 1px solid #544d41;
+}
+
+html.modo-oscuro .active-chat-name {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .message-bubble.received {
+    background-color: #1c1c1c;
+    color: #d6d6d6;
+    border: 1px solid #534c41;
+}
+
+html.modo-oscuro .chat-input-bar {
+    background: #1c1c1c;
+    border-top: 1px solid #544d41;
+}
+
+html.modo-oscuro .chat-input {
+    background-color: #2b271f;
+    border: 1px solid #544d41;
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .story-badge {
+    border: 1.5px solid #3d3d3d;
+}
+
+html.modo-oscuro .foto-previa img {
+    border: 1px solid #544d41;
+}
+
+html.modo-oscuro .amigos-hoja {
+    background: #25211b;
+}
+
+html.modo-oscuro .amigos-cerrar {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .amigos-buscar {
+    border: 1px solid #544d40;
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .amigos-titulo {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .amigo-fila {
+    background: #1c1c1c;
+    border: 1px solid #544d40;
+}
+
+html.modo-oscuro .amigo-fila .nombre {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .amigo-fila button {
+    background: #1c1c1c;
+    color: #e5b18a;
+}
+
+html.modo-oscuro .amigo-fila button.peligro {
+    color: #df9891;
+}
+
+html.modo-oscuro .amigos-mensaje {
+    color: #97d8a8;
+}
+
+html.modo-oscuro .amigos-mensaje.error {
+    color: #df9891;
+}
+
+html.modo-oscuro body {
+    background-color: #262626;
+}
+
+html.modo-oscuro .map-screen-container {
+    background-color: #26241d;
+}
+
+html.modo-oscuro .map-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .map-header h1 {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .map-search-bar {
+    background: #272217;
+}
+
+html.modo-oscuro .map-search-bar input {
+    color: #d2ccc5;
+}
+
+html.modo-oscuro .chip {
+    background: #272217;
+    color: #d2ccc5;
+}
+
+html.modo-oscuro .route-panel-overlay {
+    background-color: #272017;
+}
+
+html.modo-oscuro .panel-handle {
+    background-color: #3f3831;
+}
+
+html.modo-oscuro .route-loc-box {
+    background: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .lbl-ubi {
+    color: #b3aba3;
+}
+
+html.modo-oscuro .val-dest {
+    color: #dadada;
+}
+
+html.modo-oscuro .route-dist {
+    color: #ccc6bf;
+}
+
+html.modo-oscuro .btn-cancelar-ruta {
+    color: #e2988d;
+}
+
+html.modo-oscuro .metric-box {
+    background: #302b23;
+    color: #ccc6bf;
+}
+
+html.modo-oscuro .metric-box.selected {
+    background: #2d2216;
+    color: #f0ad7f;
+}
+
+html.modo-oscuro .btn-finish {
+    background: #2e2e2e;
+    color: #acacac;
+}
+
+html.modo-oscuro .instructions-text {
+    color: #cecac5;
+}
+
+html.modo-oscuro .arrival-title {
+    color: #ced6cd;
+}
+
+html.modo-oscuro .arrival-subtitle {
+    color: #b6beb6;
+}
+
+html.modo-oscuro .feedback-header-badge {
+    background: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .badge-title {
+    color: #cdb7a3;
+}
+
+html.modo-oscuro .badge-subtitle {
+    color: #b9b3ad;
+}
+
+html.modo-oscuro .feedback-card-body {
+    background: #1c1c1c;
+    border: 1px solid #524d42;
+}
+
+html.modo-oscuro .feedback-question {
+    color: #98aed7;
+}
+
+html.modo-oscuro .star-labels {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .feedback-divider {
+    border-top: 1px solid #434343;
+}
+
+html.modo-oscuro .comment-label {
+    color: #98aed7;
+}
+
+html.modo-oscuro .comment-textarea {
+    background: #1d1d1d;
+    border: 1px solid #484848;
+}
+
+html.modo-oscuro .btn-skip-feedback {
+    color: #b9b3ad;
+}
+
+html.modo-oscuro .btn-report-issue {
+    background: #2a1c14;
+}
+
+html.modo-oscuro #report-panel {
+    background-color: #2c241d;
+}
+
+html.modo-oscuro .report-card-section {
+    background: #1c1c1c;
+    border: 1px solid #554a40;
+}
+
+html.modo-oscuro .section-icon {
+    background: #292017;
+}
+
+html.modo-oscuro .section-title-row h3 {
+    color: #dadada;
+}
+
+html.modo-oscuro .section-title-row p {
+    color: #acacac;
+}
+
+html.modo-oscuro .category-chip {
+    background: #202020;
+    border: 1px solid #464646;
+    color: #c8c8c8;
+}
+
+html.modo-oscuro .report-textarea {
+    border: 1px solid #474747;
+}
+
+html.modo-oscuro .mini-map-preview {
+    background: #2f2c28;
+}
+
+html.modo-oscuro .btn-cancel-report {
+    background: #34312b;
+    color: #c8c8c8;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .fmc-pin {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .fmc-pin.sel {
+    border-color: #3d3d3d;
+}
+
+html.modo-oscuro .filter-chips .chip-asunto {
+    color: #cec5bd;
+    background: #2d2216;
+}
+
+html.modo-oscuro .search-panel {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .search-top {
+    border-bottom: 1px solid #424242;
+}
+
+html.modo-oscuro .search-close {
+    background: #222222;
+}
+
+html.modo-oscuro .search-cats {
+    border-bottom: 1px solid #424242;
+}
+
+html.modo-oscuro .search-cat {
+    border: 1px solid #474747;
+    background: #1e1e1e;
+}
+
+html.modo-oscuro .search-item {
+    border-bottom: 1px solid #424242;
+}
+
+html.modo-oscuro .search-item:active {
+    background: #2b2118;
+}
+
+html.modo-oscuro .toggle-accesible {
+    color: #cec5bd;
+}
+
+html.modo-oscuro .origen-box {
+    background: #2b2115;
+    border-bottom: 1px solid #554a3c;
+}
+
+html.modo-oscuro .origen-estado {
+    color: #edae82;
+}
+
+html.modo-oscuro .origen-btn.origen-gps {
+    background: #1c1c1c;
+    color: #f0ab7f;
+}
+
+html.modo-oscuro .btn-fav.activo {
+    color: #f8d477;
+}
+
+html.modo-oscuro .voz-fab {
+    border: 3px solid #3d3d3d;
+}
+
+html.modo-oscuro .voz-panel {
+    background: rgba(39, 34, 23, 0.98);
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .voz-estado {
+    color: #e4b18b;
+}
+
+html.modo-oscuro .voz-ctl {
+    background: #2a1c14;
+    color: #e7b188;
+}
+
+html.modo-oscuro .voz-ruta-btn {
+    background: #1c1c1c;
+    color: #e7b188;
+}
+
+html.modo-oscuro .voz-ruta-btn:active {
+    background: #2e2216;
+}
+
+html.modo-oscuro .route-steps-box summary {
+    color: #e7b188;
+}
+
+html.modo-oscuro .route-steps li.actual {
+    background: #2e2216;
+}
+
+html.modo-oscuro body {
+    background-color: #262626;
+}
+
+html.modo-oscuro .registro-container {
+    background-color: #25211b;
+}
+
+html.modo-oscuro .registro-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .registro-header h1 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .timer-display {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .metric-value {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .sos-btn {
+    border: 5px solid #3d3d3d;
+}
+
+html.modo-oscuro .sos-leyenda {
+    color: #e48b8b;
+}
+
+html.modo-oscuro .divider {
+    border-top: 1px solid #514a41;
+}
+
+html.modo-oscuro .selector-btn {
+    border: 2px solid #8c8c8c;
+    background: #1c1c1c;
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .selector-btn.active {
+    border-color: #8c8c8c;
+}
+
+html.modo-oscuro .start-btn {
+    background-color: #484848;
+}
+
+html.modo-oscuro .bottom-nav {
+    background: #2b271f;
+    border-top: 1px solid #544d40;
+}
+
+html.modo-oscuro .sos-overlay {
+    background: rgba(61, 61, 61, 0.65);
+}
+
+html.modo-oscuro .sos-modal {
+    background: #28231d;
+    border: 1px solid #574d41;
+}
+
+html.modo-oscuro .sos-question {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .sos-chip {
+    background: #1c1c1c;
+    border: 1.5px solid #554a40;
+    color: #d2ccc5;
+}
+
+html.modo-oscuro .sos-svg-icon {
+    color: #e3af8c;
+}
+
+html.modo-oscuro .sos-action-section {
+    background: #1c1c1c;
+    border: 1px solid #554a40;
+}
+
+html.modo-oscuro .sos-section-title {
+    color: #b3aba3;
+}
+
+html.modo-oscuro .sos-ayuda {
+    background: #1c1c1c;
+    border: 1px solid #554a40;
+}
+
+html.modo-oscuro .btn-sos-ayuda-contacto {
+    background: #2b2721;
+    color: #d2ccc5;
+    border: 1px solid #5c5044;
+}
+
+html.modo-oscuro .sos-contacto-vacio {
+    color: #d2ccc5;
+}
+
+html.modo-oscuro .sos-contacto-vacio a {
+    color: #eea981;
+}
+
+html.modo-oscuro .sos-timer-label {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .btn-sos-contact {
+    background: #2b2721;
+    color: #d2ccc5;
+    border: 1px solid #5c5044;
+}
+
+html.modo-oscuro .btn-sos-cancel {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .medical-overlay {
+    background: rgba(61, 61, 61, 0.75);
+}
+
+html.modo-oscuro .medical-screen-container {
+    background-color: #302b24;
+}
+
+html.modo-oscuro .medical-header {
+    background: #1c1c1c;
+    border-bottom: 1px solid #524d42;
+}
+
+html.modo-oscuro .medical-header h1 {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .medical-map-view {
+    background-color: #302b24;
+}
+
+html.modo-oscuro .map-bg-campus {
+    background: linear-gradient(to right, transparent 0%, rgba(58, 53, 46, 0.80) 100%),
+                
+            radial-gradient(square at 30% 30%, #38332c 0%, #38332c 100%),
+            #302b24;
+}
+
+html.modo-oscuro .map-bg-campus::before {
+    border: 3px solid #5a5246;
+    background-color: #353029;
+}
+
+html.modo-oscuro .map-label-campus {
+    color: #c6bcb3;
+}
+
+html.modo-oscuro .map-label-av {
+    color: #d0c6bc;
+    background: #2b271f;
+}
+
+html.modo-oscuro .arrival-time-card {
+    background: #1c1c1c;
+    border: 1px solid #554e43;
+}
+
+html.modo-oscuro .arrival-card-title {
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .arrival-card-time {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .gps-estado.ok {
+    color: #97d8a8;
+}
+
+html.modo-oscuro .gps-estado.aviso {
+    color: #e5b18a;
+}
+
+html.modo-oscuro .finish-btn {
+    background: #1c1c1c;
+    color: #df9891;
+}
+
+html.modo-oscuro .resumen-overlay {
+    background: rgba(61, 61, 61, 0.60);
+}
+
+html.modo-oscuro .resumen-card {
+    background: #25211b;
+}
+
+html.modo-oscuro .resumen-card h2 {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .resumen-stats strong {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .resumen-estado {
+    color: #97d8a8;
+}
+
+html.modo-oscuro .resumen-estado.error {
+    color: #df9891;
+}
+
+html.modo-oscuro .resumen-btn {
+    background: #1c1c1c;
+    color: #e5b18a;
+}
+
+html.modo-oscuro .sos-aviso {
+    color: #e5b18a;
+}
+
+html.modo-oscuro .sos-aviso a {
+    color: #e5b18a;
+}
+
+html.modo-oscuro .medical-nota {
+    color: #b5b5b5;
+}
+
+html.modo-oscuro .privacidad-resumen {
+    background: #1c1c1c;
+    border: 1px solid #474747;
+    color: #dadada;
+}
+
+html.modo-oscuro .privacidad-casilla a {
+    color: #81c5ee;
+}
+
+html.modo-oscuro .aviso-pagina {
+    color: #dadada;
+}
+
+html.modo-oscuro .aviso-pagina a {
+    color: #81c5ee;
+}
+
+html.modo-oscuro .aviso-borrador {
+    background: #302917;
+}
+
+html.modo-oscuro .aviso-tabla th, html.modo-oscuro .aviso-tabla td {
+    border: 1px solid #4c4c4c;
+}
+
+html.modo-oscuro .aviso-tabla th {
+    background: #282722;
+}
+
+html.modo-oscuro .btn-pin-ubicacion {
+    background: #1c1c1c;
+    color: #e7b188;
+}
+
+html.modo-oscuro .btn-pin-ubicacion:active {
+    background: #2e2216;
+}
+
+html.modo-oscuro .pin-ubicacion-estado {
+    color: #e7b188;
+}
+
+html.modo-oscuro .acc-pin {
+    border: 2px solid #3d3d3d;
+    color: #ededed;
+}
+
+html.modo-oscuro.daltonismo .ajustes-mensaje, html.modo-oscuro.daltonismo .amigos-mensaje, html.modo-oscuro.daltonismo .resumen-estado, html.modo-oscuro.daltonismo .gps-estado.ok {
+    color: #77c9f8;
+}
+
+html.modo-oscuro.daltonismo .ajustes-mensaje.error, html.modo-oscuro.daltonismo .amigos-mensaje.error, html.modo-oscuro.daltonismo .resumen-estado.error {
+    color: #f8aa77;
+}
+
+html.modo-oscuro.daltonismo .aviso-btn.peligro {
+    color: #ededed;
+}
+
+html.modo-oscuro.daltonismo .ajustes-boton.salir, html.modo-oscuro.daltonismo .amigo-fila button.peligro {
+    color: #f8aa77;
+}
+
+html.modo-oscuro.daltonismo .finish-btn {
+    color: #f8aa77;
+}
+
+html.modo-oscuro.daltonismo .action-btn, html.modo-oscuro.daltonismo .action-btn span, html.modo-oscuro.daltonismo .events-subtitle, html.modo-oscuro.daltonismo .pub-mas, html.modo-oscuro.daltonismo .question, html.modo-oscuro.daltonismo .btn-text.next-btn, html.modo-oscuro.daltonismo .bottom-nav .nav-item.active span {
+    color: #77c9f8;
+}
+
+html.modo-oscuro.daltonismo .mensajes-en-linea, html.modo-oscuro.daltonismo .en-linea {
+    color: #77c9f8;
+}
+
+html.modo-oscuro .bottom-nav .nav-item span {
+    color: #c0b8b4;
+}
+
+html.modo-oscuro .pub-hoja h2 {
+    color: #d1d1d1;
+}
+
+html.modo-oscuro .route-legend {
+    color: #cdcdcd;
+}
+
+html.modo-oscuro .gps-estado.ok, html.modo-oscuro .resumen-estado {
+    color: #94dba7;
+}
+
+html.modo-oscuro .gps-estado.aviso {
+    color: #ebb384;
+}
+
+html.modo-oscuro .ajustes-mensaje.error, html.modo-oscuro .amigos-mensaje.error, html.modo-oscuro .resumen-estado.error {
+    color: #e4938c;
+}
+
+html.modo-oscuro a.enlace-perfil:focus-visible {
+    outline: 3px solid #8c8c8c;
+}
+
+html.modo-oscuro .perfil-rol {
+    color: var(--gris-a11y, #bebab6);
+}
+
+html.modo-oscuro .ruta-mapa-aviso {
+    background: #2d2216;
+    color: #d1b59e;
+}
+
+html.modo-oscuro .campana:focus-visible {
+    outline: 3px solid #8c8c8c;
+}
+
+html.modo-oscuro .panel-asa:focus-visible {
+    outline: 3px solid #8c8c8c;
+}
+
+html.modo-oscuro .cambio-fila .btn-otra-ruta {
+    background-color: #1c1c1c;
+    color: #edb182;
+}
+
+html.modo-oscuro .btn-centrar-mapa {
+    background: #2b2115;
+    color: #f0ab7f;
+}
+
+html.modo-oscuro .tarjeta {
+    background: #1c1c1c;
+}
+
+html.modo-oscuro .horas li.paso {
+    background: #28241e;
+}
+
+html.modo-oscuro .user-name-link {
+    color: #dfdfdf;
+}
+
+html.modo-oscuro .aviso-icono {
+    background: #1c1c1c;
+    color: #d6d6d6;
+}
+
+html.modo-oscuro .aviso-fondo {
+    background: rgba(61, 61, 61, 0.55);
+}
+
+html.modo-oscuro .aviso-dialogo {
+    background: #1c1c1c;
+    color: #dadada;
+}
+
+html.modo-oscuro .aviso-btn.sec {
+    background: #1c1c1c;
+    color: #eeac81;
+}
+
+html.modo-oscuro .aviso-btn.sec.peligro-sec {
+    color: #dadada;
+    border-color: #8c8c8c;
+}
+
+html.modo-oscuro {
+    --gris-a11y: #b9b2aa;
+}
+
+html.modo-oscuro .action-btn,
+html.modo-oscuro .action-btn span,
+html.modo-oscuro .events-subtitle,
+html.modo-oscuro .pub-mas,
+html.modo-oscuro .question,
+html.modo-oscuro .btn-text.next-btn,
+html.modo-oscuro .bottom-nav .nav-item.active span,
+html.modo-oscuro .bottom-nav .active span {
+    color: #f08a4b;
+}
+
+html.modo-oscuro .bottom-nav .nav-item span {
+    color: #c9bdb4;
+}
+
+html.modo-oscuro .feed-section-title {
+    color: #e8e6e3 !important;
+}
+
+html.modo-oscuro .fmc-pin {
+    background: #ffffff;
+}
+
+html.modo-oscuro .fmc-pin.sel {
+    background: #d07f4c;
+}
+
+html.modo-oscuro .selector-btn.active {
+    background-color: #e8e6e3;
+    border-color: #e8e6e3;
+    color: #1a1a1a;
+}
+
+html.modo-oscuro #btn-comenzar[style*="26, 26, 26"] {
+    background-color: #3a3a3a !important;
+}
+
+html.modo-oscuro .ruta {
+    color: #e7a3b3;
+}
+
+html.modo-oscuro .leaflet-container {
+    background: #2a2a2a;
+}
+
+html.modo-oscuro .leaflet-bar a,
+html.modo-oscuro .leaflet-control-attribution {
+    background-color: #262626;
+    color: #e8e6e3;
+}
+
+html.modo-oscuro .leaflet-tooltip {
+    background-color: #262626;
+    color: #e8e6e3;
+    border-color: #444444;
+}
+
+html.modo-oscuro .marca-logo {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2px 4px;
+}
+
+html.modo-oscuro header.marca-header {
+    background-color: #4a1524;
+    border-bottom-color: #2e0d16;
+}
+
+html.modo-oscuro header.marca-header h1,
+html.modo-oscuro header.marca-header .brand-title,
+html.modo-oscuro header.marca-header .campana,
+html.modo-oscuro header.marca-header .btn-ajustes {
+    color: #ffffff;
+}
+
+html.modo-oscuro header.marca-header .marca-logo {
+    padding: 3px;
+    border-radius: 50%;
+}

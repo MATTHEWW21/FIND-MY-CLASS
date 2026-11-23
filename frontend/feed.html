@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B1E33">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>UAGPS - Feed</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/feed.css">
@@ -30,13 +35,14 @@
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
+    <script src="js/oscuro.js"></script>
 </head>
 <body class="feed-body">
 
 <div class="mobile-app-wrapper">
 
-    <header class="app-header">
-        <h1 class="brand-title">UAGPS</h1>
+    <header class="app-header marca-header">
+        <h1 class="brand-title"><img src="assets/logo-uagps.svg" alt="" class="marca-logo">UAGPS</h1>
         <button type="button" class="campana" id="btn-avisos" aria-label="Avisos">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
             <span class="campana-n" id="avisos-n" hidden>0</span>
@@ -74,7 +80,7 @@
 
     <section class="uag-events-section" aria-labelledby="titulo-eventos">
         <div class="events-header">
-            <h2 class="events-title" id="titulo-eventos">⚡ EVENTOS UAG</h2>
+            <h2 class="events-title" id="titulo-eventos">EVENTOS UAG</h2>
             <span class="events-subtitle">Desliza para ver más ›</span>
         </div>
 

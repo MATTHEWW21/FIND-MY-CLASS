@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             if (err.data && err.data.requiereVerificacion) {
                 localStorage.setItem('pendingEmail', correo);
+                localStorage.removeItem('codigoDev');
                 await FMCAviso.alerta('Tu cuenta aún no está verificada. Ingresa el código que te enviamos.', 'info');
                 window.location.href = 'verify.html';
                 return;

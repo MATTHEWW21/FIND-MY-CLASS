@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B1E33">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>UAGPS - Mi Perfil</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/mi_perfil.css">
@@ -14,13 +19,14 @@
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
+    <script src="js/oscuro.js"></script>
 </head>
 <body>
 
 <main class="registro-container">
 
-    <header class="registro-header">
-        <h1>UAGPS</h1>
+    <header class="registro-header marca-header">
+        <h1><img src="assets/logo-uagps.svg" alt="" class="marca-logo">UAGPS</h1>
         <button type="button" class="btn-ajustes" id="btn-ajustes" aria-label="Ajustes">
             <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         </button>
@@ -129,6 +135,11 @@
         <label class="ajustes-fila">
             <span><span aria-hidden="true">🎨</span> Colores accesibles (daltonismo)</span>
             <input type="checkbox" id="ajuste-dalto">
+        </label>
+
+        <label class="ajustes-fila">
+            <span><span aria-hidden="true">🌙</span> Modo oscuro</span>
+            <input type="checkbox" id="ajuste-oscuro">
         </label>
 
         <label class="ajustes-fila" id="fila-vista">

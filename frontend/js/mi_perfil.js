@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         chkDalto.checked = FMCDaltonismo.activo();
         chkDalto.addEventListener('change', () => FMCDaltonismo.activar(chkDalto.checked));
     }
+    const chkOscuro = $('ajuste-oscuro');
+    if (chkOscuro && window.FMCOscuro) {
+        chkOscuro.checked = FMCOscuro.activo();
+        chkOscuro.addEventListener('change', () => FMCOscuro.activar(chkOscuro.checked));
+    }
     let usuario = null;
 
     function avisar(texto, esError) {

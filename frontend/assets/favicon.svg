@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-75 50 860 860">
+<path d="M120.6,521.1 A280.0,280.0 0 1 1 589.4,521.1 L355.0,880.0 Z" fill="none" stroke="#6B1E33" stroke-width="34" stroke-linejoin="round"/>
+<path d="M150,548 L272,632 L206,642 Z" fill="#6B1E33" stroke="#6B1E33" stroke-width="10" stroke-linejoin="round"/>
+<path d="M560,548 L438,632 L504,642 Z" fill="#6B1E33" stroke="#6B1E33" stroke-width="10" stroke-linejoin="round"/>
+<circle cx="262" cy="300" r="58" fill="#8A4421"/><circle cx="266" cy="312" r="37" fill="#fff"/><circle cx="272" cy="296" r="31" fill="#8A4421"/><circle cx="448" cy="300" r="58" fill="#8A4421"/><circle cx="444" cy="312" r="37" fill="#fff"/><circle cx="438" cy="296" r="31" fill="#8A4421"/>
+<path d="M40,128 C150,150 270,185 355,292 L355,330 C300,262 230,232 175,222 C120,212 75,170 40,128 Z M670,128 C560,150 440,185 355,292 L355,330 C410,262 480,232 535,222 C590,212 635,170 670,128 Z" fill="#8A4421" stroke="#fff" stroke-width="12" paint-order="stroke" stroke-linejoin="round"/>
+<path d="M40,128 C150,150 270,185 355,292 L355,330 C300,262 230,232 175,222 C120,212 75,170 40,128 Z M670,128 C560,150 440,185 355,292 L355,330 C410,262 480,232 535,222 C590,212 635,170 670,128 Z" fill="#8A4421"/>
+<path d="M330,318 L380,318 L355,405 Z" fill="#8A4421"/>
+<path d="M275.3,574.0 A92.0,92.0 0 1 1 434.7,574.0 L355.0,712.0 Z" fill="#F7751D" stroke="#fff" stroke-width="10" paint-order="stroke" stroke-linejoin="round"/>
+<circle cx="355" cy="520" r="40" fill="#fff"/>
+</svg>

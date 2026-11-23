@@ -111,29 +111,58 @@ body {
 .sos-wrapper {
     margin-top: 22px;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
 }
 
 .sos-btn {
-    width: 115px;
-    height: 115px;
+    width: 136px;
+    height: 136px;
     border-radius: 50%;
-    background-color: #d93838;
-    border: 5px solid #be2a2a;
+    background-color: #c62828;
+    border: 5px solid #ffffff;
     color: #ffffff;
-    font-size: 1.7rem;
+    font-size: 2.1rem;
     font-weight: 900;
+    letter-spacing: 2px;
     cursor: pointer;
-    box-shadow: 0 6px 20px rgba(217, 56, 56, 0.35);
+    box-shadow: 0 0 0 5px #c62828, 0 8px 24px rgba(198, 40, 40, 0.45);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.15s ease, background-color 0.2s ease;
+    animation: sos-pulso 2.2s ease-out infinite;
 }
 
 .sos-btn:active {
     transform: scale(0.93);
-    background-color: #a82424;
+    background-color: #9f1d1d;
+}
+
+.sos-btn:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 8px;
+}
+
+.sos-leyenda {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #9f1d1d;
+    text-align: center;
+}
+
+@keyframes sos-pulso {
+    0% { box-shadow: 0 0 0 5px #c62828, 0 0 0 5px rgba(198, 40, 40, 0.45); }
+    70% { box-shadow: 0 0 0 5px #c62828, 0 0 0 22px rgba(198, 40, 40, 0); }
+    100% { box-shadow: 0 0 0 5px #c62828, 0 0 0 5px rgba(198, 40, 40, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sos-btn {
+        animation: none;
+    }
 }
 
 .divider {

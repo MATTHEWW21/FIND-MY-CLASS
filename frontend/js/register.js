@@ -62,9 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             localStorage.setItem('pendingEmail', correo);
-            if (data.codigo_dev) {
-                await FMCAviso.alerta(`[Modo desarrollo]\nTu código de verificación es: ${data.codigo_dev}`, 'info');
-            }
+            if (data.codigo_dev) localStorage.setItem('codigoDev', data.codigo_dev);
+            else localStorage.removeItem('codigoDev');
             window.location.href = 'verify.html';
         } catch (err) {
             FMCAviso.aviso(err.message, 'error');

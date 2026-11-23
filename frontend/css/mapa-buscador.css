@@ -59,3 +59,19 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .origen-btn { min-height: 44px; padding: 0 14px; border-radius: 22px; border: 2px solid #B04E0E; background: #B04E0E; color: #fff; font-weight: 800; font-size: .85rem; cursor: pointer; }
 .origen-btn.origen-gps { background: #fff; color: #7a3408; }
 .origen-btn[hidden] { display: none; }
+
+.btn-fav {
+    margin-left: auto;
+    flex: 0 0 auto;
+    min-width: 44px;
+    min-height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #a87948;
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.btn-fav.activo { color: #e0a100; }
+.btn-fav:focus-visible { outline: 3px solid #1d4ed8; outline-offset: 2px; }

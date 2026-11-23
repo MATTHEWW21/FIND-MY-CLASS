@@ -3,11 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6B1E33">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>UAGPS - Verificación de datos</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/contraste.css">
     <script src="js/ui-grande.js"></script>
     <script src="js/daltonismo.js"></script>
+    <script src="js/oscuro.js"></script>
 </head>
 <body>
 
@@ -19,14 +25,21 @@
     <div class="verify-content">
         <p class="verify-text">Ingresa el código que enviamos a tu correo institucional</p>
 
+        <div class="codigo-dev" id="codigo-dev" role="status" hidden>
+            <span class="codigo-dev-titulo">Tu código de verificación</span>
+            <strong class="codigo-dev-valor" id="codigo-dev-valor"></strong>
+            <small class="codigo-dev-nota">Prueba piloto: el código se queda aquí hasta que verifiques tu cuenta. Ya lo escribimos por ti.</small>
+        </div>
+
         <form id="form-verify" class="form-container margin-top-20">
             <input type="text" id="verify-code" placeholder="Ingresa el codigo" aria-label="Código de verificación" maxlength="6" inputmode="numeric" required class="pill-input text-center">
             <input type="password" id="verify-password" placeholder="Tu contraseña" aria-label="Tu contraseña, la que usaste al registrarte" aria-describedby="verify-ayuda" autocomplete="current-password" required class="pill-input text-center">
             <small id="verify-ayuda" class="verify-text">Escribe también la contraseña que elegiste al registrarte. Así nadie más puede verificar tu cuenta.</small>
 
-            <a href="#" id="btn-resend" class="link-back">Reenviar código</a>
+            <button type="button" id="btn-resend" class="link-back btn-resend">Reenviar código</button>
+            <small id="resend-estado" class="resend-estado" aria-live="polite"></small>
 
-            <button type="submit" class="btn-primary margin-top-auto">Regresar para iniciar sesión</button>
+            <button type="submit" class="btn-primary margin-top-auto">Verificar cuenta</button>
         </form>
     </div>
 </main>

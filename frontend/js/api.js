@@ -3,7 +3,7 @@ const API_BASE = '/api';
 
 const CLAVES_SESION = [
     'token', 'userLoggedIn', 'userRole', 'userEmail', 'userName', 'userVista',
-    'accessibleRoutes', 'pendingEmail', 'visitaAsunto', 'rutaMapa', 'modoMovilidad',
+    'accessibleRoutes', 'pendingEmail', 'codigoDev', 'visitaAsunto', 'rutaMapa', 'modoMovilidad',
 ];
 
 function limpiarSesion() {

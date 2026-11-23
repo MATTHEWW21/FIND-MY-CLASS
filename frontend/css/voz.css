@@ -78,7 +78,7 @@
     cursor: pointer;
 }
 
-.voz-acciones-ruta { display: flex; gap: 8px; margin-top: 10px; }
+}.voz-acciones-ruta { display: flex; gap: 8px; margin-top: 10px; }
 .voz-ruta-btn {
     flex: 1;
     min-height: 44px;
