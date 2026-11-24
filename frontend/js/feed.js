@@ -1,4 +1,16 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const MESES = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    document.querySelectorAll("[data-evento-dias]").forEach((s) => {
+        const d = new Date();
+        d.setDate(d.getDate() + Number(s.dataset.eventoDias || 0));
+        s.textContent = `📅 ${d.getDate()} de ${MESES[d.getMonth()]}`;
+    });
+    document.querySelectorAll(".event-card .event-bg").forEach((img) => {
+        const sinImagen = () => { img.closest(".event-card").classList.add("sin-imagen"); img.remove(); };
+        if (img.complete && img.naturalWidth === 0) sinImagen();
+        else img.addEventListener("error", sinImagen, { once: true });
+    });
+
     const cont = document.getElementById("feed-posts");
     if (!cont) return;
     if (typeof requerirSesion === "function" && !requerirSesion()) return;
