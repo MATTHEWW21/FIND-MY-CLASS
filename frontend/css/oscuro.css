@@ -694,6 +694,14 @@ html.modo-oscuro .bottom-nav {
     border-top: 1px solid #544d40;
 }
 
+html.modo-oscuro .avatar-camara {
+    border: 2px solid #3d3d3d;
+}
+
+html.modo-oscuro .btn-quitar-foto {
+    color: #bcaea4;
+}
+
 html.modo-oscuro .btn-ajustes {
     color: #d6d6d6;
 }
@@ -1671,4 +1679,17 @@ html.modo-oscuro header.marca-header .btn-ajustes {
 html.modo-oscuro header.marca-header .marca-logo {
     padding: 3px;
     border-radius: 50%;
+}
+
+html.modo-oscuro .avatar-camara {
+    border-color: #141414;
+}
+
+html.modo-oscuro header.marca-header .perfil-volver,
+html.modo-oscuro header.marca-header .profile-handle {
+    color: #ffffff;
+}
+
+html.modo-oscuro header.marca-header .profile-menu-btn span {
+    background-color: #ffffff;
 }

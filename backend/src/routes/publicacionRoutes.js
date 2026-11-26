@@ -65,7 +65,7 @@ const borrarArchivos = (nombres) => nombres.forEach((n) => {
 const SELECT_PUBLICACION = `
   SELECT p.id, p.actividad, p.pie_foto, p.distancia_m, p.duracion_s, p.calorias, p.mostrar_estadisticas,
          p.ubicacion, p.privacidad, p.creado_en, p.editado_en,
-         u.id AS autor_id, u.nombre AS autor_nombre, u.rol AS autor_rol,
+         u.id AS autor_id, u.nombre AS autor_nombre, u.rol AS autor_rol, u.foto AS autor_foto,
          (SELECT COUNT(*) FROM publicacion_likes l WHERE l.publicacion_id = p.id)::int AS likes,
          EXISTS (SELECT 1 FROM publicacion_likes l WHERE l.publicacion_id = p.id AND l.usuario_id = $1) AS yo_di_like,
          (SELECT COUNT(*) FROM publicacion_comentarios c WHERE c.publicacion_id = p.id AND NOT ${hayBloqueo('$1', 'c.usuario_id')})::int AS comentarios,
@@ -80,7 +80,7 @@ const SELECT_PUBLICACION = `
 function aJson(r, yo) {
   return {
     id: r.id,
-    autor: { id: r.autor_id, nombre: r.autor_nombre, rol: r.autor_rol },
+    autor: { id: r.autor_id, nombre: r.autor_nombre, rol: r.autor_rol, foto: r.autor_foto ? `/api/auth/foto/${r.autor_foto}` : null },
     actividad: r.actividad,
     pie_foto: r.pie_foto,
     distancia_m: r.distancia_m,
@@ -318,7 +318,7 @@ router.get('/:id/comentarios', async (req, res) => {
   try {
     if (!(await visible(id, req.usuario.id))) return res.status(404).json({ error: 'No encontramos esa publicación' });
     const { rows } = await pool.query(
-      `SELECT c.id, c.texto, c.creado_en, u.id AS autor_id, u.nombre AS autor_nombre, u.rol AS autor_rol,
+      `SELECT c.id, c.texto, c.creado_en, u.id AS autor_id, u.nombre AS autor_nombre, u.rol AS autor_rol, u.foto AS autor_foto,
               p.usuario_id AS dueno_publicacion
          FROM publicacion_comentarios c
          JOIN usuarios u ON u.id = c.usuario_id
@@ -328,7 +328,7 @@ router.get('/:id/comentarios', async (req, res) => {
     );
     res.json(rows.map((c) => ({
       id: c.id, texto: c.texto, creado_en: c.creado_en,
-      autor: { id: c.autor_id, nombre: c.autor_nombre, rol: c.autor_rol },
+      autor: { id: c.autor_id, nombre: c.autor_nombre, rol: c.autor_rol, foto: c.autor_foto ? `/api/auth/foto/${c.autor_foto}` : null },
       puedo_borrar: c.autor_id === req.usuario.id || c.dueno_publicacion === req.usuario.id,
     })));
   } catch (err) { error500(res, err); }

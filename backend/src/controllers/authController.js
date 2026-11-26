@@ -3,12 +3,17 @@ const { DIAS_MAXIMO } = require('../middleware/auth');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const pool = require('../config/db');
+const { NOMBRE_VALIDO, enviarFoto, decodificarFoto } = require('../middleware/fotos');
+const { hayBloqueo } = require('../middleware/moderacion');
 
 const fs = require('fs');
 const path = require('path');
 
 const PRIVACIDAD_VERSION = '2026-11-borrador';
 const DIR_UPLOADS = path.join(__dirname, '../../uploads');
+const DIR_PERFILES = path.join(DIR_UPLOADS, 'perfiles');
+const MAX_BYTES_PERFIL = 1024 * 1024;
+const urlFotoPerfil = (n) => (n ? `/api/auth/foto/${n}` : null);
 const ROLES_REGISTRABLES = ['estudiante', 'colaborador'];
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 const PASSWORD_MENSAJE =
@@ -66,6 +71,7 @@ const usuarioPublico = (u) => ({
   consentimiento_sensible: !!u.consentimiento_sensible_en,
   edificio_habitual_id: u.edificio_habitual_id,
   carrera_id: u.carrera_id,
+  foto: urlFotoPerfil(u.foto),
   espacio_trabajo: u.espacio_trabajo,
   estancia_id: u.estancia_id,
   tutorial_visto: !!u.tutorial_visto,
@@ -602,18 +608,63 @@ async function eliminarCuenta(req, res) {
     const fotosMsj = await pool.query(
       'SELECT foto FROM mensajes WHERE (de_id = $1 OR para_id = $1) AND foto IS NOT NULL',
       [req.usuario.id]);
+    const fotoPerfil = await pool.query('SELECT foto FROM usuarios WHERE id = $1', [req.usuario.id]);
 
     await pool.query('DELETE FROM usuarios WHERE id = $1', [req.usuario.id]);
 
     fotosPub.rows.forEach((f) => borrarArchivo('publicaciones', f.archivo));
     fotosMsj.rows.forEach((f) => borrarArchivo('mensajes', f.foto));
+    fotoPerfil.rows.forEach((f) => borrarArchivo('perfiles', f.foto));
     return res.json({ mensaje: 'Tu cuenta y tus datos fueron eliminados' });
   } catch (err) {
     return errorServidor(res, err);
   }
 }
 
+async function subirFoto(req, res) {
+  try {
+    if (req.usuario.invitado) return res.status(403).json({ error: 'Los invitados no tienen perfil' });
+    const d = decodificarFoto((req.body || {}).foto, MAX_BYTES_PERFIL);
+    if (!d) return res.status(400).json({ error: 'Usa una imagen JPG, PNG o WebP de menos de 1 MB' });
+    fs.mkdirSync(DIR_PERFILES, { recursive: true });
+    const nombre = `${crypto.randomBytes(16).toString('hex')}.${d.ext}`;
+    fs.writeFileSync(path.join(DIR_PERFILES, nombre), d.buf);
+    const antes = await pool.query('SELECT foto FROM usuarios WHERE id = $1', [req.usuario.id]);
+    await pool.query('UPDATE usuarios SET foto = $1 WHERE id = $2', [nombre, req.usuario.id]);
+    if (antes.rows[0]) borrarArchivo('perfiles', antes.rows[0].foto);
+    return res.json({ foto: urlFotoPerfil(nombre) });
+  } catch (err) {
+    return errorServidor(res, err);
+  }
+}
+
+async function quitarFoto(req, res) {
+  try {
+    if (req.usuario.invitado) return res.status(403).json({ error: 'Los invitados no tienen perfil' });
+    const antes = await pool.query('SELECT foto FROM usuarios WHERE id = $1', [req.usuario.id]);
+    await pool.query('UPDATE usuarios SET foto = NULL WHERE id = $1', [req.usuario.id]);
+    if (antes.rows[0]) borrarArchivo('perfiles', antes.rows[0].foto);
+    return res.json({ foto: null });
+  } catch (err) {
+    return errorServidor(res, err);
+  }
+}
+
+async function verFoto(req, res) {
+  try {
+    const archivo = String(req.params.archivo || '');
+    if (req.usuario.invitado || !NOMBRE_VALIDO.test(archivo)) return res.status(404).json({ error: 'No encontramos esa foto' });
+    const r = await pool.query(
+      `SELECT 1 FROM usuarios u WHERE u.foto = $2 AND NOT ${hayBloqueo('$1', 'u.id')} LIMIT 1`, [req.usuario.id, archivo]);
+    if (!r.rowCount) return res.status(404).json({ error: 'No encontramos esa foto' });
+    return enviarFoto(res, DIR_PERFILES, archivo);
+  } catch (err) {
+    return errorServidor(res, err);
+  }
+}
+
 module.exports = {
+  subirFoto, quitarFoto, verFoto,
   eliminarCuenta,
   tutorialVisto, logout, logoutTodas, listarSesiones, cerrarSesionDe,
   registro, verificarCuenta, reenviarCodigo, login, invitado,

@@ -31,5 +31,8 @@ router.post('/me/password', verificarToken, limitadorLogin, ctrl.cambiarPassword
 router.delete('/me', verificarToken, limitadorLogin, ctrl.eliminarCuenta);
 router.post('/me/tutorial-visto', verificarToken, ctrl.tutorialVisto);
 router.put('/me/preferencias', verificarToken, ctrl.actualizarPreferencias);
+router.put('/me/foto', verificarToken, limitador, ctrl.subirFoto);
+router.delete('/me/foto', verificarToken, ctrl.quitarFoto);
+router.get('/foto/:archivo', verificarToken, ctrl.verFoto);
 
 module.exports = router;

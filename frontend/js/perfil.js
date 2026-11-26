@@ -54,6 +54,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const av = $("perfil-avatar");
         av.textContent = ((p.nombre || "?")[0] + ((p.apellido || "")[0] || "")).toUpperCase();
         av.setAttribute("aria-hidden", "true");
+        av.classList.remove("con-foto");
+        if (p.foto) {
+            const im = document.createElement("img");
+            im.alt = "";
+            im.addEventListener("load", () => { av.textContent = ""; av.appendChild(im); av.classList.add("con-foto"); }, { once: true });
+            cargarFoto(im, p.foto);
+        }
         pintarBoton();
     }
 

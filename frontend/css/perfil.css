@@ -309,3 +309,13 @@
 .btn-add-friend.hidden, .dropdown-item.hidden { display: none; }
 
 .blocked-banner { background-color: #9b2c22; color: #ffffff; }
+
+.profile-avatar-large {
+    overflow: hidden;
+}
+
+.profile-avatar-large.con-foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

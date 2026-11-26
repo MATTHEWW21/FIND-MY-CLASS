@@ -36,6 +36,7 @@ app.use(cabecerasSeguras);
 app.use(corsConfig());
 app.use('/api/publicaciones', express.json({ limit: '8mb' }));
 app.use('/api/mensajes', express.json({ limit: '3mb' }));
+app.use('/api/auth/me/foto', express.json({ limit: '2mb' }));
 app.use(express.json());
 
 app.use(express.static(path.join(__dirname, '../../frontend')));

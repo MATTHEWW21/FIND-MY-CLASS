@@ -33,12 +33,21 @@
     </header>
 
     <div class="my-profile-avatar-wrapper">
-        <div class="my-profile-avatar" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" width="65" height="65" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2a5 5 0 1 0 5 5 5 5 0 0 0-5-5zm0 14a8 8 0 0 0-8 8h16a8 8 0 0 0-8-8z"/>
-            </svg>
+        <div class="avatar-marco">
+            <button type="button" class="my-profile-avatar" id="btn-foto" aria-label="Cambiar foto de perfil">
+                <svg class="avatar-silueta" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="8.5" r="4.5"/>
+                    <path d="M3 24a9 8 0 0 1 18 0z"/>
+                </svg>
+                <img class="avatar-foto" id="foto-perfil" alt="" hidden>
+            </button>
+            <span class="avatar-camara" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </span>
         </div>
+        <input type="file" id="input-foto" accept="image/jpeg,image/png,image/webp" hidden>
         <p class="my-profile-name" id="perfil-nombre"></p>
+        <button type="button" class="btn-quitar-foto" id="btn-quitar-foto" hidden>Quitar foto</button>
     </div>
 
     <div class="my-profile-content">

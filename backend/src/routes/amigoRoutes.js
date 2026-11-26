@@ -19,14 +19,14 @@ router.get('/', async (req, res) => {
     const yo = req.usuario.id;
     const { rows } = await pool.query(
       `SELECT a.id AS amistad_id, a.estado, (a.solicitante_id = $1) AS la_envie,
-              u.id, u.nombre, u.apellido
+              u.id, u.nombre, u.apellido, u.foto
          FROM amistades a
          JOIN usuarios u ON u.id = CASE WHEN a.solicitante_id = $1 THEN a.destinatario_id ELSE a.solicitante_id END
         WHERE a.solicitante_id = $1 OR a.destinatario_id = $1
         ORDER BY u.nombre, u.apellido`,
       [yo]
     );
-    const persona = (r) => ({ amistad_id: r.amistad_id, id: r.id, nombre: r.nombre, apellido: r.apellido });
+    const persona = (r) => ({ amistad_id: r.amistad_id, id: r.id, nombre: r.nombre, apellido: r.apellido, foto: r.foto ? `/api/auth/foto/${r.foto}` : null });
     res.json({
       amigos: rows.filter((r) => r.estado === 'aceptada').map(persona),
       recibidas: rows.filter((r) => r.estado === 'pendiente' && !r.la_envie).map(persona),
@@ -68,7 +68,7 @@ router.get('/perfil/:id', async (req, res) => {
     const id = idDe(req.params.id);
     if (!id) return res.status(400).json({ error: 'Persona no válida' });
     const { rows } = await pool.query(
-      `SELECT u.id, u.nombre, u.apellido, u.rol,
+      `SELECT u.id, u.nombre, u.apellido, u.rol, u.foto,
               (SELECT COUNT(*)::int FROM amistades x
                 WHERE x.estado = 'aceptada' AND (x.solicitante_id = u.id OR x.destinatario_id = u.id)) AS n_amigos,
               (SELECT COUNT(*)::int FROM publicaciones p WHERE p.usuario_id = u.id AND (p.privacidad = 'todos' OR (p.privacidad = 'amigos' AND (a.estado = 'aceptada' OR u.id = $1)))) AS n_publicaciones,
@@ -87,6 +87,7 @@ router.get('/perfil/:id', async (req, res) => {
     const r = rows[0];
     res.json({
       id: r.id, nombre: r.nombre, apellido: r.apellido, rol: r.rol,
+      foto: r.foto ? `/api/auth/foto/${r.foto}` : null,
       n_amigos: r.n_amigos, n_publicaciones: r.n_publicaciones,
       es_yo: r.id === yo,
       bloqueado_por_mi: r.bloqueado_por_mi,

@@ -1267,3 +1267,12 @@ header.app-title-header.marca-header {
 header.app-title-header.marca-header h1 {
     margin: 0;
 }
+
+header.marca-header .perfil-volver,
+header.marca-header .profile-handle {
+    color: #ffffff;
+}
+
+header.marca-header .profile-menu-btn span {
+    background-color: #ffffff;
+}

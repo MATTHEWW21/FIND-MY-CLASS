@@ -1,8 +1,3 @@
-# programar-respaldo.ps1 - Crea una tarea de Windows que hace el respaldo todos los dias.
-# Uso:   .\scripts\programar-respaldo.ps1                (todos los dias a las 14:00)
-#        .\scripts\programar-respaldo.ps1 -Hora "21:30"
-#        .\scripts\programar-respaldo.ps1 -Quitar        (borra la tarea)
-# Si la laptop esta apagada a esa hora, el respaldo se hace en cuanto se prenda. Docker Desktop debe estar abierto.
 param(
     [string]$Hora = "14:00",
     [switch]$Quitar

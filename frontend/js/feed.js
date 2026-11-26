@@ -45,7 +45,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function avatar(autor, chico) {
-        return el("span", `avatar-iniciales ${autor.rol === "colaborador" ? "colaborador" : ""} ${chico ? "chico" : ""}`, iniciales(autor.nombre));
+        const a = el("span", `avatar-iniciales ${autor.rol === "colaborador" ? "colaborador" : ""} ${chico ? "chico" : ""}`, iniciales(autor.nombre));
+        if (autor.foto) {
+            const im = el("img", "avatar-foto-mini");
+            im.alt = "";
+            im.addEventListener("load", () => { a.textContent = ""; a.appendChild(im); }, { once: true });
+            cargarFoto(im, autor.foto);
+        }
+        return a;
     }
 
     function cuando(iso) {

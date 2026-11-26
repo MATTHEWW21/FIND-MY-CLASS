@@ -36,10 +36,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         mensaje.classList.toggle('error', !!esError);
     }
 
+    const imgFoto = $('foto-perfil');
+    const btnFoto = $('btn-foto');
+    const inputFoto = $('input-foto');
+    const btnQuitarFoto = $('btn-quitar-foto');
+
+    function pintarFoto(url) {
+        const hay = !!url;
+        btnFoto.classList.toggle('con-foto', hay);
+        imgFoto.hidden = !hay;
+        btnQuitarFoto.hidden = !hay;
+        btnFoto.setAttribute('aria-label', hay ? 'Cambiar tu foto de perfil' : 'Agregar una foto de perfil');
+        if (hay) cargarFoto(imgFoto, url);
+        else imgFoto.removeAttribute('src');
+    }
+
+    function recortarFoto(archivo) {
+        return new Promise((resolve, reject) => {
+            const lector = new FileReader();
+            lector.onerror = () => reject(new Error('No se pudo leer la foto'));
+            lector.onload = () => {
+                const img = new Image();
+                img.onerror = () => reject(new Error('Ese archivo no se pudo abrir como foto'));
+                img.onload = () => {
+                    const lado = Math.min(img.width, img.height);
+                    const c = document.createElement('canvas');
+                    c.width = c.height = Math.min(400, lado);
+                    c.getContext('2d').drawImage(img, (img.width - lado) / 2, (img.height - lado) / 2, lado, lado, 0, 0, c.width, c.height);
+                    resolve(c.toDataURL('image/jpeg', 0.85));
+                };
+                img.src = lector.result;
+            };
+            lector.readAsDataURL(archivo);
+        });
+    }
+
+    btnFoto.addEventListener('click', () => inputFoto.click());
+
+    inputFoto.addEventListener('change', async () => {
+        const archivo = inputFoto.files && inputFoto.files[0];
+        inputFoto.value = '';
+        if (!archivo) return;
+        btnFoto.disabled = true;
+        try {
+            const foto = await recortarFoto(archivo);
+            const r = await apiFetch('/auth/me/foto', { method: 'PUT', body: { foto } });
+            if (usuario) usuario.foto = r.foto;
+            pintarFoto(r.foto);
+            FMCAviso.aviso('Tu foto de perfil se actualizó', 'ok');
+        } catch (err) {
+            FMCAviso.aviso(err.message || 'No se pudo cambiar la foto', 'error');
+        } finally {
+            btnFoto.disabled = false;
+        }
+    });
+
+    btnQuitarFoto.addEventListener('click', async () => {
+        const ok = await FMCAviso.confirmar('¿Quitar tu foto de perfil?', { si: 'Quitar', no: 'Cancelar', peligro: true });
+        if (!ok) return;
+        try {
+            await apiFetch('/auth/me/foto', { method: 'DELETE' });
+            if (usuario) usuario.foto = null;
+            pintarFoto(null);
+            FMCAviso.aviso('Quitaste tu foto de perfil', 'ok');
+        } catch (err) {
+            FMCAviso.aviso(err.message || 'No se pudo quitar la foto', 'error');
+        }
+    });
+
     function pintarUsuario(u) {
         usuario = u;
         const nombre = [u.nombre, u.apellido].filter(Boolean).join(' ');
         $('perfil-nombre').textContent = nombre;
+        pintarFoto(u.foto);
         $('ajustes-nombre').textContent = nombre;
         $('ajustes-correo').textContent = u.correo || '';
         chkAcc.checked = !!u.necesita_rutas_accesibles;
@@ -158,6 +227,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 d.className = 'friend-avatar';
                 d.style.background = colores[a.id % colores.length];
                 d.textContent = ((a.nombre || '?')[0] + ((a.apellido || '')[0] || '')).toUpperCase();
+                if (a.foto) {
+                    const im = document.createElement('img');
+                    im.alt = '';
+                    im.className = 'friend-foto';
+                    im.addEventListener('load', () => { d.textContent = ''; d.appendChild(im); }, { once: true });
+                    cargarFoto(im, a.foto);
+                }
                 d.title = [a.nombre, a.apellido].filter(Boolean).join(' ');
                 cont.appendChild(d);
             });

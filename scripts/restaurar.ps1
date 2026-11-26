@@ -1,11 +1,5 @@
-# restaurar.ps1 - Restaura un respaldo de la base de datos.
-#
-# Por defecto restaura en una base de PRUEBA (findmyclass_prueba) para comprobar que el respaldo sirve,
-# sin tocar tu base real:                    .\scripts\restaurar.ps1
-# Con un archivo concreto:                   .\scripts\restaurar.ps1 -Archivo .\respaldos\db_2026-10-28_1400.dump
-# Para reemplazar la base REAL (peligroso):  .\scripts\restaurar.ps1 -Produccion
 param(
-    [string]$Archivo    = "",      # si se omite, usa el respaldo mas reciente
+    [string]$Archivo    = "",
     [string]$Contenedor = "naviu_postgres",
     [string]$Backend    = "naviu_backend",
     [string]$Usuario    = "uag_admin",
@@ -14,7 +8,7 @@ param(
     [switch]$Produccion
 )
 
-$ErrorActionPreference = "Continue"   # los errores se revisan con $LASTEXITCODE (con "Stop", PowerShell 5 se cae si docker escribe cualquier aviso)
+$ErrorActionPreference = "Continue"
 $raiz = Split-Path -Parent $PSScriptRoot
 $carpeta = Join-Path $raiz "respaldos"
 
@@ -46,7 +40,6 @@ if ($Produccion) {
 
     Write-Host "Deteniendo el backend..."
     docker stop $Backend | Out-Null
-    # Cierra conexiones abiertas a la base y restaura encima
     Sql "postgres" "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '$Base' AND pid <> pg_backend_pid();" | Out-Null
     docker exec $Contenedor pg_restore -U $Usuario -d $Base --clean --if-exists --no-owner $tmp
     $codigo = $LASTEXITCODE
@@ -56,7 +49,6 @@ if ($Produccion) {
     if ($codigo -ne 0) { Write-Host "pg_restore termino con avisos (codigo $codigo). Revisa los mensajes de arriba; los de 'does not exist' suelen ser normales." -ForegroundColor Yellow }
     Write-Host "Listo: base '$Base' restaurada." -ForegroundColor Green
 } else {
-    # Base de prueba: se crea limpia, se restaura y se muestran conteos para comprobar que el respaldo tiene datos
     Sql "postgres" "DROP DATABASE IF EXISTS $BasePrueba;" | Out-Null
     Sql "postgres" "CREATE DATABASE $BasePrueba;" | Out-Null
     docker exec $Contenedor pg_restore -U $Usuario -d $BasePrueba --no-owner $tmp
